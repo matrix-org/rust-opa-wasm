@@ -1,0 +1,109 @@
+// Copyright 2022 The Matrix.org Foundation C.I.C.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use self::traits::{Builtin, BuiltinFunc};
+use anyhow::{bail, Result};
+
+mod impls;
+pub mod traits;
+
+/// Resolve a builtin based on its name
+pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
+    match name {
+        "base64url.encode_no_pad" => Ok(self::impls::base64url::encode_no_pad.wrap()),
+        "crypto.hmac.md5" => Ok(self::impls::crypto::hmac::md5.wrap()),
+        "crypto.hmac.sha1" => Ok(self::impls::crypto::hmac::sha1.wrap()),
+        "crypto.hmac.sha256" => Ok(self::impls::crypto::hmac::sha256.wrap()),
+        "crypto.hmac.sha512" => Ok(self::impls::crypto::hmac::sha512.wrap()),
+        "crypto.md5" => Ok(self::impls::crypto::md5.wrap()),
+        "crypto.sha1" => Ok(self::impls::crypto::sha1.wrap()),
+        "crypto.sha256" => Ok(self::impls::crypto::sha256.wrap()),
+        "crypto.x509.parse_and_verify_certificates" => {
+            Ok(self::impls::crypto::x509::parse_and_verify_certificates.wrap())
+        }
+        "crypto.x509.parse_certificate_request" => {
+            Ok(self::impls::crypto::x509::parse_certificate_request.wrap())
+        }
+        "crypto.x509.parse_certificates" => {
+            Ok(self::impls::crypto::x509::parse_certificates.wrap())
+        }
+        "crypto.x509.parse_rsa_private_key" => {
+            Ok(self::impls::crypto::x509::parse_rsa_private_key.wrap())
+        }
+        "glob.quote_meta" => Ok(self::impls::glob::quote_meta.wrap()),
+        "graph.reachable_paths" => Ok(self::impls::graph::reachable_paths.wrap()),
+        "graphql.is_valid" => Ok(self::impls::graphql::is_valid.wrap()),
+        "graphql.parse" => Ok(self::impls::graphql::parse.wrap()),
+        "graphql.parse_and_verify" => Ok(self::impls::graphql::parse_and_verify.wrap()),
+        "graphql.parse_query" => Ok(self::impls::graphql::parse_query.wrap()),
+        "graphql.parse_schema" => Ok(self::impls::graphql::parse_schema.wrap()),
+        "hex.decode" => Ok(self::impls::hex::decode.wrap()),
+        "hex.encode" => Ok(self::impls::hex::encode.wrap()),
+        "http.send" => Ok(self::impls::http::send.wrap()),
+        "indexof_n" => Ok(self::impls::indexof_n.wrap()),
+        "io.jwt.decode" => Ok(self::impls::io::jwt::decode.wrap()),
+        "io.jwt.decode_verify" => Ok(self::impls::io::jwt::decode_verify.wrap()),
+        "io.jwt.encode_sign" => Ok(self::impls::io::jwt::encode_sign.wrap()),
+        "io.jwt.encode_sign_raw" => Ok(self::impls::io::jwt::encode_sign_raw.wrap()),
+        "io.jwt.verify_es256" => Ok(self::impls::io::jwt::verify_es256.wrap()),
+        "io.jwt.verify_es384" => Ok(self::impls::io::jwt::verify_es384.wrap()),
+        "io.jwt.verify_es512" => Ok(self::impls::io::jwt::verify_es512.wrap()),
+        "io.jwt.verify_hs256" => Ok(self::impls::io::jwt::verify_hs256.wrap()),
+        "io.jwt.verify_hs384" => Ok(self::impls::io::jwt::verify_hs384.wrap()),
+        "io.jwt.verify_hs512" => Ok(self::impls::io::jwt::verify_hs512.wrap()),
+        "io.jwt.verify_ps256" => Ok(self::impls::io::jwt::verify_ps256.wrap()),
+        "io.jwt.verify_ps384" => Ok(self::impls::io::jwt::verify_ps384.wrap()),
+        "io.jwt.verify_ps512" => Ok(self::impls::io::jwt::verify_ps512.wrap()),
+        "io.jwt.verify_rs256" => Ok(self::impls::io::jwt::verify_rs256.wrap()),
+        "io.jwt.verify_rs384" => Ok(self::impls::io::jwt::verify_rs384.wrap()),
+        "io.jwt.verify_rs512" => Ok(self::impls::io::jwt::verify_rs512.wrap()),
+        "json.patch" => Ok(self::impls::json::patch.wrap()),
+        "net.cidr_contains_matches" => Ok(self::impls::net::cidr_contains_matches.wrap()),
+        "net.cidr_expand" => Ok(self::impls::net::cidr_expand.wrap()),
+        "net.cidr_merge" => Ok(self::impls::net::cidr_merge.wrap()),
+        "net.lookup_ip_addr" => Ok(self::impls::net::lookup_ip_addr.wrap()),
+        "object.union_n" => Ok(self::impls::object::union_n.wrap()),
+        "opa.runtime" => Ok(self::impls::opa::runtime.wrap()),
+        "rand.intn" => Ok(self::impls::rand::intn.wrap()),
+        "regex.find_n" => Ok(self::impls::regex::find_n.wrap()),
+        "regex.globs_match" => Ok(self::impls::regex::globs_match.wrap()),
+        "regex.split" => Ok(self::impls::regex::split.wrap()),
+        "regex.template_match" => Ok(self::impls::regex::template_match.wrap()),
+        "rego.parse_module" => Ok(self::impls::rego::parse_module.wrap()),
+        "semver.compare" => Ok(self::impls::semver::compare.wrap()),
+        "semver.is_valid" => Ok(self::impls::semver::is_valid.wrap()),
+        "sprintf" => Ok(self::impls::sprintf.wrap()),
+        "time.add_date" => Ok(self::impls::time::add_date.wrap()),
+        "time.clock" => Ok(self::impls::time::clock.wrap()),
+        "time.date" => Ok(self::impls::time::date.wrap()),
+        "time.diff" => Ok(self::impls::time::diff.wrap()),
+        "time.now_ns" => Ok(self::impls::time::now_ns.wrap()),
+        "time.parse_duration_ns" => Ok(self::impls::time::parse_duration_ns.wrap()),
+        "time.parse_ns" => Ok(self::impls::time::parse_ns.wrap()),
+        "time.parse_rfc3339_ns" => Ok(self::impls::time::parse_rfc3339_ns.wrap()),
+        "time.weekday" => Ok(self::impls::time::weekday.wrap()),
+        "trace" => Ok(self::impls::trace.wrap()),
+        "units.parse" => Ok(self::impls::units::parse.wrap()),
+        "units.parse_bytes" => Ok(self::impls::units::parse_bytes.wrap()),
+        "urlquery.decode" => Ok(self::impls::urlquery::decode.wrap()),
+        "urlquery.decode_object" => Ok(self::impls::urlquery::decode_object.wrap()),
+        "urlquery.encode" => Ok(self::impls::urlquery::encode.wrap()),
+        "urlquery.encode_object" => Ok(self::impls::urlquery::encode_object.wrap()),
+        "uuid.rfc4122" => Ok(self::impls::uuid::rfc4122.wrap()),
+        "yaml.is_valid" => Ok(self::impls::yaml::is_valid.wrap()),
+        "yaml.marshal" => Ok(self::impls::yaml::marshal.wrap()),
+        "yaml.unmarshal" => Ok(self::impls::yaml::unmarshal.wrap()),
+        _ => bail!("unknown builtin"),
+    }
+}
