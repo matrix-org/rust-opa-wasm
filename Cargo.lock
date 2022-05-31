@@ -753,6 +753,7 @@ dependencies = [
  "serde_json",
  "sha1",
  "sha2 0.10.2",
+ "sprintf",
  "thiserror",
  "tokio",
  "tracing",
@@ -1090,6 +1091,12 @@ name = "smallvec"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2dd574626839106c320a323308629dcb1acfc96e32a8cba364ddc61ac23ee83"
+
+[[package]]
+name = "sprintf"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "082cb9266c8691c70a98442f8f893ba3549f02f64e128cb096dac92e1c428340"
 
 [[package]]
 name = "stable_deref_trait"

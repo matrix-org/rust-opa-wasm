@@ -16,6 +16,7 @@
 #![allow(clippy::needless_pass_by_value)]
 
 use anyhow::{bail, Result};
+use sprintf::{vsprintf, Printf};
 
 pub mod base64url;
 pub mod crypto;
@@ -45,10 +46,35 @@ pub fn indexof_n(string: String, search: String) -> Result<Vec<u32>> {
     bail!("not implemented");
 }
 
-/// Returns a list of all the indexes of a substring contained inside a string.
+/// Returns the given string, formatted.
 #[tracing::instrument(err)]
-pub fn sprintf(string: String, search: Vec<serde_json::Value>) -> Result<String> {
-    bail!("not implemented");
+pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String> {
+    let values: Result<Vec<Box<dyn Printf>>, _> = values
+        .into_iter()
+        .map(|v| -> Result<Box<dyn Printf>, _> {
+            match v {
+                serde_json::Value::Null => Err(anyhow::anyhow!("can't format null")),
+                serde_json::Value::Bool(_) => Err(anyhow::anyhow!("can't format a boolean")),
+                serde_json::Value::Number(n) => {
+                    if let Some(n) = n.as_u64() {
+                        Ok(Box::new(n))
+                    } else if let Some(n) = n.as_i64() {
+                        Ok(Box::new(n))
+                    } else if let Some(n) = n.as_f64() {
+                        Ok(Box::new(n))
+                    } else {
+                        Err(anyhow::anyhow!("unreachable"))
+                    }
+                }
+                serde_json::Value::String(s) => Ok(Box::new(s)),
+                serde_json::Value::Array(_) => Err(anyhow::anyhow!("can't format array")),
+                serde_json::Value::Object(_) => Err(anyhow::anyhow!("can't format object")),
+            }
+        })
+        .collect();
+    let values = values?;
+    let values: Vec<&dyn Printf> = values.iter().map(|b| b.as_ref()).collect();
+    vsprintf(&format, &values).map_err(|_| anyhow::anyhow!("failed to call printf"))
 }
 
 /// Emits `note` as a `Note` event in the query explanation. Query explanations show the exact
