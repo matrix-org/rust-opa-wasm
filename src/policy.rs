@@ -20,6 +20,7 @@ use std::{
     sync::Arc,
 };
 use tokio::sync::OnceCell;
+use tracing::Instrument;
 
 use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module, Trap};
 
@@ -109,35 +110,29 @@ impl LoadedBuiltins {
         let opa_malloc = funcs::OpaMalloc::from_caller(&mut caller)?;
         let opa_free = funcs::OpaFree::from_caller(&mut caller)?;
 
-        let mut mapped_args = Vec::with_capacity(N);
+        // Call opa_json_dump on each argument
+        let mut args_json = Vec::with_capacity(N);
         for arg in args {
-            let arg: serde_json::Value = opa_json_dump
-                .decode(&mut caller, memory, &Value(arg))
-                .await?;
-            mapped_args.push(arg);
+            args_json.push(opa_json_dump.call(&mut caller, &Value(arg)).await?);
         }
 
-        let arg_list: String = mapped_args
-            .iter()
-            .map(std::string::ToString::to_string)
-            .collect::<Vec<_>>()
-            .join(", ");
+        // Extract the JSON value of each argument
+        let mut mapped_args = Vec::with_capacity(N);
+        for arg_json in args_json {
+            let arg = arg_json.read(&caller, memory)?;
+            mapped_args.push(arg.to_bytes());
+        }
 
-        let ret = builtin.call(mapped_args).await?;
+        // Actually call the function
+        let ret = (async move { builtin.call(&mapped_args).await })
+            .instrument(tracing::info_span!("builtin.call"))
+            .await?;
 
-        tracing::debug!("{}({}) = {}", name, arg_list, ret);
+        let json = alloc_str(&opa_malloc, &mut caller, memory, ret).await?;
+        let data = opa_json_parse.call(&mut caller, &json).await?;
+        opa_free.call(&mut caller, json).await?;
 
-        let ret = load_json(
-            &opa_malloc,
-            &opa_free,
-            &opa_json_parse,
-            &mut caller,
-            memory,
-            &ret,
-        )
-        .await?;
-
-        Ok(ret.0)
+        Ok(data.0)
     }
 }
 
