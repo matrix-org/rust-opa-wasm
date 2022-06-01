@@ -397,13 +397,13 @@ impl Runtime {
         })
     }
 
-    pub fn default_endpoint(&self) -> Option<&str> {
+    pub fn default_entrypoint(&self) -> Option<&str> {
         self.entrypoints
             .iter()
             .find_map(|(k, v)| (v.0 == 0).then(|| k.as_str()))
     }
 
-    pub fn endpoints(&self) -> HashSet<&str> {
+    pub fn entrypoints(&self) -> HashSet<&str> {
         self.entrypoints.keys().map(|k| k.as_str()).collect()
     }
 
