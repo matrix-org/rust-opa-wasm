@@ -16,6 +16,7 @@ use anyhow::{Context, Result};
 use std::{
     collections::{HashMap, HashSet},
     ffi::CString,
+    fmt::Debug,
     ops::Deref,
     sync::Arc,
 };
@@ -155,6 +156,16 @@ pub struct Runtime {
     opa_heap_ptr_set_func: funcs::OpaHeapPtrSet,
     opa_heap_ptr_get_func: funcs::OpaHeapPtrGet,
     opa_eval_func: Option<funcs::OpaEval>,
+}
+
+impl Debug for Runtime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Runtime")
+            .field("version", &self.version)
+            .field("memory", &self.memory)
+            .field("entrypoints", &self.entrypoints)
+            .finish_non_exhaustive()
+    }
 }
 
 impl Runtime {
@@ -413,6 +424,7 @@ impl Runtime {
 }
 
 /// An instance of a policy, ready to be executed
+#[derive(Debug)]
 pub struct Policy {
     runtime: Runtime,
     data: Value,
