@@ -1,0 +1,51 @@
+{
+  "attributes": {
+    "destination": {
+      "address": {
+        "socketAddress": {
+          "portValue": 8000,
+          "address": "10.25.95.68"
+        }
+      }
+    },
+    "metadataContext": {
+      "filterMetadata": {
+        "envoy.filters.http.header_to_metadata": {
+          "policy_type": "ingress"
+        }
+      }
+    },
+    "request": {
+      "http": {
+        "headers": {
+          ":authority": "example-app",
+          ":method": "GET",
+          ":path": "/",
+          "accept": "*/*",
+          "authorization": "Basic ZXZlOnBhc3N3b3Jk",
+          "content-length": "0",
+          "user-agent": "curl/7.68.0-DEV",
+          "x-ext-auth-allow": "yes",
+          "x-forwarded-proto": "http",
+          "x-request-id": "1455bbb0-0623-4810-a2c6-df73ffd8863a"
+        },
+        "host": "example-app",
+        "id": "8306787481883314548",
+        "method": "GET",
+        "path": "/",
+        "protocol": "HTTP/1.1"
+      }
+    },
+    "source": {
+      "address": {
+        "socketAddress": {
+          "portValue": 33772,
+          "address": "10.25.95.69"
+        }
+      }
+    }
+  },
+  "parsed_body": {},
+  "parsed_path": [],
+  "parsed_query": {}
+}

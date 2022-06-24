@@ -1,0 +1,8 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-uuid\", \"test-uuid\").await"
+---
+- result:
+    policy:
+      - "[uuid]"
+

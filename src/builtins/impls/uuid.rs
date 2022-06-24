@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use anyhow::{bail, Result};
+use anyhow::Result;
+use uuid::Uuid;
 
 /// Returns a new UUIDv4.
 #[tracing::instrument(name = "uuid.rfc4122", err)]
 pub fn rfc4122(k: String) -> Result<String> {
-    bail!("not implemented");
+    Ok(Uuid::new_v4().to_string())
 }

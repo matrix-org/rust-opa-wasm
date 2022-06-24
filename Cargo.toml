@@ -26,15 +26,30 @@ thiserror = "1.0.31"
 tokio = { version = "1.18.2", features = ["sync", "macros"] }
 tracing = "0.1.34"
 tracing-forest = { version = "0.1.4", optional = true }
-tracing-subscriber = { version = "0.3.11", features = ["env-filter"], optional = true }
+tracing-subscriber = { version = "0.3.11", features = [
+  "env-filter",
+], optional = true }
 wasmtime = "0.37.0"
+
+uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies.tokio]
 version = "1.18.2"
-features = ["macros", "rt"]
+features = ["macros", "rt", "fs"]
+
+[dev-dependencies]
+flate2 = "1"
+tar = "^0.4.38"
+insta = { version = "1", features = ["redactions"] }
 
 [features]
-cli = ["clap", "tracing-forest", "tracing-subscriber", "tokio/fs", "tokio/rt-multi-thread"]
+cli = [
+  "clap",
+  "tracing-forest",
+  "tracing-subscriber",
+  "tokio/fs",
+  "tokio/rt-multi-thread",
+]
 
 [[bin]]
 name = "opa-eval"
