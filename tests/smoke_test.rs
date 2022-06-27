@@ -50,7 +50,7 @@ async fn load_wasm(bundle: &str) -> AnyResult<Vec<u8>> {
             e.read_to_end(&mut v)?;
             Ok(v)
         }
-        None => Err(anyhow!("no wasm entry found")),
+        None => bail!("no wasm entry found"),
     }
 }
 
