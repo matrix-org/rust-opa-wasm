@@ -21,14 +21,30 @@ pub mod traits;
 /// Resolve a builtin based on its name
 pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
     match name {
+        #[cfg(feature = "base64url-builtins")]
         "base64url.encode_no_pad" => Ok(self::impls::base64url::encode_no_pad.wrap()),
+
+        #[cfg(feature = "crypto-md5-builtins")]
         "crypto.hmac.md5" => Ok(self::impls::crypto::hmac::md5.wrap()),
+
+        #[cfg(feature = "crypto-sha1-builtins")]
         "crypto.hmac.sha1" => Ok(self::impls::crypto::hmac::sha1.wrap()),
+
+        #[cfg(feature = "crypto-sha2-builtins")]
         "crypto.hmac.sha256" => Ok(self::impls::crypto::hmac::sha256.wrap()),
+
+        #[cfg(feature = "crypto-sha2-builtins")]
         "crypto.hmac.sha512" => Ok(self::impls::crypto::hmac::sha512.wrap()),
+
+        #[cfg(feature = "crypto-md5-builtins")]
         "crypto.md5" => Ok(self::impls::crypto::md5.wrap()),
+
+        #[cfg(feature = "crypto-sha1-builtins")]
         "crypto.sha1" => Ok(self::impls::crypto::sha1.wrap()),
+
+        #[cfg(feature = "crypto-sha2-builtins")]
         "crypto.sha256" => Ok(self::impls::crypto::sha256.wrap()),
+
         "crypto.x509.parse_and_verify_certificates" => {
             Ok(self::impls::crypto::x509::parse_and_verify_certificates.wrap())
         }
@@ -48,8 +64,13 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         "graphql.parse_and_verify" => Ok(self::impls::graphql::parse_and_verify.wrap()),
         "graphql.parse_query" => Ok(self::impls::graphql::parse_query.wrap()),
         "graphql.parse_schema" => Ok(self::impls::graphql::parse_schema.wrap()),
+
+        #[cfg(feature = "hex-builtins")]
         "hex.decode" => Ok(self::impls::hex::decode.wrap()),
+
+        #[cfg(feature = "hex-builtins")]
         "hex.encode" => Ok(self::impls::hex::encode.wrap()),
+
         "http.send" => Ok(self::impls::http::send.wrap()),
         "indexof_n" => Ok(self::impls::indexof_n.wrap()),
         "io.jwt.decode" => Ok(self::impls::io::jwt::decode.wrap()),
@@ -68,7 +89,10 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         "io.jwt.verify_rs256" => Ok(self::impls::io::jwt::verify_rs256.wrap()),
         "io.jwt.verify_rs384" => Ok(self::impls::io::jwt::verify_rs384.wrap()),
         "io.jwt.verify_rs512" => Ok(self::impls::io::jwt::verify_rs512.wrap()),
+
+        #[cfg(feature = "json-builtins")]
         "json.patch" => Ok(self::impls::json::patch.wrap()),
+
         "net.cidr_contains_matches" => Ok(self::impls::net::cidr_contains_matches.wrap()),
         "net.cidr_expand" => Ok(self::impls::net::cidr_expand.wrap()),
         "net.cidr_merge" => Ok(self::impls::net::cidr_merge.wrap()),
@@ -81,9 +105,16 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         "regex.split" => Ok(self::impls::regex::split.wrap()),
         "regex.template_match" => Ok(self::impls::regex::template_match.wrap()),
         "rego.parse_module" => Ok(self::impls::rego::parse_module.wrap()),
+
+        #[cfg(feature = "semver-builtins")]
         "semver.compare" => Ok(self::impls::semver::compare.wrap()),
+
+        #[cfg(feature = "semver-builtins")]
         "semver.is_valid" => Ok(self::impls::semver::is_valid.wrap()),
+
+        #[cfg(feature = "sprintf-builtins")]
         "sprintf" => Ok(self::impls::sprintf.wrap()),
+
         "time.add_date" => Ok(self::impls::time::add_date.wrap()),
         "time.clock" => Ok(self::impls::time::clock.wrap()),
         "time.date" => Ok(self::impls::time::date.wrap()),

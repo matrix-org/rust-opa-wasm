@@ -12,23 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(all(
+    feature = "crypto-digest-builtins",
+    any(
+        feature = "crypto-md5-builtins",
+        feature = "crypto-sha1-builtins",
+        feature = "crypto-sha2-builtins"
+    )
+))]
 use digest::Digest;
+
+#[cfg(feature = "crypto-md5-builtins")]
 use md5::Md5;
+
+#[cfg(feature = "crypto-sha1-builtins")]
 use sha1::Sha1;
+
+#[cfg(feature = "crypto-sha2-builtins")]
 use sha2::Sha256;
 
+#[cfg(all(
+    feature = "crypto-hmac-builtins",
+    any(
+        feature = "crypto-md5-builtins",
+        feature = "crypto-sha1-builtins",
+        feature = "crypto-sha2-builtins"
+    )
+))]
 pub mod hmac {
     use anyhow::Result;
     use hmac::{Hmac, Mac};
+
+    #[cfg(feature = "crypto-md5-builtins")]
     use md5::Md5;
+    #[cfg(feature = "crypto-sha1-builtins")]
     use sha1::Sha1;
+    #[cfg(feature = "crypto-sha2-builtins")]
     use sha2::{Sha256, Sha512};
 
+    #[cfg(feature = "crypto-md5-builtins")]
     type HmacMd5 = Hmac<Md5>;
+
+    #[cfg(feature = "crypto-sha1-builtins")]
     type HmacSha1 = Hmac<Sha1>;
+    #[cfg(feature = "crypto-sha2-builtins")]
     type HmacSha256 = Hmac<Sha256>;
+    #[cfg(feature = "crypto-sha2-builtins")]
     type HmacSha512 = Hmac<Sha512>;
 
+    #[cfg(feature = "crypto-md5-builtins")]
     /// Returns a string representing the MD5 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.md5", err)]
     pub fn md5(x: String, key: String) -> Result<String> {
@@ -38,6 +70,7 @@ pub mod hmac {
         Ok(hex::encode(res.into_bytes()))
     }
 
+    #[cfg(feature = "crypto-sha1-builtins")]
     /// Returns a string representing the SHA1 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.sha1", err)]
     pub fn sha1(x: String, key: String) -> Result<String> {
@@ -47,6 +80,7 @@ pub mod hmac {
         Ok(hex::encode(res.into_bytes()))
     }
 
+    #[cfg(feature = "crypto-sha2-builtins")]
     /// Returns a string representing the SHA256 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.sha256", err)]
     pub fn sha256(x: String, key: String) -> Result<String> {
@@ -56,6 +90,7 @@ pub mod hmac {
         Ok(hex::encode(res.into_bytes()))
     }
 
+    #[cfg(feature = "crypto-sha2-builtins")]
     /// Returns a string representing the SHA512 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.sha512", err)]
     pub fn sha512(x: String, key: String) -> Result<String> {
@@ -66,6 +101,7 @@ pub mod hmac {
     }
 }
 
+#[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-md5-builtins"))]
 /// Returns a string representing the input string hashed with the MD5 function
 #[tracing::instrument(name = "crypto.md5")]
 pub fn md5(x: String) -> String {
@@ -75,6 +111,7 @@ pub fn md5(x: String) -> String {
     hex::encode(res)
 }
 
+#[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-sha1-builtins"))]
 /// Returns a string representing the input string hashed with the SHA1 function
 #[tracing::instrument(name = "crypto.sha1")]
 pub fn sha1(x: String) -> String {
@@ -84,6 +121,7 @@ pub fn sha1(x: String) -> String {
     hex::encode(res)
 }
 
+#[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-sha2-builtins"))]
 /// Returns a string representing the input string hashed with the SHA256 function
 #[tracing::instrument(name = "crypto.sha256")]
 pub fn sha256(x: String) -> String {
