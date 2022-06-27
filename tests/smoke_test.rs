@@ -42,7 +42,7 @@ async fn load_wasm(bundle: &str) -> AnyResult<Vec<u8>> {
 
     match archive.entries()?.flatten().find(|e| {
         e.path()
-            .expect("tar malformed: entry has no path")
+            .context("tar malformed: entry has no path")?
             .ends_with("policy.wasm")
     }) {
         Some(mut e) => {
