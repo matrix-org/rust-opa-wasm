@@ -145,7 +145,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: hack
-          args: clippy --feature-powerset --bins --tests -- -D warnings
+          args: clippy --feature-powerset --depth 2 --bins --tests -- -D warnings
 
 
   test:
@@ -203,7 +203,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: hack
-          args: test --feature-powerset --no-dev-deps --offline
+          args: test --feature-powerset --depth 2 --offline
 
 
   coverage:
