@@ -17,9 +17,13 @@
 
 pub mod builtins;
 mod funcs;
+#[cfg(feature = "loader")]
+mod loader;
 mod policy;
 mod types;
 
+#[cfg(feature = "loader")]
+pub use self::loader::{load_bundle, read_bundle};
 pub use self::{
     policy::{Policy, Runtime},
     types::AbiVersion,
