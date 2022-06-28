@@ -93,13 +93,6 @@ jobs:
             ~/.cargo/git/db
           key: ${{ runner.os }}-cargo-deps-msrv-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Setup build cache
-        uses: actions/cache@v3.0.4
-        with:
-          path: |
-            target
-          key: cargo-fmt-${{ hashFiles('**/Cargo.lock') }}-${{ steps.toolchain.outputs.rustc_hash }}
-
       - name: Check style
         uses: actions-rs/cargo@v1
         with:
@@ -152,7 +145,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: hack
-          args: clippy --feature-powerset --no-dev-deps -- -D warnings
+          args: clippy --feature-powerset --bins --tests -- -D warnings
 
 
   test:
