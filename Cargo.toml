@@ -17,7 +17,7 @@ tracing = "0.1.35"
 wasmtime = { version = "0.38.1", default-features = false, features = ["async"] }
 
 # CLI
-clap = { version = "3.2.6", features = ["derive"], optional = true }
+clap = { version = "3.2.7", features = ["derive"], optional = true }
 tracing-forest = { version = "0.1.4", optional = true }
 tracing-subscriber = { version = "0.3.11", features = ["env-filter"], optional = true }
 
