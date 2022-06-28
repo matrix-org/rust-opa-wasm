@@ -35,7 +35,10 @@ sprintf = { version = "0.1.2", optional = true }
 
 [dev-dependencies.tokio]
 version = "1.19.2"
-features = ["macros", "rt"]
+features = ["macros", "fs", "rt", "rt-multi-thread"]
+
+[dev-dependencies.wasmtime]
+version = "0.38.1"
 
 [features]
 default = ["all-builtins"]

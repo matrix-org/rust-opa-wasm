@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to base64 encoding and decoding
+
+/// Serializes the input string into base64url encoding without padding.
 #[tracing::instrument]
 pub fn encode_no_pad(x: String) -> String {
     base64::encode_config(x, base64::URL_SAFE_NO_PAD)

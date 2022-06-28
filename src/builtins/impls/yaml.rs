@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins parse and serialize YAML documents
+
 use anyhow::{bail, Result};
 
 /// Verifies the input string is a valid YAML document.

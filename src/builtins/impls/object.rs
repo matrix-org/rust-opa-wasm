@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins to help handling JSON objects
+
 use anyhow::{bail, Result};
 
 /// Creates a new object that is the asymmetric union of all objects merged from left to right. For

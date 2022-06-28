@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins to encode and decode URL-encoded strings
+
 use std::collections::HashMap;
 
 use anyhow::{bail, Result};

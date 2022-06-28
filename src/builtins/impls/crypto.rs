@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to cryptographic operations
+
+/// Builtins for computing HMAC signatures
 #[cfg(all(
     feature = "crypto-hmac-builtins",
     any(
@@ -65,6 +68,7 @@ pub mod hmac {
     }
 }
 
+/// Builtins for computing hashes
 #[cfg(all(
     feature = "crypto-digest-builtins",
     any(
@@ -107,6 +111,7 @@ pub mod digest {
     }
 }
 
+/// Builtins related to X509 certificates, keys and certificate requests parsing and validation
 pub mod x509 {
     use anyhow::{bail, Result};
     use std::collections::HashMap;

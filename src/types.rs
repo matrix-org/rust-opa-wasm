@@ -113,16 +113,29 @@ impl OpaError {
     }
 }
 
+/// Represents the ABI version of a WASM OPA module
 #[derive(Debug, Clone, Copy)]
 pub enum AbiVersion {
+    /// Version 1.0
     V1_0,
+
+    /// Version 1.1
     V1_1,
+
+    /// Version 1.2
     V1_2,
+
+    /// Version >1.2, <2.0
     V1_2Plus(i32),
 }
 
 impl AbiVersion {
-    pub fn from_instance<T: Send>(
+    /// Get the ABI version out of an instanciated WASM policy
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the WASM module lacks ABI version information
+    pub(crate) fn from_instance<T: Send>(
         mut store: impl AsContextMut<Data = T>,
         instance: &Instance,
     ) -> Result<Self> {
@@ -143,7 +156,8 @@ impl AbiVersion {
         Self::new(abi_version, abi_minor_version)
     }
 
-    pub fn new(major: i32, minor: i32) -> Result<Self> {
+    /// Create a new ABI version out of the minor and major version numbers.
+    fn new(major: i32, minor: i32) -> Result<Self> {
         match (major, minor) {
             (1, 0) => Ok(Self::V1_0),
             (1, 1) => Ok(Self::V1_1),
@@ -153,7 +167,9 @@ impl AbiVersion {
         }
     }
 
-    pub const fn has_eval_fastpath(&self) -> bool {
+    /// Check if this ABI version has support for the `eval` fastpath
+    #[must_use]
+    pub(crate) const fn has_eval_fastpath(self) -> bool {
         matches!(self, Self::V1_2 | Self::V1_2Plus(_))
     }
 }

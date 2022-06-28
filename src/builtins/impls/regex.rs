@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to regular expressions
+
 use anyhow::{bail, Result};
 
 /// Returns the specified number of matches when matching the input against the pattern.

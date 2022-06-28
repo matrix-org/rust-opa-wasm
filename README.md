@@ -6,13 +6,17 @@ A crate to use OPA policies compiled to WASM.
 
 This includes a CLI tool to try out the SDK implementation.
 
-```
-cargo run --features=cli -- --module ./policy.wasm --data-path ./data.json --input '{"hello": "world"}' --entrypoint 'hello/world'
+```text
+cargo run --features=cli --      \
+    --module ./policy.wasm       \
+    --data-path ./data.json      \
+    --input '{"hello": "world"}' \
+    --entrypoint 'hello/world'
 ```
 
 Set the `RUST_LOG` environment variable to `info` to show timings informations about the execution.
 
-```
+```text
 opa-wasm
 Evaluates OPA policies compiled as WASM modules
 
@@ -31,7 +35,7 @@ OPTIONS:
 
 ## As a library
 
-```rust
+```rust,no_run
 use anyhow::Result;
 use wasmtime::{Config, Engine, Module, Store};
 

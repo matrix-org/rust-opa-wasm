@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins for date and time-related operations
+
 use anyhow::{bail, Result};
 
 /// Returns the nanoseconds since epoch after adding years, months and days to nanoseconds.

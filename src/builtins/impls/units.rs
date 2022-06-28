@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins to parse and convert units
+
 use anyhow::{bail, Result};
 
 /// Converts strings like "10G", "5K", "4M", "1500m" and the like into a number. This number can be

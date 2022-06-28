@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to JSON objects handling
+
 use json_patch::Patch;
 
 /// Patches an object according to RFC6902.

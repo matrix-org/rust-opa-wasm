@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to GraphQL schema and query parsing and validation
+
 use anyhow::{bail, Result};
 
 /// Checks that a GraphQL query is valid against a given schema.

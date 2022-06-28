@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins used to generate pseudo-random values
+
 use anyhow::{bail, Result};
 
 /// Returns a random integer between `0` and `n` (`n` exlusive). If `n` is `0`, then `y` is always

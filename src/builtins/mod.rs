@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Handling of builtin functions.
+
 use self::traits::{Builtin, BuiltinFunc};
 use anyhow::{bail, Result};
 
-mod impls;
+pub mod impls;
 pub mod traits;
 
 /// Resolve a builtin based on its name
+///
+/// # Errors
+///
+/// Returns an error if the builtin is not known
 pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
     match name {
         #[cfg(feature = "base64url-builtins")]

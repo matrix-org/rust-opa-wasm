@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to JWTs
+
+/// Builtins related to JWT encode/decode and verification/signature
 pub mod jwt {
     use std::collections::HashMap;
 

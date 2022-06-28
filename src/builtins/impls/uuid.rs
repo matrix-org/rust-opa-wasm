@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins to generate UUIDs
+
 use anyhow::{bail, Result};
 
 /// Returns a new UUIDv4.

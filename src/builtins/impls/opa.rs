@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to the current OPA environment
+
 use serde::Serialize;
 use std::{collections::HashMap, env};
 
+/// Metadata about the OPA runtime
 #[derive(Serialize)]
 pub struct Runtime {
     env: HashMap<String, String>,

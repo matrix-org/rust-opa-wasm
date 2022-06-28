@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to network operations and IP handling
+
 use std::collections::HashSet;
 
 use anyhow::{bail, Result};
@@ -45,6 +47,8 @@ pub fn cidr_merge(addrs: serde_json::Value) -> Result<HashSet<String>> {
     bail!("not implemented");
 }
 
+/// Returns the set of IP addresses (both v4 and v6) that the passed-in `name` resolves to using
+/// the standard name resolution mechanisms available.
 #[tracing::instrument(name = "net.lookup_ip_addr", err)]
 pub async fn lookup_ip_addr(name: String) -> Result<HashSet<String>> {
     bail!("not implemented");

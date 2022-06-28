@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins used to navigate through graph-like structures
+
 use anyhow::{bail, Result};
 
 /// Computes the set of reachable paths in the graph from a set of starting nodes.

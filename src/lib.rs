@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod builtins;
+#![doc = include_str!("../README.md")]
+#![deny(missing_docs, clippy::pedantic)]
+
+pub mod builtins;
 mod funcs;
 mod policy;
 mod types;
