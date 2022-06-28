@@ -266,3 +266,16 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: target/coverage/*.lcov
+
+  tests-done:
+    name: Tests done
+    needs:
+      - rustfmt
+      - clippy
+      - test
+      - coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Done"
+        run: "true"
