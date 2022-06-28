@@ -24,26 +24,26 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         #[cfg(feature = "base64url-builtins")]
         "base64url.encode_no_pad" => Ok(self::impls::base64url::encode_no_pad.wrap()),
 
-        #[cfg(feature = "crypto-md5-builtins")]
+        #[cfg(all(feature = "crypto-md5-builtins", feature = "crypto-hmac-builtins"))]
         "crypto.hmac.md5" => Ok(self::impls::crypto::hmac::md5.wrap()),
 
-        #[cfg(feature = "crypto-sha1-builtins")]
+        #[cfg(all(feature = "crypto-sha1-builtins", feature = "crypto-hmac-builtins"))]
         "crypto.hmac.sha1" => Ok(self::impls::crypto::hmac::sha1.wrap()),
 
-        #[cfg(feature = "crypto-sha2-builtins")]
+        #[cfg(all(feature = "crypto-sha2-builtins", feature = "crypto-hmac-builtins"))]
         "crypto.hmac.sha256" => Ok(self::impls::crypto::hmac::sha256.wrap()),
 
-        #[cfg(feature = "crypto-sha2-builtins")]
+        #[cfg(all(feature = "crypto-sha2-builtins", feature = "crypto-hmac-builtins"))]
         "crypto.hmac.sha512" => Ok(self::impls::crypto::hmac::sha512.wrap()),
 
-        #[cfg(feature = "crypto-md5-builtins")]
-        "crypto.md5" => Ok(self::impls::crypto::md5.wrap()),
+        #[cfg(all(feature = "crypto-md5-builtins", feature = "crypto-digest-builtins"))]
+        "crypto.md5" => Ok(self::impls::crypto::digest::md5.wrap()),
 
-        #[cfg(feature = "crypto-sha1-builtins")]
-        "crypto.sha1" => Ok(self::impls::crypto::sha1.wrap()),
+        #[cfg(all(feature = "crypto-sha1-builtins", feature = "crypto-digest-builtins"))]
+        "crypto.sha1" => Ok(self::impls::crypto::digest::sha1.wrap()),
 
-        #[cfg(feature = "crypto-sha2-builtins")]
-        "crypto.sha256" => Ok(self::impls::crypto::sha256.wrap()),
+        #[cfg(all(feature = "crypto-sha2-builtins", feature = "crypto-digest-builtins"))]
+        "crypto.sha256" => Ok(self::impls::crypto::digest::sha256.wrap()),
 
         "crypto.x509.parse_and_verify_certificates" => {
             Ok(self::impls::crypto::x509::parse_and_verify_certificates.wrap())
