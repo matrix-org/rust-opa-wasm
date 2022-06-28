@@ -180,9 +180,6 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Install cargo-hack
-        uses: taiki-e/install-action@cargo-hack
-
       - name: Setup Cargo cache
         uses: actions/cache@v3.0.4
         with:
@@ -202,8 +199,8 @@ jobs:
       - name: Test
         uses: actions-rs/cargo@v1
         with:
-          command: hack
-          args: test --feature-powerset --depth 2 --offline
+          command: test
+          args: --all-features --offline
 
 
   coverage:
