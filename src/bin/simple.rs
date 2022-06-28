@@ -13,9 +13,8 @@
 // limitations under the License.
 
 use anyhow::Result;
-use wasmtime::{Config, Engine, Module, Store};
-
 use opa_wasm::Runtime;
+use wasmtime::{Config, Engine, Module, Store};
 
 #[tokio::main]
 async fn main() -> Result<()> {

@@ -87,10 +87,11 @@ pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String>
     vsprintf(&format, &values).map_err(|_| anyhow::anyhow!("failed to call printf"))
 }
 
-/// Emits `note` as a `Note` event in the query explanation. Query explanations show the exact
-/// expressions evaluated by OPA during policy execution. For example, `trace("Hello There!")`
-/// includes `Note "Hello There!"` in the query explanation. To include variables in the message,
-/// use `sprintf`. For example, `person := "Bob"; trace(sprintf("Hello There! %v", [person]))` will
+/// Emits `note` as a `Note` event in the query explanation. Query explanations
+/// show the exact expressions evaluated by OPA during policy execution. For
+/// example, `trace("Hello There!")` includes `Note "Hello There!"` in the query
+/// explanation. To include variables in the message, use `sprintf`. For
+/// example, `person := "Bob"; trace(sprintf("Hello There! %v", [person]))` will
 /// emit `Note "Hello There! Bob"` inside of the explanation.
 #[tracing::instrument(err)]
 pub fn trace(note: String) -> Result<bool> {

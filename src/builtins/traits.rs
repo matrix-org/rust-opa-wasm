@@ -22,8 +22,8 @@ use wasmtime::Trap;
 
 /// A OPA builtin function
 pub trait Builtin: Send + Sync {
-    /// Call the function, with a list of arguments, each argument being a JSON reprensentation of
-    /// the parameter value.
+    /// Call the function, with a list of arguments, each argument being a JSON
+    /// reprensentation of the parameter value.
     fn call<'a>(
         &'a self,
         args: &'a [&'a [u8]],
@@ -49,9 +49,9 @@ where
     }
 }
 
-/// A utility trait used to help constructing [`Builtin`]s out of a regular function, abstracting
-/// away the parameters deserialization, the return value serialization, for async/non-async
-/// variants, and Result/non-Result variants
+/// A utility trait used to help constructing [`Builtin`]s out of a regular
+/// function, abstracting away the parameters deserialization, the return value
+/// serialization, for async/non-async variants, and Result/non-Result variants
 pub(crate) trait BuiltinFunc<const ASYNC: bool, const RESULT: bool, T: 'static>:
     Sized + Send + Sync + 'static
 {

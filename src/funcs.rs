@@ -542,7 +542,8 @@ impl OpaValueDump {
     }
 }
 
-/// `str_addr opa_eval(_ addr, entrypoint_id int32, data value_addr, input str_addr, input_len int32, heap_ptr addr, format int32)`
+/// `str_addr opa_eval(_ addr, entrypoint_id int32, data value_addr, input
+/// str_addr, input_len int32, heap_ptr addr, format int32)`
 #[allow(clippy::type_complexity)]
 pub struct OpaEval(TypedFunc<(i32, i32, i32, i32, i32, i32, i32), i32>);
 

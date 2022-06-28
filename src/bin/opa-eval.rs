@@ -18,12 +18,10 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::Parser;
-use tracing::Instrument;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use tracing_subscriber::{EnvFilter, Registry};
-use wasmtime::{Config, Engine, Module, Store};
-
 use opa_wasm::Runtime;
+use tracing::Instrument;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry};
+use wasmtime::{Config, Engine, Module, Store};
 
 /// Evaluates OPA policies compiled as WASM modules
 #[derive(Parser)]

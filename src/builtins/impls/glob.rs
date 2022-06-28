@@ -16,7 +16,8 @@
 
 use anyhow::{bail, Result};
 
-/// Returns a string which represents a version of the pattern where all asterisks have been escaped.
+/// Returns a string which represents a version of the pattern where all
+/// asterisks have been escaped.
 #[tracing::instrument(name = "glob.quote_meta", err)]
 pub fn quote_meta(pattern: String) -> Result<String> {
     bail!("not implemented");

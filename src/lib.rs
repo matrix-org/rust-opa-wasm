@@ -20,5 +20,7 @@ mod funcs;
 mod policy;
 mod types;
 
-pub use self::policy::{Policy, Runtime};
-pub use self::types::AbiVersion;
+pub use self::{
+    policy::{Policy, Runtime},
+    types::AbiVersion,
+};

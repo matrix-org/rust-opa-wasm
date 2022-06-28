@@ -14,8 +14,9 @@
 
 //! Handling of builtin functions.
 
-use self::traits::{Builtin, BuiltinFunc};
 use anyhow::{bail, Result};
+
+use self::traits::{Builtin, BuiltinFunc};
 
 pub mod impls;
 pub mod traits;

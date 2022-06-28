@@ -30,11 +30,11 @@ pub mod jwt {
         bail!("not implemented");
     }
 
-    /// Verifies a JWT signature under parameterized constraints and decodes the claims if it is
-    /// valid.
+    /// Verifies a JWT signature under parameterized constraints and decodes the
+    /// claims if it is valid.
     ///
-    /// Supports the following algorithms: HS256, HS384, HS512, RS256, RS384, RS512, ES256, ES384,
-    /// ES512, PS256, PS384 and PS512.
+    /// Supports the following algorithms: HS256, HS384, HS512, RS256, RS384,
+    /// RS512, ES256, ES384, ES512, PS256, PS384 and PS512.
     #[tracing::instrument(name = "io.jwt.decode_verify", err)]
     pub fn decode_verify(
         jwt: String,
@@ -43,8 +43,8 @@ pub mod jwt {
         bail!("not implemented");
     }
 
-    /// Encodes and optionally signs a JSON Web Token. Inputs are taken as objects, not encoded
-    /// strings (see `io.jwt.encode_sign_raw`).
+    /// Encodes and optionally signs a JSON Web Token. Inputs are taken as
+    /// objects, not encoded strings (see `io.jwt.encode_sign_raw`).
     #[tracing::instrument(name = "io.jwt.encode_sign", err)]
     pub fn encode_sign(
         headers: Headers,

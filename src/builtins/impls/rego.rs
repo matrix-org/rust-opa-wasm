@@ -16,7 +16,8 @@
 
 use anyhow::{bail, Result};
 
-/// Parses the input Rego string and returns an object representation of the AST.
+/// Parses the input Rego string and returns an object representation of the
+/// AST.
 #[tracing::instrument(name = "rego.parse_module", err)]
 pub fn parse_module(filename: String, rego: String) -> Result<serde_json::Value> {
     bail!("not implemented");

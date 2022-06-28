@@ -17,8 +17,9 @@
 use json_patch::Patch;
 
 /// Patches an object according to RFC6902.
-/// For example: `json.patch({"a": {"foo": 1}}, [{"op": "add", "path": "/a/bar", "value": 2}])` results in `{"a": {"foo": 1, "bar": 2}`.
-/// The patches are applied atomically: if any of them fails, the result will be undefined.
+/// For example: `json.patch({"a": {"foo": 1}}, [{"op": "add", "path": "/a/bar",
+/// "value": 2}])` results in `{"a": {"foo": 1, "bar": 2}`. The patches are
+/// applied atomically: if any of them fails, the result will be undefined.
 #[tracing::instrument(name = "json.patch")]
 pub fn patch(mut object: serde_json::Value, patch: Patch) -> serde_json::Value {
     if json_patch::patch_unsafe(&mut object, &patch).is_err() {
