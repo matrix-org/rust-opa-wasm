@@ -17,8 +17,6 @@
 // Arguments are passed by value because of the way the builtin trait works
 #![allow(clippy::needless_pass_by_value)]
 
-use std::convert::AsRef;
-
 use anyhow::{bail, Result};
 
 #[cfg(feature = "base64url-builtins")]
@@ -83,7 +81,7 @@ pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String>
         })
         .collect();
     let values = values?;
-    let values: Vec<&dyn Printf> = values.iter().map(AsRef::as_ref).collect();
+    let values: Vec<&dyn Printf> = values.iter().map(std::convert::AsRef::as_ref).collect();
     vsprintf(&format, &values).map_err(|_| anyhow::anyhow!("failed to call printf"))
 }
 
