@@ -53,7 +53,7 @@ cli = [
 
 base64url-builtins = ["dep:base64", "dep:hex"]
 crypto-digest-builtins = ["dep:digest", "dep:hex"]
-crypto-hmac-builtins = ["dep:hmac"]
+crypto-hmac-builtins = ["dep:hmac", "dep:hex"]
 crypto-md5-builtins = ["dep:md-5"]
 crypto-sha1-builtins = ["dep:sha1"]
 crypto-sha2-builtins = ["dep:sha2"]

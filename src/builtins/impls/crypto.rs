@@ -13,25 +13,6 @@
 // limitations under the License.
 
 #[cfg(all(
-    feature = "crypto-digest-builtins",
-    any(
-        feature = "crypto-md5-builtins",
-        feature = "crypto-sha1-builtins",
-        feature = "crypto-sha2-builtins"
-    )
-))]
-use digest::Digest;
-
-#[cfg(feature = "crypto-md5-builtins")]
-use md5::Md5;
-
-#[cfg(feature = "crypto-sha1-builtins")]
-use sha1::Sha1;
-
-#[cfg(feature = "crypto-sha2-builtins")]
-use sha2::Sha256;
-
-#[cfg(all(
     feature = "crypto-hmac-builtins",
     any(
         feature = "crypto-md5-builtins",
@@ -44,27 +25,10 @@ pub mod hmac {
     use hmac::{Hmac, Mac};
 
     #[cfg(feature = "crypto-md5-builtins")]
-    use md5::Md5;
-    #[cfg(feature = "crypto-sha1-builtins")]
-    use sha1::Sha1;
-    #[cfg(feature = "crypto-sha2-builtins")]
-    use sha2::{Sha256, Sha512};
-
-    #[cfg(feature = "crypto-md5-builtins")]
-    type HmacMd5 = Hmac<Md5>;
-
-    #[cfg(feature = "crypto-sha1-builtins")]
-    type HmacSha1 = Hmac<Sha1>;
-    #[cfg(feature = "crypto-sha2-builtins")]
-    type HmacSha256 = Hmac<Sha256>;
-    #[cfg(feature = "crypto-sha2-builtins")]
-    type HmacSha512 = Hmac<Sha512>;
-
-    #[cfg(feature = "crypto-md5-builtins")]
     /// Returns a string representing the MD5 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.md5", err)]
     pub fn md5(x: String, key: String) -> Result<String> {
-        let mut mac = HmacMd5::new_from_slice(key.as_bytes())?;
+        let mut mac = Hmac::<md5::Md5>::new_from_slice(key.as_bytes())?;
         mac.update(x.as_bytes());
         let res = mac.finalize();
         Ok(hex::encode(res.into_bytes()))
@@ -74,7 +38,7 @@ pub mod hmac {
     /// Returns a string representing the SHA1 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.sha1", err)]
     pub fn sha1(x: String, key: String) -> Result<String> {
-        let mut mac = HmacSha1::new_from_slice(key.as_bytes())?;
+        let mut mac = Hmac::<sha1::Sha1>::new_from_slice(key.as_bytes())?;
         mac.update(x.as_bytes());
         let res = mac.finalize();
         Ok(hex::encode(res.into_bytes()))
@@ -84,7 +48,7 @@ pub mod hmac {
     /// Returns a string representing the SHA256 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.sha256", err)]
     pub fn sha256(x: String, key: String) -> Result<String> {
-        let mut mac = HmacSha256::new_from_slice(key.as_bytes())?;
+        let mut mac = Hmac::<sha2::Sha256>::new_from_slice(key.as_bytes())?;
         mac.update(x.as_bytes());
         let res = mac.finalize();
         Ok(hex::encode(res.into_bytes()))
@@ -94,41 +58,53 @@ pub mod hmac {
     /// Returns a string representing the SHA512 HMAC of the input message using the input key.
     #[tracing::instrument(name = "crypto.hmac.sha512", err)]
     pub fn sha512(x: String, key: String) -> Result<String> {
-        let mut mac = HmacSha512::new_from_slice(key.as_bytes())?;
+        let mut mac = Hmac::<sha2::Sha512>::new_from_slice(key.as_bytes())?;
         mac.update(x.as_bytes());
         let res = mac.finalize();
         Ok(hex::encode(res.into_bytes()))
     }
 }
 
-#[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-md5-builtins"))]
-/// Returns a string representing the input string hashed with the MD5 function
-#[tracing::instrument(name = "crypto.md5")]
-pub fn md5(x: String) -> String {
-    let mut hasher = Md5::new();
-    hasher.update(x.as_bytes());
-    let res = hasher.finalize();
-    hex::encode(res)
-}
+#[cfg(all(
+    feature = "crypto-digest-builtins",
+    any(
+        feature = "crypto-md5-builtins",
+        feature = "crypto-sha1-builtins",
+        feature = "crypto-sha2-builtins"
+    )
+))]
+pub mod digest {
+    use digest::Digest;
 
-#[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-sha1-builtins"))]
-/// Returns a string representing the input string hashed with the SHA1 function
-#[tracing::instrument(name = "crypto.sha1")]
-pub fn sha1(x: String) -> String {
-    let mut hasher = Sha1::new();
-    hasher.update(x.as_bytes());
-    let res = hasher.finalize();
-    hex::encode(res)
-}
+    #[cfg(feature = "crypto-md5-builtins")]
+    /// Returns a string representing the input string hashed with the MD5 function
+    #[tracing::instrument(name = "crypto.md5")]
+    pub fn md5(x: String) -> String {
+        let mut hasher = md5::Md5::new();
+        hasher.update(x.as_bytes());
+        let res = hasher.finalize();
+        hex::encode(res)
+    }
 
-#[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-sha2-builtins"))]
-/// Returns a string representing the input string hashed with the SHA256 function
-#[tracing::instrument(name = "crypto.sha256")]
-pub fn sha256(x: String) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(x.as_bytes());
-    let res = hasher.finalize();
-    hex::encode(res)
+    #[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-sha1-builtins"))]
+    /// Returns a string representing the input string hashed with the SHA1 function
+    #[tracing::instrument(name = "crypto.sha1")]
+    pub fn sha1(x: String) -> String {
+        let mut hasher = sha1::Sha1::new();
+        hasher.update(x.as_bytes());
+        let res = hasher.finalize();
+        hex::encode(res)
+    }
+
+    #[cfg(all(feature = "crypto-digest-builtins", feature = "crypto-sha2-builtins"))]
+    /// Returns a string representing the input string hashed with the SHA256 function
+    #[tracing::instrument(name = "crypto.sha256")]
+    pub fn sha256(x: String) -> String {
+        let mut hasher = sha2::Sha256::new();
+        hasher.update(x.as_bytes());
+        let res = hasher.finalize();
+        hex::encode(res)
+    }
 }
 
 pub mod x509 {
