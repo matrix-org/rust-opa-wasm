@@ -14,10 +14,9 @@
 
 #![deny(clippy::pedantic)]
 
-use std::path::PathBuf;
-
 use anyhow::Result;
-use clap::Parser;
+use camino::Utf8PathBuf;
+use clap::{AppSettings, ArgGroup, Parser};
 use opa_wasm::Runtime;
 use tracing::Instrument;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry};
@@ -25,30 +24,39 @@ use wasmtime::{Config, Engine, Module, Store};
 
 /// Evaluates OPA policies compiled as WASM modules
 #[derive(Parser)]
+#[clap(setting = AppSettings::DeriveDisplayOrder)]
+#[clap(group(
+    ArgGroup::new("policy")
+        .required(true)
+))]
 struct Cli {
     /// Path to the WASM module
-    #[clap(short, long)]
-    module: PathBuf,
+    #[clap(short, long, group = "policy")]
+    module: Option<Utf8PathBuf>,
+
+    /// Path to the OPA bundle
+    #[clap(short, long, group = "policy")]
+    bundle: Option<Utf8PathBuf>,
 
     /// Entrypoint to use
     #[clap(short, long)]
     entrypoint: String,
-
-    /// Path to a JSON file to load as data
-    #[clap(long, group = "data", value_name = "PATH")]
-    data_path: Option<PathBuf>,
 
     /// JSON literal to use as data
     #[clap(short, long = "data", group = "data", value_name = "JSON")]
     data_value: Option<serde_json::Value>,
 
     /// Path to a JSON file to load as data
-    #[clap(long, group = "input", value_name = "PATH")]
-    input_path: Option<PathBuf>,
+    #[clap(short = 'D', long, group = "data", value_name = "PATH")]
+    data_path: Option<Utf8PathBuf>,
 
     /// JSON literal to use as input
     #[clap(short, long = "input", group = "input", value_name = "JSON")]
     input_value: Option<serde_json::Value>,
+
+    /// Path to a JSON file to load as input
+    #[clap(short = 'I', long, group = "input", value_name = "PATH")]
+    input_path: Option<Utf8PathBuf>,
 }
 
 #[tokio::main]
@@ -79,7 +87,17 @@ async fn main() -> Result<()> {
             serde_json::json!({})
         };
 
-        let module = cli.module;
+        let module = if let Some(path) = cli.module {
+            tokio::fs::read(path)
+                .instrument(tracing::info_span!("read_module"))
+                .await?
+        } else if let Some(path) = cli.bundle {
+            opa_wasm::read_bundle(path).await?
+        } else {
+            // This should be enforced by clap
+            unreachable!()
+        };
+
         let entrypoint = cli.entrypoint;
         anyhow::Ok((data, input, module, entrypoint))
     })
@@ -94,9 +112,6 @@ async fn main() -> Result<()> {
         let engine = Engine::new(&config)?;
 
         // Load the policy WASM module
-        let module = tokio::fs::read(module)
-            .instrument(tracing::info_span!("read_module"))
-            .await?;
         let module = Module::new(&engine, module)?;
 
         // Create a store which will hold the module instance
