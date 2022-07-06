@@ -1,7 +1,0 @@
----
-source: tests/smoke_test.rs
-expression: "test_policy(bundle, data).await"
----
-- result:
-    allow: false
-

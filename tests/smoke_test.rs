@@ -1,14 +1,39 @@
-use anyhow::anyhow;
-use anyhow::Result as AnyResult;
+#![feature(try_find)]
+use anyhow::bail;
+use anyhow::{Context, Result as AnyResult};
 use flate2::read::GzDecoder;
 use insta::assert_yaml_snapshot;
 use opa_wasm::Runtime;
+use serde_json::json;
 use std::io::Read;
 use std::path::Path;
 use tar::Archive;
 use wasmtime::{Config, Engine, Module, Store};
 
-async fn eval_policy(bundle: &str, entrypoint: &str, input: &str) -> AnyResult<serde_json::Value> {
+macro_rules! integration_test {
+    ($name:ident, $suite:expr) => {
+        #[tokio::test]
+        async fn $name() {
+            assert_yaml_snapshot!(test_policy($suite, None)
+                .await
+                .expect("error in test suite"));
+        }
+    };
+    ($name:ident, $suite:expr, input = $input:expr) => {
+        #[tokio::test]
+        async fn $name() {
+            assert_yaml_snapshot!(test_policy($suite, Some($input))
+                .await
+                .expect("error in test suite"));
+        }
+    };
+}
+
+async fn eval_policy(
+    bundle: &str,
+    entrypoint: &str,
+    input: &serde_json::Value,
+) -> AnyResult<serde_json::Value> {
     let module = load_wasm(bundle).await?;
 
     // Configure the WASM runtime
@@ -28,8 +53,6 @@ async fn eval_policy(bundle: &str, entrypoint: &str, input: &str) -> AnyResult<s
     let runtime = Runtime::new(&mut store, &module).await?;
 
     let policy = runtime.with_data(&mut store, &data).await?;
-    let input_bytes = tokio::fs::read(input).await?;
-    let input: serde_json::Value = serde_json::from_slice(&input_bytes[..])?;
 
     // Evaluate the policy
     let p: serde_json::Value = policy.evaluate(&mut store, entrypoint, &input).await?;
@@ -40,17 +63,18 @@ async fn load_wasm(bundle: &str) -> AnyResult<Vec<u8>> {
     let f = tokio::fs::read(bundle).await?;
     let mut archive = Archive::new(GzDecoder::new(&f[..]));
 
-    match archive.entries()?.flatten().find(|e| {
-        e.path()
+    match archive.entries()?.flatten().try_find(|e| {
+        Ok(e.path()
             .context("tar malformed: entry has no path")?
-            .ends_with("policy.wasm")
+            .ends_with("policy.wasm"))
     }) {
-        Some(mut e) => {
+        Ok(Some(mut e)) => {
             let mut v = Vec::new();
             e.read_to_end(&mut v)?;
             Ok(v)
         }
-        None => bail!("no wasm entry found"),
+        Ok(None) => bail!("no wasm entry found"),
+        Err(err) => Err(err),
     }
 }
 
@@ -68,20 +92,25 @@ fn input(name: &str) -> String {
         .into()
 }
 
-async fn test_policy(bundle_name: &str, data: &str) -> serde_json::Value {
+async fn test_policy(bundle_name: &str, data: Option<&str>) -> AnyResult<serde_json::Value> {
+    let input = if let Some(data) = data {
+        let input_bytes = tokio::fs::read(input(&format!("{}.json", data))).await?;
+        serde_json::from_slice(&input_bytes[..])?
+    } else {
+        json!({})
+    };
     eval_policy(
         &bundle(&format!("{}.rego.tar.gz", bundle_name)),
-        "example",
-        &input(&format!("{}.json", data)),
+        "test",
+        &input,
     )
     .await
-    .unwrap()
 }
 
 #[tokio::test]
 async fn infra_loader_works() {
     assert_eq!(
-        134000,
+        133_988,
         load_wasm("tests/infra-fixtures/test-loader.rego.tar.gz")
             .await
             .unwrap()
@@ -89,40 +118,17 @@ async fn infra_loader_works() {
     );
 }
 
-const TESTS: &[(&str, &str)] = &[
-    ("test-loader", "test-loader.true"),
-    ("test-loader", "test-loader.false"),
-    // ("test-uuid", "test-uuid"), this test should be tested with redactions because a uuid is random
-];
+integration_test!(
+    test_loader_false,
+    "test-loader",
+    input = "test-loader.false"
+);
+integration_test!(test_loader_true, "test-loader", input = "test-loader.true");
+integration_test!(test_loader_empty, "test-loader");
 
-macro_rules! set_snapshot_suffix {
-    ($($expr:expr),*) => {{
-        let mut settings = insta::Settings::clone_current();
-        settings.set_snapshot_suffix(format!($($expr,)*));
-        settings.bind_to_thread();
-    }}
-}
+/*
 #[tokio::test]
 async fn test_uuid() {
-    assert_yaml_snapshot!(test_policy("test-uuid", "test-uuid").await, {
-    "[0].result.policy[0]" => insta::dynamic_redaction(|value, _path| {
-        // assert that the value looks like a uuid here
-        assert_eq!(value
-            .as_str()
-            .unwrap()
-            .chars()
-            .filter(|&c| c == '-')
-            .count(),
-            4
-        );
-        "[uuid]"
-    })})
+    assert_yaml_snapshot!(test_policy("test-uuid", "test-uuid").await);
 }
-
-#[tokio::test]
-async fn test_cycle() {
-    for (bundle, data) in TESTS {
-        set_snapshot_suffix!("{}-{}", bundle, data);
-        assert_yaml_snapshot!(test_policy(bundle, data).await)
-    }
-}
+*/

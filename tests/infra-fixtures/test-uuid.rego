@@ -1,5 +1,9 @@
-package example
+package test
 
 policy[data] {
-	data := uuid.rfc4122("id")
+	data := {
+		# these two must be equal during a single query, but different from one invocation to another
+		"one": uuid.rfc4122("id"),
+		"two": uuid.rfc4122("id"),
+	}
 }

@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use anyhow::Result;
-use uuid::Uuid;
+use anyhow::{Result, bail};
 
 /// Returns a new UUIDv4.
-#[tracing::instrument(name = "uuid.rfc4122", err)]
+#[tracing::instrument(name = "uuid.rfc4122")]
 pub fn rfc4122(k: String) -> Result<String> {
-    Ok(Uuid::new_v4().to_string())
+    // note: the semantics required here is to generate a UUID that is similar *for the duration of the query for every k*
+    // the Go implementation uses a global builtin cache so that UUIDs per `k` are stored
+    // through a life of a query.
+    bail!("not implemented")
 }

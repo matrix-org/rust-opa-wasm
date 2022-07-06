@@ -1,0 +1,7 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-loader\",\n            Some(\"test-loader.true\")).await.expect(\"error in test suite\")"
+---
+- result:
+    allow: true
+

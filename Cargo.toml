@@ -41,6 +41,7 @@ features = ["macros", "rt", "fs"]
 flate2 = "1"
 tar = "^0.4.38"
 insta = { version = "1", features = ["redactions"] }
+rstest = "0.15.0"
 
 [features]
 cli = [
