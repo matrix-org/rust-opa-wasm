@@ -12,10 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod builtins;
+#![doc = include_str!("../README.md")]
+#![deny(missing_docs, clippy::pedantic)]
+
+pub mod builtins;
 mod funcs;
+#[cfg(feature = "loader")]
+mod loader;
 mod policy;
 mod types;
 
-pub use self::policy::{Policy, Runtime};
-pub use self::types::AbiVersion;
+#[cfg(feature = "loader")]
+pub use self::loader::{load_bundle, read_bundle};
+pub use self::{
+    policy::{Policy, Runtime},
+    types::AbiVersion,
+};

@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins used to navigate through graph-like structures
+
 use anyhow::{bail, Result};
 
-/// Computes the set of reachable paths in the graph from a set of starting nodes.
+/// Computes the set of reachable paths in the graph from a set of starting
+/// nodes.
 #[tracing::instrument(name = "graph.reachable_paths", err)]
 pub fn reachable_paths(graph: serde_json::Value) -> Result<serde_json::Value> {
     bail!("not implemented");

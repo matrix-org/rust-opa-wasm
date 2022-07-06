@@ -12,20 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Implementations of all SDK-dependant builtin functions
+
 // Arguments are passed by value because of the way the builtin trait works
 #![allow(clippy::needless_pass_by_value)]
 
 use anyhow::{bail, Result};
-use sprintf::{vsprintf, Printf};
 
+#[cfg(feature = "base64url-builtins")]
 pub mod base64url;
 pub mod crypto;
 pub mod glob;
 pub mod graph;
 pub mod graphql;
+#[cfg(feature = "hex-builtins")]
 pub mod hex;
 pub mod http;
 pub mod io;
+#[cfg(feature = "json-builtins")]
 pub mod json;
 pub mod net;
 pub mod object;
@@ -33,6 +37,7 @@ pub mod opa;
 pub mod rand;
 pub mod regex;
 pub mod rego;
+#[cfg(feature = "semver-builtins")]
 pub mod semver;
 pub mod time;
 pub mod units;
@@ -46,9 +51,12 @@ pub fn indexof_n(string: String, search: String) -> Result<Vec<u32>> {
     bail!("not implemented");
 }
 
+#[cfg(feature = "sprintf-builtins")]
 /// Returns the given string, formatted.
 #[tracing::instrument(err)]
 pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String> {
+    use sprintf::{vsprintf, Printf};
+
     let values: Result<Vec<Box<dyn Printf>>, _> = values
         .into_iter()
         .map(|v| -> Result<Box<dyn Printf>, _> {
@@ -73,14 +81,15 @@ pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String>
         })
         .collect();
     let values = values?;
-    let values: Vec<&dyn Printf> = values.iter().map(|b| b.as_ref()).collect();
+    let values: Vec<&dyn Printf> = values.iter().map(std::convert::AsRef::as_ref).collect();
     vsprintf(&format, &values).map_err(|_| anyhow::anyhow!("failed to call printf"))
 }
 
-/// Emits `note` as a `Note` event in the query explanation. Query explanations show the exact
-/// expressions evaluated by OPA during policy execution. For example, `trace("Hello There!")`
-/// includes `Note "Hello There!"` in the query explanation. To include variables in the message,
-/// use `sprintf`. For example, `person := "Bob"; trace(sprintf("Hello There! %v", [person]))` will
+/// Emits `note` as a `Note` event in the query explanation. Query explanations
+/// show the exact expressions evaluated by OPA during policy execution. For
+/// example, `trace("Hello There!")` includes `Note "Hello There!"` in the query
+/// explanation. To include variables in the message, use `sprintf`. For
+/// example, `person := "Bob"; trace(sprintf("Hello There! %v", [person]))` will
 /// emit `Note "Hello There! Bob"` inside of the explanation.
 #[tracing::instrument(err)]
 pub fn trace(note: String) -> Result<bool> {

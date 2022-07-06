@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins used to generate pseudo-random values
+
 use anyhow::{bail, Result};
 
-/// Returns a random integer between `0` and `n` (`n` exlusive). If `n` is `0`, then `y` is always
-/// `0`. For any given argument pair (`str`, `n`), the output will be consistent throughout a query
-/// evaluation.
+/// Returns a random integer between `0` and `n` (`n` exlusive). If `n` is `0`,
+/// then `y` is always `0`. For any given argument pair (`str`, `n`), the output
+/// will be consistent throughout a query evaluation.
 #[tracing::instrument(name = "rand.intn", err)]
 pub fn intn(str: String, n: i64) -> Result<i64> {
     bail!("not implemented");

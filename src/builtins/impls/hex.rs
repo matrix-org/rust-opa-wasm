@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins used for encoding and decoding hex data
+
 use anyhow::Result;
 
 /// Deserializes the hex-encoded input string.

@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins to help handling JSON objects
+
 use anyhow::{bail, Result};
 
-/// Creates a new object that is the asymmetric union of all objects merged from left to right. For
-/// example: `object.union_n([{"a": 1}, {"b": 2}, {"a": 3}])` will result in `{"b": 2, "a": 3}`.
+/// Creates a new object that is the asymmetric union of all objects merged from
+/// left to right. For example: `object.union_n([{"a": 1}, {"b": 2}, {"a": 3}])`
+/// will result in `{"b": 2, "a": 3}`.
 #[tracing::instrument(name = "object.union_n", err)]
 pub fn union_n(objects: Vec<serde_json::Value>) -> Result<serde_json::Value> {
     bail!("not implemented");

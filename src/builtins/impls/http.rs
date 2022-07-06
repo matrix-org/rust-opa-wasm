@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins used to make HTTP request
+
 use anyhow::{bail, Result};
 
 /// Returns a HTTP response to the given HTTP request.

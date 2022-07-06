@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to Rego parsing
+
 use anyhow::{bail, Result};
 
-/// Parses the input Rego string and returns an object representation of the AST.
+/// Parses the input Rego string and returns an object representation of the
+/// AST.
 #[tracing::instrument(name = "rego.parse_module", err)]
 pub fn parse_module(filename: String, rego: String) -> Result<serde_json::Value> {
     bail!("not implemented");

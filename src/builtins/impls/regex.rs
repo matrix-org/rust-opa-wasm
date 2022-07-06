@@ -12,19 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to regular expressions
+
 use anyhow::{bail, Result};
 
-/// Returns the specified number of matches when matching the input against the pattern.
+/// Returns the specified number of matches when matching the input against the
+/// pattern.
 #[tracing::instrument(name = "regex.find_n", err)]
 pub fn find_n(pattern: String, value: String, number: i64) -> Result<Vec<String>> {
     bail!("not implemented");
 }
 
-/// Checks if the intersection of two glob-style regular expressions matches a non-empty set of
-/// non-empty strings.
+/// Checks if the intersection of two glob-style regular expressions matches a
+/// non-empty set of non-empty strings.
 ///
-/// The set of regex symbols is limited for this builtin: only `.`, `*`, `+`, `[`, `-`, `]` and
-/// `\\` are treated as special symbols.
+/// The set of regex symbols is limited for this builtin: only `.`, `*`, `+`,
+/// `[`, `-`, `]` and `\\` are treated as special symbols.
 #[tracing::instrument(name = "regex.globs_match", err)]
 pub fn globs_match(glob1: String, glob2: String) -> Result<bool> {
     bail!("not implemented");

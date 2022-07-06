@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde::Serialize;
+//! Builtins related to the current OPA environment
+
 use std::{collections::HashMap, env};
 
+use serde::Serialize;
+
+/// Metadata about the OPA runtime
 #[derive(Serialize)]
 pub struct Runtime {
     env: HashMap<String, String>,
@@ -22,7 +26,8 @@ pub struct Runtime {
     commit: String,
 }
 
-/// Returns an object that describes the runtime environment where OPA is deployed.
+/// Returns an object that describes the runtime environment where OPA is
+/// deployed.
 #[tracing::instrument(name = "opa.runtime")]
 pub fn runtime() -> Runtime {
     let env = env::vars().collect();

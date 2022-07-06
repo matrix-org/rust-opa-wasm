@@ -1,55 +1,114 @@
 [package]
 name = "opa-wasm"
 version = "0.1.0"
-rust-version = "1.59"
+rust-version = "1.60"
 authors = ["Quentin Gliech <quenting@element.io>"]
 edition = "2021"
 license = "Apache-2.0"
 default-run = "opa-eval"
 
 [dependencies]
-anyhow = "1.0.57"
-base64 = "0.13.0"
-clap = { version = "3.1.18", features = ["derive"], optional = true }
-digest = "0.10.3"
-hex = "0.4.3"
-hmac = "0.12.1"
-json-patch = "0.2.6"
-md-5 = "0.10.1"
-semver = "1.0.9"
-serde = { version = "1.0.57", features = ["derive"] }
-serde_json = "1.0.57"
-sha1 = "0.10.1"
-sha2 = "0.10.2"
-sprintf = "0.1.2"
+anyhow = "1.0.58"
+serde = { version = "1.0.137", features = ["derive"] }
+serde_json = "1.0.82"
 thiserror = "1.0.31"
-tokio = { version = "1.18.2", features = ["sync", "macros"] }
-tracing = "0.1.34"
+tokio = { version = "1.19.2", features = ["sync", "macros"] }
+tracing = "0.1.35"
+wasmtime = { version = "0.38.1", default-features = false, features = [
+  "async",
+] }
+
+# Loader
+tokio-tar = { version = "0.3.0", optional = true }
+async-compression = { version = "0.3.14", optional = true, features = [
+  "tokio",
+  "gzip",
+] }
+futures-util = { version = "0.3.21", optional = true }
+
+# CLI
+camino = { version = "1.0.9", optional = true }
+clap = { version = "3.2.8", features = ["derive"], optional = true }
 tracing-forest = { version = "0.1.4", optional = true }
-tracing-subscriber = { version = "0.3.11", features = [
+tracing-subscriber = { version = "0.3.12", features = [
   "env-filter",
 ], optional = true }
-wasmtime = "0.37.0"
+
+# Builtins
+base64 = { version = "0.13.0", optional = true }
+digest = { version = "0.10.3", optional = true }
+hex = { version = "0.4.3", optional = true }
+hmac = { version = "0.12.1", optional = true }
+json-patch = { version = "0.2.6", optional = true }
+md-5 = { version = "0.10.1", optional = true }
+semver = { version = "1.0.12", optional = true }
+sha1 = { version = "0.10.1", optional = true }
+sha2 = { version = "0.10.2", optional = true }
+sprintf = { version = "0.1.2", optional = true }
 
 uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies.tokio]
-version = "1.18.2"
-features = ["macros", "rt", "fs"]
+version = "1.19.2"
+features = ["macros", "fs", "rt", "rt-multi-thread"]
+
+[dev-dependencies.wasmtime]
+version = "0.38.1"
 
 [dev-dependencies]
-flate2 = "1"
-tar = "^0.4.38"
 insta = { version = "1", features = ["redactions"] }
 rstest = "0.15.0"
 
 [features]
+default = ["all-builtins"]
+
+loader = [
+  "dep:tokio-tar",
+  "dep:async-compression",
+  "dep:futures-util",
+  "tokio/fs",
+  "tokio/io-util",
+]
+
 cli = [
-  "clap",
-  "tracing-forest",
-  "tracing-subscriber",
+  "loader",
+  "dep:camino",
+  "dep:clap",
+  "dep:tracing-forest",
+  "dep:tracing-subscriber",
   "tokio/fs",
   "tokio/rt-multi-thread",
+  "wasmtime/cranelift",
+  "wasmtime/parallel-compilation",
+  "wasmtime/memory-init-cow",
+]
+
+base64url-builtins = ["dep:base64", "dep:hex"]
+crypto-digest-builtins = ["dep:digest", "dep:hex"]
+crypto-hmac-builtins = ["dep:hmac", "dep:hex"]
+crypto-md5-builtins = ["dep:md-5"]
+crypto-sha1-builtins = ["dep:sha1"]
+crypto-sha2-builtins = ["dep:sha2"]
+hex-builtins = ["dep:hex"]
+semver-builtins = ["dep:semver"]
+sprintf-builtins = ["dep:sprintf"]
+json-builtins = ["dep:json-patch"]
+
+all-crypto-builtins = [
+  "crypto-digest-builtins",
+  "crypto-hmac-builtins",
+  "crypto-md5-builtins",
+  "crypto-sha1-builtins",
+  "crypto-sha2-builtins",
+]
+
+all-builtins = [
+  "all-crypto-builtins",
+  "base64url-builtins",
+  "hex-builtins",
+  "json-builtins",
+  "semver-builtins",
+  "sprintf-builtins",
 ]
 
 [[bin]]

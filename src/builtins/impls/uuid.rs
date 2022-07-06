@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use anyhow::{Result, bail};
+//! Builtins to generate UUIDs
+use anyhow::{bail, Result};
 
 /// Returns a new UUIDv4.
 #[tracing::instrument(name = "uuid.rfc4122")]

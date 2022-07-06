@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use anyhow::{Context, Result};
 use std::{
     collections::{HashMap, HashSet},
     ffi::CString,
@@ -20,9 +19,10 @@ use std::{
     ops::Deref,
     sync::Arc,
 };
+
+use anyhow::{Context, Result};
 use tokio::sync::OnceCell;
 use tracing::Instrument;
-
 use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module, Trap};
 
 use crate::{
@@ -137,7 +137,8 @@ impl LoadedBuiltins {
     }
 }
 
-/// An instance of a policy with builtins and entrypoints resolved, but with no data provided yet
+/// An instance of a policy with builtins and entrypoints resolved, but with no
+/// data provided yet
 pub struct Runtime {
     version: AbiVersion,
     memory: Memory,
@@ -169,13 +170,25 @@ impl Debug for Runtime {
 }
 
 impl Runtime {
+    /// Load a new WASM policy module into the given store.
+    ///
+    /// # Errors
+    ///
+    /// It will raise an error if one of the following condition is met:
+    ///
+    ///  - the provided [`wasmtime::Store`] isn't an async one
+    ///  - the [`wasmtime::Module`] was created with a different
+    ///    [`wasmtime::Engine`] than the [`wasmtime::Store`]
+    ///  - the WASM module is not a valid OPA WASM compiled policy, and lacks
+    ///    some of the exported functions
+    ///  - it failed to load the entrypoints or the builtins list
     #[allow(clippy::too_many_lines)]
     pub async fn new<T: Send>(
         mut store: impl AsContextMut<Data = T>,
         module: &Module,
     ) -> Result<Self> {
         let ty = MemoryType::new(2, None);
-        let memory = Memory::new(&mut store, ty)?;
+        let memory = Memory::new_async(&mut store, ty).await?;
 
         let eventually_builtins = Arc::new(OnceCell::<LoadedBuiltins>::new());
 
@@ -390,10 +403,20 @@ impl Runtime {
         .await
     }
 
+    /// Instanciate the policy with an empty `data` object
+    ///
+    /// # Errors
+    ///
+    /// If it failed to load the empty data object in memory
     pub async fn without_data<T: Send>(self, store: impl AsContextMut<Data = T>) -> Result<Policy> {
         self.with_data(store, &serde_json::json!({})).await
     }
 
+    /// Instanciate the policy with the given `data` object
+    ///
+    /// # Errors
+    ///
+    /// If it failed to serialize and load the `data` object
     pub async fn with_data<V: serde::Serialize, T: Send>(
         self,
         mut store: impl AsContextMut<Data = T>,
@@ -408,16 +431,23 @@ impl Runtime {
         })
     }
 
+    /// Get the default entrypoint of this module. May return [`None`] if no
+    /// entrypoint with ID 0 was found
+    #[must_use]
     pub fn default_entrypoint(&self) -> Option<&str> {
         self.entrypoints
             .iter()
             .find_map(|(k, v)| (v.0 == 0).then(|| k.as_str()))
     }
 
+    /// Get the list of entrypoints found in this module.
+    #[must_use]
     pub fn entrypoints(&self) -> HashSet<&str> {
-        self.entrypoints.keys().map(|k| k.as_str()).collect()
+        self.entrypoints.keys().map(String::as_str).collect()
     }
 
+    /// Get the ABI version detected for this module
+    #[must_use]
     pub fn abi_version(&self) -> AbiVersion {
         self.version
     }
@@ -432,6 +462,12 @@ pub struct Policy {
 }
 
 impl Policy {
+    /// Evaluate a policy with the given entrypoint and input.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the policy evaluation failed, or if this policy did
+    /// not belong to the given store.
     pub async fn evaluate<V: serde::Serialize, R: for<'de> serde::Deserialize<'de>, T: Send>(
         &self,
         mut store: impl AsContextMut<Data = T>,

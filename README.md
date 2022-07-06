@@ -6,32 +6,37 @@ A crate to use OPA policies compiled to WASM.
 
 This includes a CLI tool to try out the SDK implementation.
 
-```
-cargo run --features=cli -- --module ./policy.wasm --data-path ./data.json --input '{"hello": "world"}' --entrypoint 'hello/world'
+```text
+cargo run --features=cli --      \
+    --module ./policy.wasm       \
+    --data-path ./data.json      \
+    --input '{"hello": "world"}' \
+    --entrypoint 'hello/world'
 ```
 
 Set the `RUST_LOG` environment variable to `info` to show timings informations about the execution.
 
-```
+```text
 opa-wasm
 Evaluates OPA policies compiled as WASM modules
 
 USAGE:
-    opa-eval [OPTIONS] --module <MODULE> --entrypoint <ENTRYPOINT>
+    opa-eval [OPTIONS] --entrypoint <ENTRYPOINT> <--module <MODULE>|--bundle <BUNDLE>>
 
 OPTIONS:
-    -d, --data <JSON>                JSON literal to use as data
-        --data-path <PATH>           Path to a JSON file to load as data
-    -e, --entrypoint <ENTRYPOINT>    Entrypoint to use
-    -h, --help                       Print help information
-    -i, --input <JSON>               JSON literal to use as input
-        --input-path <PATH>          Path to a JSON file to load as data
     -m, --module <MODULE>            Path to the WASM module
+    -b, --bundle <BUNDLE>            Path to the OPA bundle
+    -e, --entrypoint <ENTRYPOINT>    Entrypoint to use
+    -d, --data <JSON>                JSON literal to use as data
+    -D, --data-path <PATH>           Path to a JSON file to load as data
+    -i, --input <JSON>               JSON literal to use as input
+    -I, --input-path <PATH>          Path to a JSON file to load as data
+    -h, --help                       Print help information
 ```
 
 ## As a library
 
-```rust
+```rust,no_run
 use anyhow::Result;
 use wasmtime::{Config, Engine, Module, Store};
 

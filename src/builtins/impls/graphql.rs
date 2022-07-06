@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Builtins related to GraphQL schema and query parsing and validation
+
 use anyhow::{bail, Result};
 
 /// Checks that a GraphQL query is valid against a given schema.
@@ -20,15 +22,17 @@ pub fn is_valid(query: String, schema: String) -> Result<bool> {
     bail!("not implemented");
 }
 
-/// Returns AST objects for a given GraphQL query and schema after validating the query against the
-/// schema. Returns undefined if errors were encountered during parsing or validation.
+/// Returns AST objects for a given GraphQL query and schema after validating
+/// the query against the schema. Returns undefined if errors were encountered
+/// during parsing or validation.
 #[tracing::instrument(name = "graphql.parse", err)]
 pub fn parse(query: String, schema: String) -> Result<(serde_json::Value, serde_json::Value)> {
     bail!("not implemented");
 }
 
-/// Returns a boolean indicating success or failure alongside the parsed ASTs for a given GraphQL
-/// query and schema after validating the query against the schema.
+/// Returns a boolean indicating success or failure alongside the parsed ASTs
+/// for a given GraphQL query and schema after validating the query against the
+/// schema.
 #[tracing::instrument(name = "graphql.parse_and_verify", err)]
 pub fn parse_and_verify(
     query: String,
