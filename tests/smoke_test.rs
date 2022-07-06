@@ -1,13 +1,9 @@
-#![feature(try_find)]
-use anyhow::bail;
-use anyhow::{Context, Result as AnyResult};
-use flate2::read::GzDecoder;
-use insta::assert_yaml_snapshot;
-use opa_wasm::Runtime;
-use serde_json::json;
-use std::io::Read;
 use std::path::Path;
-use tar::Archive;
+
+use anyhow::Result as AnyResult;
+use insta::assert_yaml_snapshot;
+use opa_wasm::{read_bundle, Runtime};
+use serde_json::json;
 use wasmtime::{Config, Engine, Module, Store};
 
 macro_rules! integration_test {
@@ -34,7 +30,7 @@ async fn eval_policy(
     entrypoint: &str,
     input: &serde_json::Value,
 ) -> AnyResult<serde_json::Value> {
-    let module = load_wasm(bundle).await?;
+    let module = read_bundle(bundle).await?;
 
     // Configure the WASM runtime
     let mut config = Config::new();
@@ -57,25 +53,6 @@ async fn eval_policy(
     // Evaluate the policy
     let p: serde_json::Value = policy.evaluate(&mut store, entrypoint, &input).await?;
     Ok(p)
-}
-
-async fn load_wasm(bundle: &str) -> AnyResult<Vec<u8>> {
-    let f = tokio::fs::read(bundle).await?;
-    let mut archive = Archive::new(GzDecoder::new(&f[..]));
-
-    match archive.entries()?.flatten().try_find(|e| {
-        Ok(e.path()
-            .context("tar malformed: entry has no path")?
-            .ends_with("policy.wasm"))
-    }) {
-        Ok(Some(mut e)) => {
-            let mut v = Vec::new();
-            e.read_to_end(&mut v)?;
-            Ok(v)
-        }
-        Ok(None) => bail!("no wasm entry found"),
-        Err(err) => Err(err),
-    }
 }
 
 fn bundle(name: &str) -> String {
@@ -111,7 +88,7 @@ async fn test_policy(bundle_name: &str, data: Option<&str>) -> AnyResult<serde_j
 async fn infra_loader_works() {
     assert_eq!(
         133_988,
-        load_wasm("tests/infra-fixtures/test-loader.rego.tar.gz")
+        read_bundle("tests/infra-fixtures/test-loader.rego.tar.gz")
             .await
             .unwrap()
             .len()

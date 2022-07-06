@@ -16,10 +16,11 @@
 use anyhow::{bail, Result};
 
 /// Returns a new UUIDv4.
-#[tracing::instrument(name = "uuid.rfc4122")]
+#[tracing::instrument(name = "uuid.rfc4122", err)]
 pub fn rfc4122(k: String) -> Result<String> {
-    // note: the semantics required here is to generate a UUID that is similar *for the duration of the query for every k*
-    // the Go implementation uses a global builtin cache so that UUIDs per `k` are stored
-    // through a life of a query.
+    // note: the semantics required here is to generate a UUID that is similar *for
+    // the duration of the query for every k* the Go implementation uses a
+    // global builtin cache so that UUIDs per `k` are stored through a life of a
+    // query.
     bail!("not implemented")
 }
