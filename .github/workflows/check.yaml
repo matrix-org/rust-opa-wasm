@@ -196,6 +196,8 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-build-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Build OPA bundles for test
+        run: make build-opa
       - name: Test
         uses: actions-rs/cargo@v1
         with:
