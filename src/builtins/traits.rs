@@ -68,484 +68,126 @@ pub(crate) trait BuiltinFunc<const ASYNC: bool, const RESULT: bool, T: 'static>:
     }
 }
 
-impl<F, R, Fut> BuiltinFunc<true, false, ()> for F
-where
-    F: Fn() -> Fut + Send + Sync + 'static,
-    R: Serialize + 'static,
-    Fut: Future<Output = R> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let []: [&'a [u8]; 0] = args.try_into().ok().context("invalid arguments")?;
-            let res = self().await;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })
+macro_rules! count {
+    () => (0usize);
+    ( $x:tt $($xs:tt)* ) => (1usize + count!($($xs)*));
+}
+
+/// A macro to process a builtin return type, based on whether it's an async
+/// function and if it returns a [`Result`] or not.
+macro_rules! unwrap {
+    ($tok:expr, result = true, async = true) => {
+        $tok.await?
+    };
+    ($tok:expr, result = true, async = false) => {
+        $tok?
+    };
+    ($tok:expr, result = false, async = true) => {
+        $tok.await
+    };
+    ($tok:expr, result = false, async = false) => {
+        $tok
+    };
+}
+
+macro_rules! trait_body {
+    (($($pname:ident: $ptype:ident),*), async = $async:tt, result = $result:tt) => {
+        fn call<'a>(
+            &'a self,
+            args: &'a [&'a [u8]],
+        ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
+            Box::pin(async move {
+                let [$($pname),*]: [&'a [u8]; count!($($pname)*)] =
+                    args.try_into().ok().context("invalid arguments")?;
+                $(
+                    let $pname: $ptype = serde_json::from_slice($pname)
+                        .context(concat!("failed to convert ", stringify!($pname), " argument"))?;
+                )*
+                let res = unwrap!(self($($pname),*), result = $result, async = $async);
+                let res = serde_json::to_vec(&res).context("could not serialize result")?;
+                Ok(res)
+            })
+        }
+    };
+}
+
+macro_rules! trait_impl {
+    ($($pname:ident: $ptype:ident),*) => {
+        // Implementation for a non-async, non-result function
+        impl<F, $($ptype,)* R> BuiltinFunc<false, false, ($($ptype,)*)> for F
+        where
+            F: Fn($($ptype),*) -> R + Send + Sync + 'static,
+            $(
+                $ptype: for<'de> Deserialize<'de> + Send + 'static,
+            )*
+            R: Serialize + Send + 'static,
+        {
+            trait_body! {
+                ($($pname: $ptype),*), async = false, result = false
+            }
+        }
+
+        // Implementation for a non-async, result function
+        impl<F, $($ptype,)* R, E> BuiltinFunc<true, false, ($($ptype,)*)> for F
+        where
+            F: Fn($($ptype),*) -> Result<R, E> + Send + Sync + 'static,
+            $(
+                $ptype: for<'de> Deserialize<'de> + Send + 'static,
+            )*
+            R: Serialize + Send + 'static,
+            E: 'static,
+            Trap: From<E>,
+        {
+            trait_body! {
+                ($($pname: $ptype),*),
+                async = false,
+                result = true
+            }
+        }
+
+        // Implementation for an async, non-result function
+        impl<F, $($ptype,)* R, Fut> BuiltinFunc<false, true, ($($ptype,)*)> for F
+        where
+            F: Fn($($ptype),*) -> Fut + Send + Sync + 'static,
+            $(
+                $ptype: for<'de> Deserialize<'de> + Send + 'static,
+            )*
+            R: Serialize + 'static,
+            Fut: Future<Output = R> + Send,
+        {
+            trait_body! {
+                ($($pname: $ptype),*),
+                async = true,
+                result = false
+            }
+        }
+
+        // Implementation for an async, result function
+        impl<F, $($ptype,)* R, E, Fut> BuiltinFunc<true, true, ($($ptype,)*)> for F
+        where
+            F: Fn($($ptype),*) -> Fut + Send + Sync + 'static,
+            $(
+                $ptype: for<'de> Deserialize<'de> + Send + 'static,
+            )*
+            R: Serialize + 'static,
+            E: 'static,
+            Trap: From<E>,
+            Fut: Future<Output = Result<R, E>> + Send,
+        {
+            trait_body! {
+                ($($pname: $ptype),*),
+                async = true,
+                result = true
+            }
+        }
     }
 }
 
-impl<F, R, E, Fut> BuiltinFunc<true, true, ()> for F
-where
-    F: Fn() -> Fut + Send + Sync + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-    Fut: Future<Output = Result<R, E>> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let []: [&'a [u8]; 0] = args.try_into().ok().context("invalid arguments")?;
-            let res = self().await?;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, R> BuiltinFunc<false, false, ()> for F
-where
-    F: Fn() -> R + Send + Sync + 'static,
-    R: Serialize + Send + 'static,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let []: [&'a [u8]; 0] = args.try_into().ok().context("invalid arguments")?;
-            let res = self();
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, R, E> BuiltinFunc<false, true, ()> for F
-where
-    F: Fn() -> Result<R, E> + Send + Sync + 'static,
-    R: Serialize + Send + 'static,
-    E: 'static,
-    Trap: From<E>,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let []: [&'a [u8]; 0] = args.try_into().ok().context("invalid arguments")?;
-            let res = self()?;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T, R, Fut> BuiltinFunc<true, false, (T,)> for F
-where
-    F: Fn(T) -> Fut + Send + Sync + 'static,
-    T: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    Fut: Future<Output = R> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1]: [&'a [u8]; 1] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let res = self(p1).await;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T, R, E, Fut> BuiltinFunc<true, true, (T,)> for F
-where
-    F: Fn(T) -> Fut + Send + Sync + 'static,
-    T: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-    Fut: Future<Output = Result<R, E>> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1]: [&'a [u8]; 1] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let res = self(p1).await?;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T, R> BuiltinFunc<false, false, (T,)> for F
-where
-    F: Fn(T) -> R + Send + Sync + 'static,
-    T: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1]: [&'a [u8]; 1] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let res = self(p1);
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T, R, E> BuiltinFunc<false, true, (T,)> for F
-where
-    F: Fn(T) -> Result<R, E> + Send + Sync + 'static,
-    T: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1]: [&'a [u8]; 1] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let res = self(p1)?;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T1, T2, R, Fut> BuiltinFunc<true, false, (T1, T2)> for F
-where
-    F: Fn(T1, T2) -> Fut + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    Fut: Future<Output = R> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1, p2]: [&'a [u8]; 2] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let res = self(p1, p2).await;
-            let res = serde_json::to_vec(&res).context("coult not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T1, T2, R, E, Fut> BuiltinFunc<true, true, (T1, T2)> for F
-where
-    F: Fn(T1, T2) -> Fut + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-    Fut: Future<Output = Result<R, E>> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1, p2]: [&'a [u8]; 2] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let res = self(p1, p2).await?;
-            let res = serde_json::to_vec(&res).context("coult not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T1, T2, R> BuiltinFunc<false, false, (T1, T2)> for F
-where
-    F: Fn(T1, T2) -> R + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1, p2]: [&'a [u8]; 2] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let res = self(p1, p2);
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T1, T2, R, E> BuiltinFunc<false, true, (T1, T2)> for F
-where
-    F: Fn(T1, T2) -> Result<R, E> + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1, p2]: [&'a [u8]; 2] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let res = self(p1, p2)?;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T1, T2, T3, R, Fut> BuiltinFunc<true, false, (T1, T2, T3)> for F
-where
-    F: Fn(T1, T2, T3) -> Fut + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    Fut: Future<Output = R> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1, p2, p3]: [&'a [u8]; 3] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let res = self(p1, p2, p3).await;
-            let res = serde_json::to_vec(&res).context("coult not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T1, T2, T3, R, E, Fut> BuiltinFunc<true, true, (T1, T2, T3)> for F
-where
-    F: Fn(T1, T2, T3) -> Fut + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Fut: Future<Output = Result<R, E>> + Send,
-    Trap: From<E>,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1, p2, p3]: [&'a [u8]; 3] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let res = self(p1, p2, p3).await?;
-            let res = serde_json::to_vec(&res).context("coult not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T1, T2, T3, R> BuiltinFunc<false, false, (T1, T2, T3)> for F
-where
-    F: Fn(T1, T2, T3) -> R + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1, p2, p3]: [&'a [u8]; 3] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let res = self(p1, p2, p3);
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T1, T2, T3, R, E> BuiltinFunc<false, true, (T1, T2, T3)> for F
-where
-    F: Fn(T1, T2, T3) -> Result<R, E> + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1, p2, p3]: [&'a [u8]; 3] = args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let res = self(p1, p2, p3)?;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T1, T2, T3, T4, R, Fut> BuiltinFunc<true, false, (T1, T2, T3, T4)> for F
-where
-    F: Fn(T1, T2, T3, T4) -> Fut + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    T4: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    Fut: Future<Output = R> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1, p2, p3, p4]: [&'a [u8]; 4] =
-                args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let p4 = serde_json::from_slice(p4).context("failed to convert fourth argument")?;
-            let res = self(p1, p2, p3, p4).await;
-            let res = serde_json::to_vec(&res).context("coult not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T1, T2, T3, T4, R, E, Fut> BuiltinFunc<true, true, (T1, T2, T3, T4)> for F
-where
-    F: Fn(T1, T2, T3, T4) -> Fut + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    T4: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-    Fut: Future<Output = Result<R, E>> + Send,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(async move {
-            let [p1, p2, p3, p4]: [&'a [u8]; 4] =
-                args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let p4 = serde_json::from_slice(p4).context("failed to convert fourth argument")?;
-            let res = self(p1, p2, p3, p4).await?;
-            let res = serde_json::to_vec(&res).context("coult not serialize result")?;
-            Ok(res)
-        })
-    }
-}
-
-impl<F, T1, T2, T3, T4, R> BuiltinFunc<false, false, (T1, T2, T3, T4)> for F
-where
-    F: Fn(T1, T2, T3, T4) -> R + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    T4: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1, p2, p3, p4]: [&'a [u8]; 4] =
-                args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let p4 = serde_json::from_slice(p4).context("failed to convert fourth argument")?;
-            let res = self(p1, p2, p3, p4);
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-
-            Ok(res)
-        })()))
-    }
-}
-
-impl<F, T1, T2, T3, T4, R, E> BuiltinFunc<false, true, (T1, T2, T3, T4)> for F
-where
-    F: Fn(T1, T2, T3, T4) -> Result<R, E> + Send + Sync + 'static,
-    T1: for<'de> Deserialize<'de> + Send + 'static,
-    T2: for<'de> Deserialize<'de> + Send + 'static,
-    T3: for<'de> Deserialize<'de> + Send + 'static,
-    T4: for<'de> Deserialize<'de> + Send + 'static,
-    R: Serialize + 'static,
-    E: 'static,
-    Trap: From<E>,
-{
-    fn call<'a>(
-        &'a self,
-        args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
-        Box::pin(std::future::ready((|| {
-            let [p1, p2, p3, p4]: [&'a [u8]; 4] =
-                args.try_into().ok().context("invalid arguments")?;
-            let p1 = serde_json::from_slice(p1).context("failed to convert first argument")?;
-            let p2 = serde_json::from_slice(p2).context("failed to convert second argument")?;
-            let p3 = serde_json::from_slice(p3).context("failed to convert third argument")?;
-            let p4 = serde_json::from_slice(p4).context("failed to convert fourth argument")?;
-            let res = self(p1, p2, p3, p4)?;
-            let res = serde_json::to_vec(&res).context("could not serialize result")?;
-
-            Ok(res)
-        })()))
-    }
-}
+trait_impl!();
+trait_impl!(first: P1);
+trait_impl!(first: P1, second: P2);
+trait_impl!(first: P1, second: P2, third: P3);
+trait_impl!(first: P1, second: P2, third: P3, fourth: P4);
 
 #[cfg(test)]
 mod tests {
