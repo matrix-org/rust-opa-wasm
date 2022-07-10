@@ -62,7 +62,7 @@ async fn eval_policy(
     // Instantiate the module
     let runtime = Runtime::new(&mut store, &module).await?;
 
-    let policy = runtime.with_data(&mut store, &data).await?;
+    let policy = runtime.without_data(&mut store).await?;
 
     // Evaluate the policy
     let p: serde_json::Value = policy.evaluate(&mut store, entrypoint, &input).await?;
