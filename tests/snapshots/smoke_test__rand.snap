@@ -1,0 +1,10 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-rand\", None).await.expect(\"error in test suite\")"
+---
+- result:
+    cache: 73
+    first: 7
+    second: 73
+    zero: 0
+

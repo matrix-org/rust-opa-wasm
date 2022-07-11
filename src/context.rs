@@ -79,8 +79,7 @@ impl EvaluationContext for DefaultContext {
     }
 }
 
-#[cfg(test)]
-pub(crate) mod tests {
+pub mod tests {
     use anyhow::Result;
     use serde::{de::DeserializeOwned, Serialize};
 
@@ -90,6 +89,7 @@ pub(crate) mod tests {
     #[derive(Default)]
     pub struct TestContext {
         inner: DefaultContext,
+        seed: u64,
     }
 
     impl EvaluationContext for TestContext {
@@ -100,7 +100,7 @@ pub(crate) mod tests {
         fn get_rng(&mut self) -> Self::Rng {
             use rand::SeedableRng;
 
-            rand::rngs::StdRng::seed_from_u64(0)
+            rand::rngs::StdRng::seed_from_u64(self.seed)
         }
 
         fn cache_get<K: Serialize, C: DeserializeOwned>(&mut self, key: &K) -> Result<Option<C>> {

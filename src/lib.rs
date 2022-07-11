@@ -26,7 +26,7 @@ mod types;
 #[cfg(feature = "loader")]
 pub use self::loader::{load_bundle, read_bundle};
 pub use self::{
-    context::{DefaultContext, EvaluationContext},
+    context::{tests::TestContext, DefaultContext, EvaluationContext},
     policy::{Policy, Runtime},
     types::AbiVersion,
 };

@@ -14,7 +14,7 @@
 
 //! Builtins used to generate pseudo-random values
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use rand::Rng;
 
 use crate::EvaluationContext;
@@ -24,6 +24,14 @@ use crate::EvaluationContext;
 /// will be consistent throughout a query evaluation.
 #[tracing::instrument(name = "rand.intn", skip(ctx), err)]
 pub fn intn<C: EvaluationContext>(ctx: &mut C, str: String, n: i64) -> Result<i64> {
+    if n == 0 {
+        return Ok(0);
+    }
+
+    if n < 0 {
+        bail!("rand.intn: n must be a positive integer")
+    }
+
     let cache_key = ("rand", str, n);
     if let Some(v) = ctx.cache_get(&cache_key)? {
         return Ok(v);
