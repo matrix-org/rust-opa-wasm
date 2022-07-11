@@ -46,6 +46,10 @@ features = ["macros", "fs", "rt", "rt-multi-thread"]
 [dev-dependencies.wasmtime]
 version = "0.38.1"
 
+[dev-dependencies]
+insta = { version = "1", features = ["redactions"] }
+rstest = "0.15.0"
+
 [features]
 default = ["all-builtins"]
 
@@ -97,6 +101,10 @@ all-builtins = [
   "semver-builtins",
   "sprintf-builtins",
 ]
+
+[[test]]
+name = "smoke_test"
+required-features = ["loader"]
 
 [[bin]]
 name = "opa-eval"

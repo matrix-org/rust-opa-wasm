@@ -1,1 +1,3 @@
+.DS_Store
 /target
+tests/infra-fixtures/*.tar.gz
