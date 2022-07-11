@@ -57,8 +57,6 @@ async fn eval_policy(
     // Create a store which will hold the module instance
     let mut store = Store::new(&engine, ());
 
-    let data = serde_json::json!({});
-
     // Instantiate the module
     let runtime = Runtime::new(&mut store, &module).await?;
 
