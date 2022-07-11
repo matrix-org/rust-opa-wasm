@@ -16,6 +16,7 @@
 #![deny(missing_docs, clippy::pedantic)]
 
 pub mod builtins;
+mod context;
 mod funcs;
 #[cfg(feature = "loader")]
 mod loader;
@@ -25,6 +26,7 @@ mod types;
 #[cfg(feature = "loader")]
 pub use self::loader::{load_bundle, read_bundle};
 pub use self::{
+    context::{DefaultContext, EvaluationContext},
     policy::{Policy, Runtime},
     types::AbiVersion,
 };

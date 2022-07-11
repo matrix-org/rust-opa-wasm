@@ -14,12 +14,23 @@
 
 //! Builtins used to generate pseudo-random values
 
-use anyhow::{bail, Result};
+use anyhow::Result;
+use rand::Rng;
+
+use crate::EvaluationContext;
 
 /// Returns a random integer between `0` and `n` (`n` exlusive). If `n` is `0`,
 /// then `y` is always `0`. For any given argument pair (`str`, `n`), the output
 /// will be consistent throughout a query evaluation.
-#[tracing::instrument(name = "rand.intn", err)]
-pub fn intn(str: String, n: i64) -> Result<i64> {
-    bail!("not implemented");
+#[tracing::instrument(name = "rand.intn", skip(ctx), err)]
+pub fn intn<C: EvaluationContext>(ctx: &mut C, str: String, n: i64) -> Result<i64> {
+    let cache_key = ("rand", str, n);
+    if let Some(v) = ctx.cache_get(&cache_key)? {
+        return Ok(v);
+    };
+
+    let mut rng = ctx.get_rng();
+    let val = rng.gen_range(0..n);
+    ctx.cache_set(&cache_key, &val)?;
+    Ok(val)
 }

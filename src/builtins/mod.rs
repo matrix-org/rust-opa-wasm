@@ -17,6 +17,7 @@
 use anyhow::{bail, Result};
 
 use self::traits::{Builtin, BuiltinFunc};
+use crate::EvaluationContext;
 
 pub mod impls;
 pub mod traits;
@@ -27,7 +28,7 @@ pub mod traits;
 ///
 /// Returns an error if the builtin is not known
 #[allow(clippy::too_many_lines)]
-pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
+pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> {
     match name {
         #[cfg(feature = "base64url-builtins")]
         "base64url.encode_no_pad" => Ok(self::impls::base64url::encode_no_pad.wrap()),
