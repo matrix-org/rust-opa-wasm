@@ -34,6 +34,7 @@ hex = { version = "0.4.3", optional = true }
 hmac = { version = "0.12.1", optional = true }
 json-patch = { version = "0.2.6", optional = true }
 md-5 = { version = "0.10.1", optional = true }
+rand = { version = "0.8.5", optional = true }
 semver = { version = "1.0.12", optional = true }
 sha1 = { version = "0.10.1", optional = true }
 sha2 = { version = "0.10.2", optional = true }
@@ -74,6 +75,8 @@ cli = [
   "wasmtime/memory-init-cow",
 ]
 
+rng = ["dep:rand"]
+
 base64url-builtins = ["dep:base64", "dep:hex"]
 crypto-digest-builtins = ["dep:digest", "dep:hex"]
 crypto-hmac-builtins = ["dep:hmac", "dep:hex"]
@@ -84,6 +87,7 @@ hex-builtins = ["dep:hex"]
 semver-builtins = ["dep:semver"]
 sprintf-builtins = ["dep:sprintf"]
 json-builtins = ["dep:json-patch"]
+rand-builtins = ["rng"]
 
 all-crypto-builtins = [
   "crypto-digest-builtins",
@@ -98,6 +102,7 @@ all-builtins = [
   "base64url-builtins",
   "hex-builtins",
   "json-builtins",
+  "rand-builtins",
   "semver-builtins",
   "sprintf-builtins",
 ]

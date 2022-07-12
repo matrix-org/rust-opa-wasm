@@ -16,7 +16,7 @@ use std::path::Path;
 
 use anyhow::Result as AnyResult;
 use insta::assert_yaml_snapshot;
-use opa_wasm::{read_bundle, Runtime};
+use opa_wasm::{read_bundle, Runtime, TestContext};
 use serde_json::json;
 use wasmtime::{Config, Engine, Module, Store};
 
@@ -57,8 +57,10 @@ async fn eval_policy(
     // Create a store which will hold the module instance
     let mut store = Store::new(&engine, ());
 
+    let ctx = TestContext::default();
+
     // Instantiate the module
-    let runtime = Runtime::new(&mut store, &module).await?;
+    let runtime = Runtime::new_with_evaluation_context(&mut store, &module, ctx).await?;
 
     let policy = runtime.without_data(&mut store).await?;
 
@@ -114,6 +116,7 @@ integration_test!(
 );
 integration_test!(test_loader_true, "test-loader", input = "test-loader.true");
 integration_test!(test_loader_empty, "test-loader");
+integration_test!(test_rand, "test-rand");
 
 /*
 #[tokio::test]

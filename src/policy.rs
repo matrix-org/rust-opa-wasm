@@ -21,7 +21,7 @@ use std::{
 };
 
 use anyhow::{Context, Result};
-use tokio::sync::OnceCell;
+use tokio::sync::{Mutex, OnceCell};
 use tracing::Instrument;
 use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module, Trap};
 
@@ -29,6 +29,7 @@ use crate::{
     builtins::traits::Builtin,
     funcs::{self, Func},
     types::{AbiVersion, Addr, BuiltinId, EntrypointId, Heap, NulStr, Value},
+    DefaultContext, EvaluationContext,
 };
 
 async fn alloc_str<V: Into<Vec<u8>>, T: Send>(
@@ -67,11 +68,12 @@ async fn load_json<V: serde::Serialize, T: Send>(
     Ok(data)
 }
 
-struct LoadedBuiltins {
-    builtins: HashMap<i32, (String, Box<dyn Builtin>)>,
+struct LoadedBuiltins<C> {
+    builtins: HashMap<i32, (String, Box<dyn Builtin<C>>)>,
+    context: Mutex<C>,
 }
 
-impl std::fmt::Debug for LoadedBuiltins {
+impl<C> std::fmt::Debug for LoadedBuiltins<C> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LoadedBuiltins")
             .field("builtins", &())
@@ -79,8 +81,11 @@ impl std::fmt::Debug for LoadedBuiltins {
     }
 }
 
-impl LoadedBuiltins {
-    fn from_map(map: HashMap<String, BuiltinId>) -> Result<Self> {
+impl<C> LoadedBuiltins<C>
+where
+    C: EvaluationContext,
+{
+    fn from_map(map: HashMap<String, BuiltinId>, context: C) -> Result<Self> {
         let res: Result<_> = map
             .into_iter()
             .map(|(k, v)| {
@@ -88,7 +93,10 @@ impl LoadedBuiltins {
                 Ok((v.0, (k, builtin)))
             })
             .collect();
-        Ok(Self { builtins: res? })
+        Ok(Self {
+            builtins: res?,
+            context: Mutex::new(context),
+        })
     }
 
     async fn builtin<T: Send, const N: usize>(
@@ -124,8 +132,10 @@ impl LoadedBuiltins {
             mapped_args.push(arg.to_bytes());
         }
 
+        let mut ctx = self.context.lock().await;
+
         // Actually call the function
-        let ret = (async move { builtin.call(&mapped_args).await })
+        let ret = (async move { builtin.call(&mut ctx, &mapped_args).await })
             .instrument(tracing::info_span!("builtin.call"))
             .await?;
 
@@ -170,7 +180,8 @@ impl Debug for Runtime {
 }
 
 impl Runtime {
-    /// Load a new WASM policy module into the given store.
+    /// Load a new WASM policy module into the given store, with the default
+    /// evaluation context.
     ///
     /// # Errors
     ///
@@ -183,14 +194,35 @@ impl Runtime {
     ///    some of the exported functions
     ///  - it failed to load the entrypoints or the builtins list
     #[allow(clippy::too_many_lines)]
-    pub async fn new<T: Send>(
+    pub async fn new<T: Send>(store: impl AsContextMut<Data = T>, module: &Module) -> Result<Self> {
+        let context = DefaultContext::default();
+        Self::new_with_evaluation_context(store, module, context).await
+    }
+
+    /// Load a new WASM policy module into the given store, with a given
+    /// evaluation context.
+    ///
+    /// # Errors
+    ///
+    /// It will raise an error if one of the following condition is met:
+    ///
+    ///  - the provided [`wasmtime::Store`] isn't an async one
+    ///  - the [`wasmtime::Module`] was created with a different
+    ///    [`wasmtime::Engine`] than the [`wasmtime::Store`]
+    ///  - the WASM module is not a valid OPA WASM compiled policy, and lacks
+    ///    some of the exported functions
+    ///  - it failed to load the entrypoints or the builtins list
+    #[allow(clippy::too_many_lines)]
+    pub async fn new_with_evaluation_context<C: EvaluationContext, T: Send>(
         mut store: impl AsContextMut<Data = T>,
         module: &Module,
+        context: C,
     ) -> Result<Self> {
         let ty = MemoryType::new(2, None);
         let memory = Memory::new_async(&mut store, ty).await?;
 
-        let eventually_builtins = Arc::new(OnceCell::<LoadedBuiltins>::new());
+        // TODO: make the context configurable and reset it on evaluation
+        let eventually_builtins = Arc::new(OnceCell::<LoadedBuiltins<C>>::new());
 
         let mut linker = Linker::new(store.as_context_mut().engine());
         linker.define("env", "memory", memory)?;
@@ -342,7 +374,7 @@ impl Runtime {
         let builtins = opa_json_dump_func
             .decode(&mut store, &memory, &builtins)
             .await?;
-        let builtins = LoadedBuiltins::from_map(builtins)?;
+        let builtins = LoadedBuiltins::from_map(builtins, context)?;
         eventually_builtins.set(builtins)?;
 
         // Load the entrypoints map
