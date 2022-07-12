@@ -89,6 +89,8 @@ pub mod tests {
     #[derive(Default)]
     pub struct TestContext {
         inner: DefaultContext,
+
+        #[cfg(feature = "rng")]
         seed: u64,
     }
 

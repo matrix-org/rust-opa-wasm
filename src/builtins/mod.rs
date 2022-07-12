@@ -108,7 +108,10 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         "net.lookup_ip_addr" => Ok(self::impls::net::lookup_ip_addr.wrap()),
         "object.union_n" => Ok(self::impls::object::union_n.wrap()),
         "opa.runtime" => Ok(self::impls::opa::runtime.wrap()),
+
+        #[cfg(feature = "rng")]
         "rand.intn" => Ok(self::impls::rand::intn.wrap()),
+
         "regex.find_n" => Ok(self::impls::regex::find_n.wrap()),
         "regex.globs_match" => Ok(self::impls::regex::globs_match.wrap()),
         "regex.split" => Ok(self::impls::regex::split.wrap()),
