@@ -14,7 +14,7 @@ serde_json = "1.0.82"
 thiserror = "1.0.31"
 tokio = { version = "1.19.2", features = ["sync", "macros"] }
 tracing = "0.1.35"
-wasmtime = { version = "0.38.1", default-features = false, features = ["async"] }
+wasmtime = { version = "0.39.1", default-features = false, features = ["async"] }
 
 # Loader
 tokio-tar = { version = "0.3.0", optional = true }
@@ -44,7 +44,7 @@ version = "1.19.2"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies.wasmtime]
-version = "0.38.1"
+version = "0.39.1"
 
 [dev-dependencies]
 insta = { version = "1", features = ["redactions"] }
