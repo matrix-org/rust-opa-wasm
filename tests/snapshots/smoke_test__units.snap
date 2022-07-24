@@ -1,0 +1,18 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-units\", None).await.expect(\"error in test suite\")"
+---
+- result:
+    v_bytes: 1000
+    v_bytes_frac: 1572864
+    v_bytes_lower: 200000000
+    v_bytes_mib: 1048576
+    v_bytes_nounit: 100
+    v_bytes_zero: 0
+    v_decimal: 1000
+    v_decimal_frac: 1500000
+    v_decimal_lower: 1000000
+    v_decimal_mili: 0.2
+    v_decimal_nounit: 100
+    v_decimal_zero: 0
+
