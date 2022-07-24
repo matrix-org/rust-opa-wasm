@@ -26,6 +26,7 @@ pub mod traits;
 /// # Errors
 ///
 /// Returns an error if the builtin is not known
+#[allow(clippy::too_many_lines)]
 pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
     match name {
         #[cfg(feature = "base64url-builtins")]
