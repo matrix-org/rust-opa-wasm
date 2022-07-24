@@ -132,8 +132,13 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         "time.parse_rfc3339_ns" => Ok(self::impls::time::parse_rfc3339_ns.wrap()),
         "time.weekday" => Ok(self::impls::time::weekday.wrap()),
         "trace" => Ok(self::impls::trace.wrap()),
+
+        #[cfg(feature = "units-builtins")]
         "units.parse" => Ok(self::impls::units::parse.wrap()),
+
+        #[cfg(feature = "units-builtins")]
         "units.parse_bytes" => Ok(self::impls::units::parse_bytes.wrap()),
+
         "urlquery.decode" => Ok(self::impls::urlquery::decode.wrap()),
         "urlquery.decode_object" => Ok(self::impls::urlquery::decode_object.wrap()),
         "urlquery.encode" => Ok(self::impls::urlquery::encode.wrap()),
