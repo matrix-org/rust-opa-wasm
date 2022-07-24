@@ -40,6 +40,7 @@ pub mod rego;
 #[cfg(feature = "semver-builtins")]
 pub mod semver;
 pub mod time;
+#[cfg(feature = "units-builtins")]
 pub mod units;
 pub mod urlquery;
 pub mod uuid;
