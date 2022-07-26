@@ -43,6 +43,7 @@ pub mod time;
 pub mod units;
 pub mod urlquery;
 pub mod uuid;
+#[cfg(feature = "yaml-builtins")]
 pub mod yaml;
 
 /// Returns a list of all the indexes of a substring contained inside a string.
