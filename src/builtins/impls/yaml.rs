@@ -27,13 +27,13 @@ pub fn is_valid(x: String) -> bool {
 /// Serializes the input term to YAML.
 #[tracing::instrument(name = "yaml.marshal", err)]
 pub fn marshal(x: serde_yaml::Value) -> Result<String> {
-    let parse: String =  serde_yaml::to_string(&x)?;
+    let parse: String = serde_yaml::to_string(&x)?;
     Ok(parse)
 }
 
 /// Deserializes the input string.
 #[tracing::instrument(name = "yaml.unmarshal", err)]
 pub fn unmarshal(x: String) -> Result<serde_json::Value> {
-    let parse: serde_json::Value =  serde_yaml::from_str(&x)?;
+    let parse: serde_json::Value = serde_yaml::from_str(&x)?;
     Ok(parse)
 }
