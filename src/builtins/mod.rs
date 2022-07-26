@@ -142,7 +142,9 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
 
         #[cfg(feature = "yaml-builtins")]
         "yaml.is_valid" => Ok(self::impls::yaml::is_valid.wrap()),
+        #[cfg(feature = "yaml-builtins")]
         "yaml.marshal" => Ok(self::impls::yaml::marshal.wrap()),
+        #[cfg(feature = "yaml-builtins")]
         "yaml.unmarshal" => Ok(self::impls::yaml::unmarshal.wrap()),
         _ => bail!("unknown builtin"),
     }
