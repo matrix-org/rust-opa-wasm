@@ -59,33 +59,23 @@ pub fn encode(x: String) -> String {
 /// Encodes the given object into a URL encoded query string.
 #[tracing::instrument(name = "urlquery.encode_object")]
 pub fn encode_object(x: HashMap<String, serde_json::Value>) -> String {
-    let encoded_object = x.iter().fold(
-        String::new(),
-        |querystring_result, (parameter_key, parameter_value)| match &parameter_value {
+    let mut encoded_object: Vec<String> = Vec::new();
+    x.iter().for_each(
+        |(parameter_key, parameter_value)| match &parameter_value {
             Value::Array(arr) => {
-                let concat_query: String = arr
+                arr
                     .iter()
-                    .map(|v| {
-                        format!(
-                            "{}{}",
-                            concat_encode_query(parameter_key, v.as_str().unwrap_or("")),
-                            QUERY_CONCAT_CHAR
-                        )
-                    })
-                    .collect();
-                format!("{}{}", querystring_result, concat_query)
+                    .for_each(|v| {
+                        encoded_object.push(concat_encode_query(parameter_key, v.as_str().unwrap_or("")));
+                    });
             }
             _ => {
-                format!(
-                    "{}{}{}",
-                    querystring_result,
-                    concat_encode_query(parameter_key, parameter_value.as_str().unwrap_or("")),
-                    QUERY_CONCAT_CHAR
-                )
+                encoded_object.push(concat_encode_query(parameter_key, parameter_value.as_str().unwrap_or("")));
             }
         },
     );
-    format!("{}", &encoded_object[0..encoded_object.len() - 1])
+   encoded_object.sort();
+   encoded_object.join(QUERY_CONCAT_CHAR)
 }
 
 fn concat_encode_query(key: &str, value: &str) -> String {
