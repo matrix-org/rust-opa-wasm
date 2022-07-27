@@ -26,6 +26,7 @@ pub mod traits;
 /// # Errors
 ///
 /// Returns an error if the builtin is not known
+#[allow(clippy::too_many_lines)]
 pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
     match name {
         #[cfg(feature = "base64url-builtins")]
@@ -134,10 +135,19 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         "trace" => Ok(self::impls::trace.wrap()),
         "units.parse" => Ok(self::impls::units::parse.wrap()),
         "units.parse_bytes" => Ok(self::impls::units::parse_bytes.wrap()),
+        
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.decode" => Ok(self::impls::urlquery::decode.wrap()),
+
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.decode_object" => Ok(self::impls::urlquery::decode_object.wrap()),
+
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.encode" => Ok(self::impls::urlquery::encode.wrap()),
+
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.encode_object" => Ok(self::impls::urlquery::encode_object.wrap()),
+        
         "uuid.rfc4122" => Ok(self::impls::uuid::rfc4122.wrap()),
         "yaml.is_valid" => Ok(self::impls::yaml::is_valid.wrap()),
         "yaml.marshal" => Ok(self::impls::yaml::marshal.wrap()),

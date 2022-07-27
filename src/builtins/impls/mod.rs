@@ -41,6 +41,7 @@ pub mod rego;
 pub mod semver;
 pub mod time;
 pub mod units;
+#[cfg(feature = "urlquery-builtins")]
 pub mod urlquery;
 pub mod uuid;
 pub mod yaml;
