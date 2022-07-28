@@ -60,22 +60,23 @@ pub fn encode(x: String) -> String {
 #[tracing::instrument(name = "urlquery.encode_object")]
 pub fn encode_object(x: HashMap<String, serde_json::Value>) -> String {
     let mut encoded_object: Vec<String> = Vec::new();
-    x.iter().for_each(
-        |(parameter_key, parameter_value)| match &parameter_value {
+    x.iter()
+        .for_each(|(parameter_key, parameter_value)| match &parameter_value {
             Value::Array(arr) => {
-                arr
-                    .iter()
-                    .for_each(|v| {
-                        encoded_object.push(concat_encode_query(parameter_key, v.as_str().unwrap_or("")));
-                    });
+                for v in arr.iter() {
+                    encoded_object
+                        .push(concat_encode_query(parameter_key, v.as_str().unwrap_or("")));
+                }
             }
             _ => {
-                encoded_object.push(concat_encode_query(parameter_key, parameter_value.as_str().unwrap_or("")));
+                encoded_object.push(concat_encode_query(
+                    parameter_key,
+                    parameter_value.as_str().unwrap_or(""),
+                ));
             }
-        },
-    );
-   encoded_object.sort();
-   encoded_object.join(QUERY_CONCAT_CHAR)
+        });
+    encoded_object.sort();
+    encoded_object.join(QUERY_CONCAT_CHAR)
 }
 
 fn concat_encode_query(key: &str, value: &str) -> String {
