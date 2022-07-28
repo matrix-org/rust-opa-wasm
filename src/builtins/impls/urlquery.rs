@@ -80,5 +80,6 @@ pub fn encode_object(x: HashMap<String, serde_json::Value>) -> String {
 }
 
 fn concat_encode_query(key: &str, value: &str) -> String {
-    format!("{}={}", key, value)
+    let encode_value: String = byte_serialize(value.as_bytes()).collect();
+    format!("{}={}", key, encode_value)
 }

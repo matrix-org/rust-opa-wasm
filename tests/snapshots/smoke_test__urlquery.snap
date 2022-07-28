@@ -16,5 +16,5 @@ expression: "test_policy(\"test-urlquery\", None).await.expect(\"error in test s
         - obj1
         - obj2
     encode: "%3Ffoo%3D1%26bar%3Dtest"
-    encode_object: arr=bar&arr=foo&bar=test&foo=1&obj=obj1&obj=obj2
+    encode_object: arr=bar&arr=foo&bar=foo%26foo&foo=1&obj=obj1&obj=obj2
 

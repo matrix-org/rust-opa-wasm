@@ -2,7 +2,7 @@ package test
 
 encode := urlquery.encode("?foo=1&bar=test")
 
-encode_object := urlquery.encode_object({"foo":"1","bar":"test", "arr": ["foo", "bar"], "obj": {"obj1", "obj2"}})
+encode_object := urlquery.encode_object({"foo": "1", "bar": "foo&foo", "arr": ["foo", "bar"], "obj": {"obj1", "obj2"}})
 
 decode := urlquery.decode("%3Ffoo%3D1%26bar%3Dtest")
 
