@@ -98,13 +98,14 @@ async fn test_policy(bundle_name: &str, data: Option<&str>) -> AnyResult<serde_j
 
 #[tokio::test]
 async fn infra_loader_works() {
-    assert_eq!(
-        133_988,
-        read_bundle("tests/infra-fixtures/test-loader.rego.tar.gz")
-            .await
-            .unwrap()
-            .len()
-    );
+    let module = read_bundle("tests/infra-fixtures/test-loader.rego.tar.gz")
+        .await
+        .unwrap();
+
+    // Look for the WASM magic preamble
+    assert_eq!(module[..4], [0x00, 0x61, 0x73, 0x6D]);
+    // And for the WASM binary format version
+    assert_eq!(module[4..8], [0x01, 0x00, 0x00, 0x00]);
 }
 
 integration_test!(
