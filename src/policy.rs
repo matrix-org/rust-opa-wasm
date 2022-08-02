@@ -145,14 +145,19 @@ where
 
         Ok(data.0)
     }
+
+    async fn evaluation_start(&self) {
+        self.context.lock().await.evaluation_start();
+    }
 }
 
 /// An instance of a policy with builtins and entrypoints resolved, but with no
 /// data provided yet
-pub struct Runtime {
+pub struct Runtime<C> {
     version: AbiVersion,
     memory: Memory,
     entrypoints: HashMap<String, EntrypointId>,
+    loaded_builtins: Arc<OnceCell<LoadedBuiltins<C>>>,
 
     eval_func: funcs::Eval,
     opa_eval_ctx_new_func: funcs::OpaEvalCtxNew,
@@ -169,7 +174,7 @@ pub struct Runtime {
     opa_eval_func: Option<funcs::OpaEval>,
 }
 
-impl Debug for Runtime {
+impl<C> Debug for Runtime<C> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Runtime")
             .field("version", &self.version)
@@ -179,7 +184,7 @@ impl Debug for Runtime {
     }
 }
 
-impl Runtime {
+impl Runtime<DefaultContext> {
     /// Load a new WASM policy module into the given store, with the default
     /// evaluation context.
     ///
@@ -198,7 +203,9 @@ impl Runtime {
         let context = DefaultContext::default();
         Self::new_with_evaluation_context(store, module, context).await
     }
+}
 
+impl<C> Runtime<C> {
     /// Load a new WASM policy module into the given store, with a given
     /// evaluation context.
     ///
@@ -213,11 +220,14 @@ impl Runtime {
     ///    some of the exported functions
     ///  - it failed to load the entrypoints or the builtins list
     #[allow(clippy::too_many_lines)]
-    pub async fn new_with_evaluation_context<C: EvaluationContext, T: Send>(
+    pub async fn new_with_evaluation_context<T: Send>(
         mut store: impl AsContextMut<Data = T>,
         module: &Module,
         context: C,
-    ) -> Result<Self> {
+    ) -> Result<Self>
+    where
+        C: EvaluationContext,
+    {
         let ty = MemoryType::new(2, None);
         let memory = Memory::new_async(&mut store, ty).await?;
 
@@ -394,6 +404,7 @@ impl Runtime {
             version,
             memory,
             entrypoints,
+            loaded_builtins: eventually_builtins,
 
             eval_func: funcs::Eval::from_instance(&mut store, &instance)?,
             opa_eval_ctx_new_func: funcs::OpaEvalCtxNew::from_instance(&mut store, &instance)?,
@@ -440,7 +451,10 @@ impl Runtime {
     /// # Errors
     ///
     /// If it failed to load the empty data object in memory
-    pub async fn without_data<T: Send>(self, store: impl AsContextMut<Data = T>) -> Result<Policy> {
+    pub async fn without_data<T: Send>(
+        self,
+        store: impl AsContextMut<Data = T>,
+    ) -> Result<Policy<C>> {
         self.with_data(store, &serde_json::json!({})).await
     }
 
@@ -453,7 +467,7 @@ impl Runtime {
         self,
         mut store: impl AsContextMut<Data = T>,
         data: &V,
-    ) -> Result<Policy> {
+    ) -> Result<Policy<C>> {
         let data = self.load_json(&mut store, data).await?;
         let heap_ptr = self.opa_heap_ptr_get_func.call(&mut store).await?;
         Ok(Policy {
@@ -487,13 +501,13 @@ impl Runtime {
 
 /// An instance of a policy, ready to be executed
 #[derive(Debug)]
-pub struct Policy {
-    runtime: Runtime,
+pub struct Policy<C> {
+    runtime: Runtime<C>,
     data: Value,
     heap_ptr: Addr,
 }
 
-impl Policy {
+impl<C> Policy<C> {
     /// Evaluate a policy with the given entrypoint and input.
     ///
     /// # Errors
@@ -505,13 +519,22 @@ impl Policy {
         mut store: impl AsContextMut<Data = T>,
         entrypoint: &str,
         input: &V,
-    ) -> Result<R> {
+    ) -> Result<R>
+    where
+        C: EvaluationContext,
+    {
         // Lookup the entrypoint
         let entrypoint = self
             .runtime
             .entrypoints
             .get(entrypoint)
             .with_context(|| format!("could not find entrypoint {}", entrypoint))?;
+
+        self.loaded_builtins
+            .get()
+            .expect("builtins where never initialized")
+            .evaluation_start()
+            .await;
 
         // Take the fast path if it is awailable
         if let Some(opa_eval) = &self.runtime.opa_eval_func {
@@ -603,8 +626,8 @@ impl Policy {
     }
 }
 
-impl Deref for Policy {
-    type Target = Runtime;
+impl<C> Deref for Policy<C> {
+    type Target = Runtime<C>;
     fn deref(&self) -> &Self::Target {
         &self.runtime
     }

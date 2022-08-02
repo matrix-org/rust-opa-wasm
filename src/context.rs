@@ -29,6 +29,9 @@ pub trait EvaluationContext: Send + 'static {
     #[cfg(feature = "rng")]
     fn get_rng(&mut self) -> Self::Rng;
 
+    /// Notify the context on evaluation start, so it can clean itself up
+    fn evaluation_start(&mut self);
+
     /// Get a value from the evaluation cache
     ///
     /// # Errors
@@ -57,6 +60,11 @@ impl EvaluationContext for DefaultContext {
     #[cfg(feature = "rng")]
     fn get_rng(&mut self) -> Self::Rng {
         rand::thread_rng()
+    }
+
+    fn evaluation_start(&mut self) {
+        // Clear the cache
+        self.cache = HashMap::new();
     }
 
     fn cache_get<K: Serialize, C: DeserializeOwned>(&mut self, key: &K) -> Result<Option<C>> {
@@ -97,6 +105,10 @@ pub mod tests {
     impl EvaluationContext for TestContext {
         #[cfg(feature = "rng")]
         type Rng = rand::rngs::StdRng;
+
+        fn evaluation_start(&mut self) {
+            self.inner.evaluation_start();
+        }
 
         #[cfg(feature = "rng")]
         fn get_rng(&mut self) -> Self::Rng {
