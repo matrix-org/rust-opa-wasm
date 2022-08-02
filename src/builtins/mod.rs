@@ -145,8 +145,14 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         "urlquery.encode" => Ok(self::impls::urlquery::encode.wrap()),
         "urlquery.encode_object" => Ok(self::impls::urlquery::encode_object.wrap()),
         "uuid.rfc4122" => Ok(self::impls::uuid::rfc4122.wrap()),
+
+        #[cfg(feature = "yaml-builtins")]
         "yaml.is_valid" => Ok(self::impls::yaml::is_valid.wrap()),
+
+        #[cfg(feature = "yaml-builtins")]
         "yaml.marshal" => Ok(self::impls::yaml::marshal.wrap()),
+
+        #[cfg(feature = "yaml-builtins")]
         "yaml.unmarshal" => Ok(self::impls::yaml::unmarshal.wrap()),
         _ => bail!("unknown builtin"),
     }
