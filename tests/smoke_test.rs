@@ -115,6 +115,7 @@ integration_test!(
 );
 integration_test!(test_loader_true, "test-loader", input = "test-loader.true");
 integration_test!(test_loader_empty, "test-loader");
+integration_test!(test_units, "test-units");
 
 /*
 #[tokio::test]
