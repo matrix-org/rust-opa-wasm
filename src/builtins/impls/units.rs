@@ -31,9 +31,8 @@ pub fn parse(x: String) -> Result<serde_json::Value> {
     // we're giving back serde_json::Value because per Go OPA, `parse`
     // returns usize _or_ float, and this allows to return multiple types.
     let p = Config::new().with_decimal();
-    if let [init @ .., prefix] = x.as_bytes() {
-        // edge case here, when 'm' is lowercase that's mili
-        if b'm'.eq(prefix) {
+    // edge case here, when 'm' is lowercase that's mili
+    if let [init @ .., b'm'] = x.as_bytes() {
             return Ok(serde_json::to_value(p.parse_size(init)? as f64 * 0.001)?);
         }
     }
