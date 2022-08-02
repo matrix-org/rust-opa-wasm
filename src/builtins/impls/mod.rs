@@ -39,6 +39,7 @@ pub mod regex;
 pub mod rego;
 #[cfg(feature = "semver-builtins")]
 pub mod semver;
+#[cfg(feature = "time-builtins")]
 pub mod time;
 pub mod units;
 pub mod urlquery;

@@ -26,6 +26,7 @@ pub mod traits;
 /// # Errors
 ///
 /// Returns an error if the builtin is not known
+#[allow(clippy::too_many_lines)]
 pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
     match name {
         #[cfg(feature = "base64url-builtins")]
@@ -122,15 +123,25 @@ pub fn resolve(name: &str) -> Result<Box<dyn Builtin>> {
         #[cfg(feature = "sprintf-builtins")]
         "sprintf" => Ok(self::impls::sprintf.wrap()),
 
+        #[cfg(feature = "time-builtins")]
         "time.add_date" => Ok(self::impls::time::add_date.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.clock" => Ok(self::impls::time::clock.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.date" => Ok(self::impls::time::date.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.diff" => Ok(self::impls::time::diff.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.now_ns" => Ok(self::impls::time::now_ns.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.parse_duration_ns" => Ok(self::impls::time::parse_duration_ns.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.parse_ns" => Ok(self::impls::time::parse_ns.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.parse_rfc3339_ns" => Ok(self::impls::time::parse_rfc3339_ns.wrap()),
+        #[cfg(feature = "time-builtins")]
         "time.weekday" => Ok(self::impls::time::weekday.wrap()),
+
         "trace" => Ok(self::impls::trace.wrap()),
         "units.parse" => Ok(self::impls::units::parse.wrap()),
         "units.parse_bytes" => Ok(self::impls::units::parse_bytes.wrap()),
