@@ -43,6 +43,10 @@ parse-size = { version = "1", features = ["std"], optional = true }
 serde_yaml = { version = "0.9.1", optional = true }
 form_urlencoded = { version = "1", optional = true }
 urlencoding = { version = "2", optional = true }
+chrono = { version = "0.4", optional = true }
+chrono-tz = { version = "0.6", optional = true }
+chronoutil = { version = "0.2.3", optional = true }
+duration-str = { version = "0.4.0", optional = true }
 
 [dev-dependencies.tokio]
 version = "1.5"
@@ -95,6 +99,7 @@ units-builtins = ["dep:parse-size"]
 rand-builtins = ["rng"]
 yaml-builtins = ["dep:serde_yaml"]
 urlquery-builtins = ["dep:form_urlencoded", "dep:urlencoding"]
+time-builtins = ["dep:chrono", "dep:chrono-tz", "dep:duration-str", "dep:chronoutil"]
 
 all-crypto-builtins = [
   "crypto-digest-builtins",
@@ -115,6 +120,7 @@ all-builtins = [
   "units-builtins",
   "yaml-builtins",
   "urlquery-builtins",
+  "time-builtins",
 ]
 
 [[test]]

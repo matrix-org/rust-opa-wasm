@@ -40,6 +40,7 @@ pub mod regex;
 pub mod rego;
 #[cfg(feature = "semver-builtins")]
 pub mod semver;
+#[cfg(feature = "time-builtins")]
 pub mod time;
 #[cfg(feature = "units-builtins")]
 pub mod units;
