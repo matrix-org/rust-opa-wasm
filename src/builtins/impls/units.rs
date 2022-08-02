@@ -46,5 +46,5 @@ pub fn parse(x: String) -> Result<serde_json::Value> {
 /// give the same result (e.g. Mi and MiB).
 #[tracing::instrument(name = "units.parse_bytes", err)]
 pub fn parse_bytes(x: String) -> Result<u64> {
-    Ok(Config::new().with_decimal().parse_size(x.as_str())?)
+    Config::new().with_decimal().parse_size(x.as_str()).context("could not parse value")
 }
