@@ -102,7 +102,7 @@ all-builtins = [
   "json-builtins",
   "semver-builtins",
   "sprintf-builtins",
-  "units-builtins"
+  "units-builtins",
 ]
 
 [[test]]
