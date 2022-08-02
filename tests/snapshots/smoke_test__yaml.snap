@@ -5,7 +5,7 @@ expression: "test_policy(\"test-yaml\", None).await.expect(\"error in test suite
 - result:
     is_valid: false
     is_valid_1: true
-    marshal: "---\n\"foo: bar\\nnum: 1\"\n"
+    marshal: "---\nfoo: bar\nnum: 1\n"
     unmarshal:
       foo: bar
       num: 1
