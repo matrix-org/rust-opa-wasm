@@ -2,6 +2,7 @@ name: Check
 
 on:
   push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -284,6 +285,7 @@ jobs:
 
   tests-done:
     name: Tests done
+    if: ${{ always() }}
     needs:
       - rustfmt
       - clippy
@@ -292,5 +294,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Done"
-        run: "true"
+      - uses: matrix-org/done-action@v2
+        with:
+          needs: ${{ toJSON(needs) }}
