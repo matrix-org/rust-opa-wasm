@@ -34,6 +34,7 @@ pub mod json;
 pub mod net;
 pub mod object;
 pub mod opa;
+#[cfg(feature = "rng")]
 pub mod rand;
 pub mod regex;
 pub mod rego;
