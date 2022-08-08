@@ -18,9 +18,25 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, Datelike, LocalResult, TimeZone, Timelike, Utc, Weekday};
 use chrono_tz::Tz;
 use chronoutil::RelativeDuration;
+use serde::{Deserialize, Serialize};
 
 const ERROR_INVALID_ARGUMENTS: &str = "invalid argument(s)";
-const DEFAULT_TIMEZONE: &str = "UTC";
+
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+enum TimestampWithOptionalTimezone {
+    Timestamp(i64),
+    TimestampAndTimezone(i64, String),
+}
+
+impl TimestampWithOptionalTimezone {
+    fn to_datetime(self) -> Result<DateTime<Tz>> {
+        match self {
+            Self::Timestamp(ts) => nanoseconds_to_date(ts, None),
+            Self::TimestampAndTimezone(ts, tz) => nanoseconds_to_date(ts, Some(&tz)),
+        }
+    }
+}
 
 /// Returns the nanoseconds since epoch after adding years, months and days to
 /// nanoseconds. `undefined` if the result would be outside the valid time range
@@ -28,8 +44,7 @@ const DEFAULT_TIMEZONE: &str = "UTC";
 #[tracing::instrument(name = "time.add_date", err)]
 pub fn add_date(ns: i64, years: i32, months: i32, days: i64) -> Result<i64> {
     let date_time = {
-        let date_time = nanoseconds_to_date(ns, DEFAULT_TIMEZONE)?;
-        date_time
+        TimestampWithOptionalTimezone::Timestamp(ns).to_datetime()?
             + RelativeDuration::years(years)
             + RelativeDuration::months(months)
             + RelativeDuration::days(days)
@@ -92,9 +107,8 @@ pub fn parse_rfc3339_ns(value: String) -> Result<i64> {
 /// Returns the day of the week (Monday, Tuesday, ...) for the nanoseconds since
 /// epoch.
 #[tracing::instrument(name = "time.weekday", err)]
-pub fn weekday(x: serde_json::Value) -> Result<String> {
+pub fn weekday(x: serde_json::Value) -> Result<&'static str> {
     let date_time = extract_data_from_value(&x)?;
-
     Ok(match date_time.weekday() {
         Weekday::Mon => "Monday",
         Weekday::Tue => "Tuesday",
@@ -103,8 +117,7 @@ pub fn weekday(x: serde_json::Value) -> Result<String> {
         Weekday::Fri => "Friday",
         Weekday::Sat => "Saturday",
         Weekday::Sun => "Sunday",
-    }
-    .to_string())
+    })
 }
 
 /// convert nanoseconds to [`chrono::DateTime`] by the given timezone
@@ -113,8 +126,8 @@ pub fn weekday(x: serde_json::Value) -> Result<String> {
 ///
 /// - the `time_zone` when could not parse the given timezone
 /// - the given `ns` representation is invalid.
-fn nanoseconds_to_date(ns: i64, time_zone: &str) -> Result<DateTime<Tz>> {
-    let tz: Tz = match time_zone.parse() {
+fn nanoseconds_to_date(ns: i64, time_zone: Option<&str>) -> Result<DateTime<Tz>> {
+    let tz: Tz = match time_zone.map_or(Ok(Tz::UTC), str::parse) {
         Ok(tz) => tz,
         Err(e) => return Err(anyhow!("timezone parse error: {}", e)),
     };
@@ -146,15 +159,18 @@ fn nanoseconds_to_date(ns: i64, time_zone: &str) -> Result<DateTime<Tz>> {
 /// - the single value is not i64
 /// - when has an error to convert ns to [`chrono::DateTime`]
 fn extract_data_from_value(value: &serde_json::Value) -> Result<DateTime<Tz>> {
-    let (ns, timezone) = match value.as_array() {
+    match value.as_array() {
         Some(_data) => match (value.get(0).unwrap_or(value).as_i64(), value.get(1)) {
-            (Some(ns), Some(timezone)) => (ns, timezone.as_str().unwrap_or_default().to_string()),
-            _ => return Err(anyhow!(ERROR_INVALID_ARGUMENTS)),
+            (Some(ns), Some(tz)) => TimestampWithOptionalTimezone::TimestampAndTimezone(
+                ns,
+                tz.as_str().unwrap_or_default().to_string(),
+            )
+            .to_datetime(),
+            _ => Err(anyhow!(ERROR_INVALID_ARGUMENTS)),
         },
         _ => match value.as_i64() {
-            Some(ns) => (ns, DEFAULT_TIMEZONE.to_string()),
-            None => return Err(anyhow!(ERROR_INVALID_ARGUMENTS)),
+            Some(ns) => TimestampWithOptionalTimezone::Timestamp(ns).to_datetime(),
+            None => Err(anyhow!(ERROR_INVALID_ARGUMENTS)),
         },
-    };
-    nanoseconds_to_date(ns, timezone.as_str())
+    }
 }
