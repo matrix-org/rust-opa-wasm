@@ -1,6 +1,12 @@
 package test
 
-encode := urlquery.encode("?foo=1&bar=test")
+encode_1 := urlquery.encode("?foo=1&bar=test")
+
+encode_2 := urlquery.decode("&&&&")
+
+encode_3 := urlquery.decode("====")
+
+encode_4 := urlquery.decode("&=&=")
 
 encode_object := urlquery.encode_object({"foo": "1", "bar": "foo&foo", "arr": ["foo", "bar"], "obj": {"obj1", "obj2"}})
 

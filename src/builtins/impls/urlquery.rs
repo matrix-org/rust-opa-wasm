@@ -16,36 +16,22 @@
 
 use std::collections::HashMap;
 
+use anyhow::Result;
 use serde_json::Value;
-use url::form_urlencoded::{byte_serialize, parse};
-
-const QUERY_CONCAT_CHAR: &str = "&";
 
 /// Decodes a URL-encoded input string.
-#[tracing::instrument(name = "urlquery.decode")]
-pub fn decode(x: String) -> String {
-    parse(x.as_bytes())
-        .map(|(key, val)| [key, val].concat())
-        .collect()
+#[tracing::instrument(name = "urlquery.decode", err)]
+pub fn decode(x: String) -> Result<String> {
+    Ok(urlencoding::decode(&x)?.into_owned())
 }
 
 /// Decodes the given URL query string into an object.
 #[tracing::instrument(name = "urlquery.decode_object")]
 pub fn decode_object(x: String) -> HashMap<String, Vec<String>> {
+    let parsed = form_urlencoded::parse(x.as_bytes()).into_owned();
     let mut decoded_object: HashMap<String, Vec<String>> = HashMap::new();
-    for pair in x.split(QUERY_CONCAT_CHAR) {
-        let mut iter_parameter = pair.split('=').take(2);
-        let (parameter_key, parameter_value) = match (iter_parameter.next(), iter_parameter.next())
-        {
-            (Some(k), Some(v)) => (k, v),
-            _ => continue,
-        };
-        match decoded_object.get_mut(parameter_key) {
-            Some(v) => v.push(parameter_value.to_string()),
-            _ => {
-                decoded_object.insert(parameter_key.to_string(), vec![parameter_value.to_string()]);
-            }
-        };
+    for (k, v) in parsed {
+        decoded_object.entry(k).or_default().push(v);
     }
     decoded_object
 }
@@ -53,33 +39,28 @@ pub fn decode_object(x: String) -> HashMap<String, Vec<String>> {
 /// Encodes the input string into a URL-encoded string.
 #[tracing::instrument(name = "urlquery.encode")]
 pub fn encode(x: String) -> String {
-    byte_serialize(x.as_bytes()).collect()
+    form_urlencoded::byte_serialize(x.as_bytes()).collect()
 }
 
 /// Encodes the given object into a URL encoded query string.
 #[tracing::instrument(name = "urlquery.encode_object")]
 pub fn encode_object(x: HashMap<String, serde_json::Value>) -> String {
-    let mut encoded_object: Vec<String> = Vec::new();
-    x.iter()
+    let mut encoded = form_urlencoded::Serializer::new(String::new());
+
+    let mut sorted: Vec<_> = x.iter().collect();
+    sorted.sort_by_key(|a| a.0);
+
+    sorted
+        .iter()
         .for_each(|(parameter_key, parameter_value)| match &parameter_value {
             Value::Array(arr) => {
                 for v in arr.iter() {
-                    encoded_object
-                        .push(concat_encode_query(parameter_key, v.as_str().unwrap_or("")));
+                    encoded.append_pair(parameter_key, v.as_str().unwrap_or_default());
                 }
             }
             _ => {
-                encoded_object.push(concat_encode_query(
-                    parameter_key,
-                    parameter_value.as_str().unwrap_or(""),
-                ));
+                encoded.append_pair(parameter_key, parameter_value.as_str().unwrap_or_default());
             }
         });
-    encoded_object.sort();
-    encoded_object.join(QUERY_CONCAT_CHAR)
-}
-
-fn concat_encode_query(key: &str, value: &str) -> String {
-    let encode_value: String = byte_serialize(value.as_bytes()).collect();
-    format!("{}={}", key, encode_value)
+    encoded.finish()
 }
