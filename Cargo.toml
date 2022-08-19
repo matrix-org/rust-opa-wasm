@@ -40,7 +40,7 @@ sha1 = { version = "0.10.1", optional = true }
 sha2 = { version = "0.10.2", optional = true }
 sprintf = { version = "0.1.2", optional = true }
 parse-size = { version = "1.0.0", features = ["std"], optional = true }
-serde_yaml = { version = "0.9.4", optional = true }
+serde_yaml = { version = "0.9.9", optional = true }
 
 [dev-dependencies.tokio]
 version = "1.20.1"
