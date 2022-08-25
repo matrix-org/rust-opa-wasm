@@ -135,10 +135,10 @@ fn nanoseconds_to_date(ns: i64, time_zone: Option<&str>) -> Result<DateTime<Tz>>
 
     #[allow(clippy::cast_sign_loss)]
     match tz.timestamp_opt(ns / 1_000_000_000, (ns % 1_000_000_000) as u32) {
-        LocalResult::None => return Err(anyhow!("No such local time")),
+        LocalResult::None => Err(anyhow!("No such local time")),
         LocalResult::Single(t) => Ok(t),
         LocalResult::Ambiguous(t1, t2) => {
-            return Err(anyhow!(
+            Err(anyhow!(
                 "ambiguous local time, ranging from {:?} to {:?}",
                 t1,
                 t2
