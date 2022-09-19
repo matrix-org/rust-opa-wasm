@@ -48,7 +48,7 @@ features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
 wasmtime= "0.40.1"
-insta = { version = "1.19.1", features = ["yaml"] }
+insta = { version = "1.20.0", features = ["yaml"] }
 rstest = "0.15.0"
 
 [features]
