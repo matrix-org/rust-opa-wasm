@@ -16,7 +16,7 @@
 
 use anyhow::Result;
 use camino::Utf8PathBuf;
-use clap::{AppSettings, ArgGroup, Parser};
+use clap::{ArgGroup, Parser};
 use opa_wasm::Runtime;
 use tracing::Instrument;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry};
@@ -24,38 +24,37 @@ use wasmtime::{Config, Engine, Module, Store};
 
 /// Evaluates OPA policies compiled as WASM modules
 #[derive(Parser)]
-#[clap(setting = AppSettings::DeriveDisplayOrder)]
 #[clap(group(
     ArgGroup::new("policy")
         .required(true)
 ))]
 struct Cli {
     /// Path to the WASM module
-    #[clap(short, long, group = "policy")]
+    #[arg(short, long, group = "policy")]
     module: Option<Utf8PathBuf>,
 
     /// Path to the OPA bundle
-    #[clap(short, long, group = "policy")]
+    #[arg(short, long, group = "policy")]
     bundle: Option<Utf8PathBuf>,
 
     /// Entrypoint to use
-    #[clap(short, long)]
+    #[arg(short, long)]
     entrypoint: String,
 
     /// JSON literal to use as data
-    #[clap(short, long = "data", group = "data", value_name = "JSON")]
+    #[arg(short, long = "data", group = "data", value_name = "JSON")]
     data_value: Option<serde_json::Value>,
 
     /// Path to a JSON file to load as data
-    #[clap(short = 'D', long, group = "data", value_name = "PATH")]
+    #[arg(short = 'D', long, group = "data", value_name = "PATH")]
     data_path: Option<Utf8PathBuf>,
 
     /// JSON literal to use as input
-    #[clap(short, long = "input", group = "input", value_name = "JSON")]
+    #[arg(short, long = "input", group = "input", value_name = "JSON")]
     input_value: Option<serde_json::Value>,
 
     /// Path to a JSON file to load as input
-    #[clap(short = 'I', long, group = "input", value_name = "PATH")]
+    #[arg(short = 'I', long, group = "input", value_name = "PATH")]
     input_path: Option<Utf8PathBuf>,
 }
 

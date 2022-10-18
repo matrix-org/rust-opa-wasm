@@ -369,6 +369,7 @@ impl Func for OpaValueParse {
 }
 
 impl OpaValueParse {
+    #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_parse", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -505,6 +506,7 @@ impl Func for OpaValueRemovePath {
 }
 
 impl OpaValueRemovePath {
+    #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_remove_path", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -531,6 +533,7 @@ impl Func for OpaValueDump {
 }
 
 impl OpaValueDump {
+    #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_dump", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
