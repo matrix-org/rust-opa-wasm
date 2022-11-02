@@ -1,0 +1,20 @@
+# List of features flag combinations used for clippy in CI
+loader
+cli
+rng
+base64url-builtins
+crypto-digest-builtins crypto-md5-builtins
+crypto-digest-builtins crypto-sha1-builtins
+crypto-digest-builtins crypto-sha2-builtins
+crypto-hmac-builtins crypto-md5-builtins
+crypto-hmac-builtins crypto-sha1-builtins
+crypto-hmac-builtins crypto-sha2-builtins
+hex-builtins
+semver-builtins
+sprintf-builtins
+json-builtins
+units-builtins
+rand-builtins
+yaml-builtins
+all-crypto-builtins
+all-builtins
