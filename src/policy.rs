@@ -455,7 +455,8 @@ impl<C> Runtime<C> {
         self,
         store: impl AsContextMut<Data = T>,
     ) -> Result<Policy<C>> {
-        self.with_data(store, &serde_json::json!({})).await
+        let data = serde_json::Value::Object(serde_json::Map::default());
+        self.with_data(store, &data).await
     }
 
     /// Instanciate the policy with the given `data` object

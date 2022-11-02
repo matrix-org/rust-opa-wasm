@@ -10,62 +10,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  fetch:
-    name: Fetch Cargo dependencies
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: "1.60.0" # MSRV
-          target: x86_64-unknown-linux-musl
-          profile: minimal
-          override: true
-
-      - name: Setup Cargo cache
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-          key: ${{ runner.os }}-cargo-deps-msrv-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Fetch dependencies
-        id: fetch
-        uses: actions-rs/cargo@v1
-        continue-on-error: true
-        with:
-          command: fetch
-          args: --locked
-
-      - name: Fetch dependencies (retry)
-        id: fetch-2
-        uses: actions-rs/cargo@v1
-        if: steps.fetch.outcome == 'failure'
-        continue-on-error: true
-        with:
-          command: fetch
-          args: --locked
-
-      - name: Fetch dependencies (second retry)
-        uses: actions-rs/cargo@v1
-        if: steps.fetch.outcome == 'failure' && steps.fetch-2.outcome == 'failure'
-        with:
-          command: fetch
-          args: --locked
-
-
   rustfmt:
     name: Check style
-    needs: [fetch]
     runs-on: ubuntu-latest
 
     permissions:
@@ -76,34 +22,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install toolchain
-        id: toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          target: x86_64-unknown-linux-musl
-          components: rustfmt
-          profile: minimal
-          override: true
-
-      - name: Setup Cargo cache
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-          key: ${{ runner.os }}-cargo-deps-msrv-${{ hashFiles('**/Cargo.lock') }}
+        run: |
+          rustup toolchain install nightly
+          rustup default nightly
+          rustup component add rustfmt
 
       - name: Check style
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
 
 
   clippy:
     name: Run Clippy
-    needs: [fetch]
     runs-on: ubuntu-latest
 
     permissions:
@@ -114,44 +43,32 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install toolchain
-        id: toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: x86_64-unknown-linux-musl
-          components: clippy
-          profile: minimal
-          override: true
+        run: |
+          rustup toolchain install stable
+          rustup default stable
+          rustup component add clippy
 
-      - name: Install cargo-hack
-        uses: taiki-e/install-action@cargo-hack
-
-      - name: Setup Cargo cache
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-          key: ${{ runner.os }}-cargo-deps-msrv-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Setup build cache
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-            target
-          key: cargo-clippy-${{ hashFiles('**/Cargo.lock') }}-${{ steps.toolchain.outputs.rustc_hash }}
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run Clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: hack
-          args: clippy --feature-powerset --depth 2 --bins --tests -- -D warnings
+        run: |
+          run_clippy () {
+            echo "::group::cargo clippy $@"
+            cargo clippy --bins --tests $@ -- -D warnings
+            echo "::endgroup::"
+          }
+
+          run_clippy --all-features
+          run_clippy --no-default-features
+          sed -e 's/#.*//' -e '/^\s*$/d' -e 's/\s\+/,/g' features.txt | while read -r FEATURES; do
+            run_clippy --no-default-features --features "${FEATURES}"
+          done
 
 
   test:
     name: Run test suite with Rust ${{ matrix.toolchain }}
-    needs: [rustfmt, clippy, fetch]
+    needs: [rustfmt, clippy]
     runs-on: ubuntu-latest
 
     permissions:
@@ -163,7 +80,6 @@ jobs:
       fail-fast: false # Continue other jobs if one fails to help filling the cache
       matrix:
         toolchain:
-          - "1.60.0" # MSRV
           - stable
           - beta
           - nightly
@@ -173,48 +89,28 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install toolchain
-        id: toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.toolchain }}
-          target: x86_64-unknown-linux-musl
-          profile: minimal
-          override: true
+        run: |
+          rustup toolchain install ${{ matrix.toolchain }}
+          rustup default ${{ matrix.toolchain }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Setup OPA
         uses: open-policy-agent/setup-opa@v1
         with:
           version: latest
 
-      - name: Setup Cargo cache
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-          key: ${{ runner.os }}-cargo-deps-msrv-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Setup build cache
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-            target
-          key: ${{ runner.os }}-cargo-build-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Build OPA bundles for test
         run: make build-opa
 
       - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features --offline
+        run: cargo test --all-features
 
 
-  coverage:
-    name: Code coverage
-    needs: [rustfmt, clippy, fetch]
+  minimal-versions:
+    name: Run test suite with minimal versions
+    needs: [rustfmt, clippy]
     runs-on: ubuntu-latest
 
     permissions:
@@ -225,51 +121,70 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install toolchain
-        id: toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: x86_64-unknown-linux-musl
-          override: true
-          components: llvm-tools-preview
+        run: |
+          rustup toolchain install 1.60.0 # MSRV
+          rustup default 1.60.0 # MSRV
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Setup OPA
         uses: open-policy-agent/setup-opa@v1
         with:
           version: latest
 
-      - name: Setup Cargo cache
-        uses: actions/cache@v3.0.11
-        with:
-          path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-          key: ${{ runner.os }}-cargo-deps-msrv-${{ hashFiles('**/Cargo.lock') }}
+      - name: Build OPA bundles for test
+        run: make build-opa
 
-      - name: Setup build cache
-        uses: actions/cache@v3.0.11
+      - name: Install minimal versions
+        env:
+          RUSTC_BOOTSTRAP: "1"
+        run: |
+          cargo update -Z minimal-versions
+
+      - name: Test
+        run:
+          cargo test --all-features
+
+
+  coverage:
+    name: Code coverage
+    needs: [rustfmt, clippy]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        run: |
+          rustup toolchain install stable
+          rustup default stable
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v1
         with:
-          path: |
-            target
-          key: ${{ runner.os }}-cargo-coverage-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+          version: latest
 
       - name: Download grcov
         run: |
           mkdir -p "${HOME}/.local/bin"
-          curl -sL https://github.com/mozilla/grcov/releases/download/v0.8.10/grcov-x86_64-unknown-linux-gnu.tar.bz2 | tar jxf - -C "${HOME}/.local/bin"
+          curl -sL https://github.com/mozilla/grcov/releases/download/v0.8.13/grcov-x86_64-unknown-linux-gnu.tar.bz2 | tar jxf - -C "${HOME}/.local/bin"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build OPA bundles for test
         run: make build-opa
 
       - name: Run test suite with profiling enabled
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features --no-fail-fast --tests
+        run: |
+          cargo test --all-features --no-fail-fast --tests
         env:
-          CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Cinstrument-coverage'
           LLVM_PROFILE_FILE: "cargo-test-%p-%m.profraw"
 
@@ -283,6 +198,7 @@ jobs:
         with:
           files: target/coverage/*.lcov
 
+
   tests-done:
     name: Tests done
     if: ${{ always() }}
@@ -291,6 +207,7 @@ jobs:
       - clippy
       - test
       - coverage
+      - minimal-versions
     runs-on: ubuntu-latest
 
     steps:
