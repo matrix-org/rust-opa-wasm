@@ -25,6 +25,7 @@ jobs:
         run: |
           rustup toolchain install nightly
           rustup default nightly
+          rustup component add rustfmt
 
       - name: Check style
         run: cargo fmt --all -- --check
@@ -45,6 +46,7 @@ jobs:
         run: |
           rustup toolchain install stable
           rustup default stable
+          rustup component add clippy
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
