@@ -37,6 +37,8 @@ OPTIONS:
 ## As a library
 
 ```rust,no_run
+use std::collections::HashMap;
+
 use anyhow::Result;
 use wasmtime::{Config, Engine, Module, Store};
 
@@ -57,8 +59,8 @@ async fn main() -> Result<()> {
     // Create a store which will hold the module instance
     let mut store = Store::new(&engine, ());
 
-    let data = serde_json::json!({"hello": "world"});
-    let input = serde_json::json!({"message": "world"});
+    let data = HashMap::from([("hello", "world")]);
+    let input = HashMap::from([("message", "world")]);
 
     // Instantiate the module
     let runtime = Runtime::new(&mut store, &module).await?;

@@ -17,7 +17,6 @@ use std::path::Path;
 use anyhow::Result as AnyResult;
 use insta::assert_yaml_snapshot;
 use opa_wasm::{read_bundle, Runtime, TestContext};
-use serde_json::json;
 use wasmtime::{Config, Engine, Module, Store};
 
 macro_rules! integration_test {
@@ -88,7 +87,7 @@ async fn test_policy(bundle_name: &str, data: Option<&str>) -> AnyResult<serde_j
         let input_bytes = tokio::fs::read(input(&format!("{}.json", data))).await?;
         serde_json::from_slice(&input_bytes[..])?
     } else {
-        json!({})
+        serde_json::Value::Object(serde_json::Map::default())
     };
     eval_policy(
         &bundle(&format!("{}.rego.tar.gz", bundle_name)),

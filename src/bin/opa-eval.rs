@@ -74,7 +74,7 @@ async fn main() -> Result<()> {
         } else if let Some(data) = cli.data_value {
             data
         } else {
-            serde_json::json!({})
+            serde_json::Value::Object(serde_json::Map::default())
         };
 
         let input = if let Some(path) = cli.input_path {
@@ -83,7 +83,7 @@ async fn main() -> Result<()> {
         } else if let Some(input) = cli.input_value {
             input
         } else {
-            serde_json::json!({})
+            serde_json::Value::Object(serde_json::Map::default())
         };
 
         let module = if let Some(path) = cli.module {

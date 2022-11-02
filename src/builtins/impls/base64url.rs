@@ -17,5 +17,5 @@
 /// Serializes the input string into base64url encoding without padding.
 #[tracing::instrument]
 pub fn encode_no_pad(x: String) -> String {
-    base64::encode_config(x, base64::URL_SAFE_NO_PAD)
+    base64::encode_config(&x, base64::URL_SAFE_NO_PAD)
 }
