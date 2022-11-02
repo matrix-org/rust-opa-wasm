@@ -80,7 +80,6 @@ jobs:
       fail-fast: false # Continue other jobs if one fails to help filling the cache
       matrix:
         toolchain:
-          - "1.60.0" # MSRV
           - stable
           - beta
           - nightly
