@@ -146,7 +146,7 @@ jobs:
 
       - name: Test
         run:
-          cargo test --all-features --offline
+          cargo test --all-features
 
 
   coverage:
