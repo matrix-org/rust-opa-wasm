@@ -24,7 +24,7 @@ jobs:
       - name: Install toolchain
         run: |
           rustup toolchain install nightly
-          rustup toolchain default nightly
+          rustup default nightly
 
       - name: Check style
         run: cargo fmt --all -- --check
@@ -47,7 +47,7 @@ jobs:
       - name: Install toolchain
         run: |
           rustup toolchain install stable
-          rustup toolchain default stable
+          rustup default stable
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -93,7 +93,7 @@ jobs:
       - name: Install toolchain
         run: |
           rustup toolchain install ${{ matrix.toolchain }}
-          rustup toolchain default ${{ matrix.toolchain }}
+          rustup default ${{ matrix.toolchain }}
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -125,7 +125,7 @@ jobs:
       - name: Install toolchain
         run: |
           rustup toolchain install 1.60.0 # MSRV
-          rustup toolchain default 1.60.0 # MSRV
+          rustup default 1.60.0 # MSRV
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -164,7 +164,7 @@ jobs:
       - name: Install toolchain
         run: |
           rustup toolchain install stable
-          rustup toolchain default stable
+          rustup default stable
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
