@@ -16,9 +16,6 @@ tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
 wasmtime = { version = ">=0.40.0,<3", default-features = false, features = ["async"] }
 
-# This is not a direct dependency but one from wasmtime, and older versions would SIGSEGV in tests
-rayon-core = ">=1.6.0"
-
 # Loader
 tokio-tar = { version = "0.3", optional = true }
 async-compression = { version = "0.3", optional = true, features = ["tokio", "gzip"] }
@@ -50,8 +47,12 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime= ">=0.40.0,<3"
+wasmtime= { version = ">=0.40.0,<3", default-features = false, features = ["cranelift", "memory-init-cow"] }
 insta = { version = "1", features = ["yaml"] }
+
+[build-dependencies]
+# psm's (used by wasmtime) build-script uses a feature introduced in cc 1.0.2
+cc = "1.0.2"
 
 [features]
 default = ["all-builtins"]
@@ -73,7 +74,6 @@ cli = [
   "tokio/fs",
   "tokio/rt-multi-thread",
   "wasmtime/cranelift",
-  "wasmtime/parallel-compilation",
   "wasmtime/memory-init-cow",
 ]
 

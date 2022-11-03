@@ -98,7 +98,7 @@ async fn main() -> Result<()> {
         };
 
         let entrypoint = cli.entrypoint;
-        anyhow::Ok((data, input, module, entrypoint))
+        Ok::<_, anyhow::Error>((data, input, module, entrypoint))
     })
     .instrument(tracing::info_span!("load_args"))
     .await?;
@@ -115,7 +115,7 @@ async fn main() -> Result<()> {
 
         // Create a store which will hold the module instance
         let store = Store::new(&engine, ());
-        anyhow::Ok((store, module))
+        Ok::<_, anyhow::Error>((store, module))
     })
     .instrument(tracing::info_span!("compile_module"))
     .await?;

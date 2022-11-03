@@ -163,7 +163,7 @@ impl AbiVersion {
             (1, 1) => Ok(Self::V1_1),
             (1, 2) => Ok(Self::V1_2),
             (1, n @ 2..) => Ok(Self::V1_2Plus(n)),
-            (major, minor) => bail!("unsupported ABI version {major}.{minor}"),
+            (major, minor) => bail!("unsupported ABI version {}.{}", major, minor),
         }
     }
 
