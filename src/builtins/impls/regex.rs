@@ -49,3 +49,31 @@ pub fn template_match(
 ) -> Result<bool> {
     bail!("not implemented");
 }
+
+/// Find and replaces the text using the regular expression pattern.
+#[tracing::instrument(name = "regex.replace", err)]
+pub fn replace(s: String, pattern: String, value: String) -> Result<String> {
+    bail!("not implemented");
+}
+
+/// Matches a string against a regular expression.
+#[tracing::instrument(name = "regex.match", err)]
+pub fn regex_match(pattern: String, value: String) -> Result<bool> {
+    bail!("not implemented");
+}
+
+/// Checks if a string is a valid regular expression.
+#[tracing::instrument(name = "regex.is_valid", err)]
+pub fn is_valid(pattern: String) -> Result<bool> {
+    bail!("not implemented");
+}
+
+/// Returns all successive matches of the expression.
+#[tracing::instrument(name = "regex.find_all_string_submatch_n", err)]
+pub fn find_all_string_submatch_n(
+    pattern: String,
+    value: String,
+    number: i64,
+) -> Result<Vec<Vec<String>>> {
+    bail!("not implemented");
+}

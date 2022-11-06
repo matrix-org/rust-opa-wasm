@@ -116,6 +116,13 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         "regex.globs_match" => Ok(self::impls::regex::globs_match.wrap()),
         "regex.split" => Ok(self::impls::regex::split.wrap()),
         "regex.template_match" => Ok(self::impls::regex::template_match.wrap()),
+        "regex.replace" => Ok(self::impls::regex::replace.wrap()),
+        "regex.match" => Ok(self::impls::regex::regex_match.wrap()),
+        "regex.is_valid" => Ok(self::impls::regex::is_valid.wrap()),
+        "regex.find_all_string_submatch_n" => {
+            Ok(self::impls::regex::find_all_string_submatch_n.wrap())
+        }
+
         "rego.parse_module" => Ok(self::impls::rego::parse_module.wrap()),
 
         #[cfg(feature = "semver-builtins")]
