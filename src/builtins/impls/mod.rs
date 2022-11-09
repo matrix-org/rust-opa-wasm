@@ -36,7 +36,9 @@ pub mod object;
 pub mod opa;
 #[cfg(feature = "rng")]
 pub mod rand;
+#[cfg(feature = "regex-builtins")]
 pub mod regex;
+
 pub mod rego;
 #[cfg(feature = "semver-builtins")]
 pub mod semver;

@@ -112,13 +112,21 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         #[cfg(feature = "rng")]
         "rand.intn" => Ok(self::impls::rand::intn.wrap()),
 
+        #[cfg(feature = "regex-builtins")]
         "regex.find_n" => Ok(self::impls::regex::find_n.wrap()),
+        #[cfg(feature = "regex-builtins")]
         "regex.globs_match" => Ok(self::impls::regex::globs_match.wrap()),
+        #[cfg(feature = "regex-builtins")]
         "regex.split" => Ok(self::impls::regex::split.wrap()),
+        #[cfg(feature = "regex-builtins")]
         "regex.template_match" => Ok(self::impls::regex::template_match.wrap()),
+        #[cfg(feature = "regex-builtins")]
         "regex.replace" => Ok(self::impls::regex::replace.wrap()),
+        #[cfg(feature = "regex-builtins")]
         "regex.match" => Ok(self::impls::regex::regex_match.wrap()),
+        #[cfg(feature = "regex-builtins")]
         "regex.is_valid" => Ok(self::impls::regex::is_valid.wrap()),
+        #[cfg(feature = "regex-builtins")]
         "regex.find_all_string_submatch_n" => {
             Ok(self::impls::regex::find_all_string_submatch_n.wrap())
         }
