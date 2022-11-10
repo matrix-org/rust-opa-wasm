@@ -49,6 +49,9 @@ sprintf = { version = "0.1", optional = true }
 parse-size = { version = "1", features = ["std"], optional = true }
 serde_yaml = { version = "0.9.1", optional = true }
 globset = { version = "*", optional = true }
+regex = { version = "1.7.0", optional = true }
+route-pattern = { version = "0.1.0", optional = true }
+regex-intersect = { version = "1.2.0", optional = true }
 
 [dev-dependencies.tokio]
 version = "1.5"
@@ -104,6 +107,7 @@ units-builtins = ["dep:parse-size"]
 rand-builtins = ["rng"]
 yaml-builtins = ["dep:serde_yaml"]
 glob-builtins = ["dep:globset"]
+regex-builtins = ["dep:regex", "dep:route-pattern", "dep:regex-intersect"]
 
 all-crypto-builtins = [
   "crypto-digest-builtins",
@@ -124,6 +128,7 @@ all-builtins = [
   "units-builtins",
   "yaml-builtins",
   "glob-builtins",
+  "regex-builtins",
 ]
 
 [[test]]
