@@ -14,18 +14,25 @@ serde_json = "1"
 thiserror = "1"
 tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
-wasmtime = { version = ">=0.40.0,<3", default-features = false, features = ["async"] }
+wasmtime = { version = ">=0.40.0,<3", default-features = false, features = [
+  "async",
+] }
 
 # Loader
 tokio-tar = { version = "0.3", optional = true }
-async-compression = { version = "0.3", optional = true, features = ["tokio", "gzip"] }
+async-compression = { version = "0.3", optional = true, features = [
+  "tokio",
+  "gzip",
+] }
 futures-util = { version = "0.3", optional = true }
 
 # CLI
 camino = { version = "1", optional = true }
 clap = { version = "4", features = ["derive"], optional = true }
 tracing-forest = { version = "0.1.4", optional = true }
-tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
+tracing-subscriber = { version = "0.3", features = [
+  "env-filter",
+], optional = true }
 
 # Builtins
 base64 = { version = ">=0.5,<0.14", optional = true }
@@ -41,13 +48,19 @@ sha2 = { version = "0.10", optional = true }
 sprintf = { version = "0.1", optional = true }
 parse-size = { version = "1", features = ["std"], optional = true }
 serde_yaml = { version = "0.9.1", optional = true }
+regex = { version = "1.7.0", optional = true }
+route-pattern = { version = "0.1.0", optional = true }
+regex-intersect = { version = "1.2.0", optional = true }
 
 [dev-dependencies.tokio]
 version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime= { version = ">=0.40.0,<3", default-features = false, features = ["cranelift", "memory-init-cow"] }
+wasmtime = { version = ">=0.40.0,<3", default-features = false, features = [
+  "cranelift",
+  "memory-init-cow",
+] }
 insta = { version = "1", features = ["yaml"] }
 
 [build-dependencies]
@@ -92,6 +105,7 @@ json-builtins = ["dep:json-patch"]
 units-builtins = ["dep:parse-size"]
 rand-builtins = ["rng"]
 yaml-builtins = ["dep:serde_yaml"]
+regex-builtins = ["dep:regex", "dep:route-pattern", "dep:regex-intersect"]
 
 all-crypto-builtins = [
   "crypto-digest-builtins",
@@ -111,6 +125,7 @@ all-builtins = [
   "sprintf-builtins",
   "units-builtins",
   "yaml-builtins",
+  "regex-builtins",
 ]
 
 [[test]]
