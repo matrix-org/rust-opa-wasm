@@ -1,0 +1,46 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-regex\", None).await.expect(\"error in test suite\")"
+---
+- result:
+    find_n_all:
+      - oo
+      - a
+    find_n_few:
+      - oo
+    find_n_none: []
+    globs_match_false: false
+    globs_match_true: true
+    is_valid_false: false
+    is_valid_true: true
+    match_false: false
+    match_true: true
+    replace_all: XXX 123 XXXdefg
+    replace_empty: ""
+    split_1:
+      - foo
+      - ""
+      - bar
+      - baz
+    split_2:
+      - ""
+    split_3:
+      - foo-bar-baz
+    submatch_all:
+      - - home/user
+        - home
+        - user
+      - - home/root
+        - home
+        - root
+      - - home/admin
+        - home
+        - admin
+    submatch_none: []
+    submatch_some:
+      - - home/user
+        - home
+        - user
+    template_match_false: false
+    template_match_true: true
+
