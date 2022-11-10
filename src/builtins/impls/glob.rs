@@ -16,22 +16,6 @@
 
 use anyhow::Result;
 
-/// Parses and matches strings against the glob notation. Not to be confused
-/// with regex.globs_match.
-#[tracing::instrument(name = "glob.match", err)]
-pub fn is_match(pattern: String, delimiters: Vec<String>, text: String) -> Result<bool> {
-    let mut target = text;
-    for d in delimiters {
-        target = target.replace(&d, "/");
-    }
-
-    let glob = globset::GlobBuilder::new(&pattern)
-        .literal_separator(true)
-        .build()?
-        .compile_matcher();
-    Ok(glob.is_match(&target))
-}
-
 /// Returns a string which represents a version of the pattern where all
 /// asterisks have been escaped.
 #[tracing::instrument(name = "glob.quote_meta", err)]

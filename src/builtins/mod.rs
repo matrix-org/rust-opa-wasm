@@ -69,8 +69,6 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
 
         #[cfg(feature = "glob-builtins")]
         "glob.quote_meta" => Ok(self::impls::glob::quote_meta.wrap()),
-        #[cfg(feature = "glob-builtins")]
-        "glob.match" => Ok(self::impls::glob::is_match.wrap()),
 
         "graph.reachable_paths" => Ok(self::impls::graph::reachable_paths.wrap()),
         "graphql.is_valid" => Ok(self::impls::graphql::is_valid.wrap()),
