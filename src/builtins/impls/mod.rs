@@ -22,7 +22,9 @@ use anyhow::{bail, Result};
 #[cfg(feature = "base64url-builtins")]
 pub mod base64url;
 pub mod crypto;
+#[cfg(feature = "glob-builtins")]
 pub mod glob;
+
 pub mod graph;
 pub mod graphql;
 #[cfg(feature = "hex-builtins")]

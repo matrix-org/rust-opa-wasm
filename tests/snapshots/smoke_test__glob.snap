@@ -1,0 +1,10 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-glob\", None).await.expect(\"error in test suite\")"
+---
+- result:
+    match_1_true: true
+    match_2_false: false
+    quote_1: abc
+    quote_2: "foobar\\*"
+
