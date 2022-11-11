@@ -45,6 +45,7 @@ pub mod semver;
 pub mod time;
 #[cfg(feature = "units-builtins")]
 pub mod units;
+#[cfg(feature = "urlquery-builtins")]
 pub mod urlquery;
 pub mod uuid;
 #[cfg(feature = "yaml-builtins")]

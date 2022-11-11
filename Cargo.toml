@@ -51,6 +51,8 @@ serde_yaml = { version = "0.9.1", optional = true }
 regex = { version = "1.7.0", optional = true }
 route-pattern = { version = "0.1.0", optional = true }
 regex-intersect = { version = "1.2.0", optional = true }
+form_urlencoded = { version = "1.1.0", optional = true }
+urlencoding = { version = "2.1.2", optional = true }
 
 [dev-dependencies.tokio]
 version = "1.5"
@@ -106,6 +108,7 @@ units-builtins = ["dep:parse-size"]
 rand-builtins = ["rng"]
 yaml-builtins = ["dep:serde_yaml"]
 regex-builtins = ["dep:regex", "dep:route-pattern", "dep:regex-intersect"]
+urlquery-builtins = ["dep:form_urlencoded", "dep:urlencoding"]
 
 all-crypto-builtins = [
   "crypto-digest-builtins",
@@ -126,6 +129,7 @@ all-builtins = [
   "units-builtins",
   "yaml-builtins",
   "regex-builtins",
+  "urlquery-builtins",
 ]
 
 [[test]]

@@ -159,10 +159,15 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         #[cfg(feature = "units-builtins")]
         "units.parse_bytes" => Ok(self::impls::units::parse_bytes.wrap()),
 
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.decode" => Ok(self::impls::urlquery::decode.wrap()),
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.decode_object" => Ok(self::impls::urlquery::decode_object.wrap()),
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.encode" => Ok(self::impls::urlquery::encode.wrap()),
+        #[cfg(feature = "urlquery-builtins")]
         "urlquery.encode_object" => Ok(self::impls::urlquery::encode_object.wrap()),
+
         "uuid.rfc4122" => Ok(self::impls::uuid::rfc4122.wrap()),
 
         #[cfg(feature = "yaml-builtins")]

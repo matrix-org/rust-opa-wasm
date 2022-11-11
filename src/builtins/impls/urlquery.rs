@@ -16,28 +16,51 @@
 
 use std::collections::HashMap;
 
-use anyhow::{bail, Result};
+use anyhow::Result;
+use serde_json::Value;
 
 /// Decodes a URL-encoded input string.
 #[tracing::instrument(name = "urlquery.decode", err)]
 pub fn decode(x: String) -> Result<String> {
-    bail!("not implemented");
+    Ok(urlencoding::decode(&x)?.into_owned())
 }
 
 /// Decodes the given URL query string into an object.
-#[tracing::instrument(name = "urlquery.decode_object", err)]
-pub fn decode_object(x: String) -> Result<HashMap<String, Vec<String>>> {
-    bail!("not implemented");
+#[tracing::instrument(name = "urlquery.decode_object")]
+pub fn decode_object(x: String) -> HashMap<String, Vec<String>> {
+    let parsed = form_urlencoded::parse(x.as_bytes()).into_owned();
+    let mut decoded_object: HashMap<String, Vec<String>> = HashMap::new();
+    for (k, v) in parsed {
+        decoded_object.entry(k).or_default().push(v);
+    }
+    decoded_object
 }
 
 /// Encodes the input string into a URL-encoded string.
-#[tracing::instrument(name = "urlquery.encode", err)]
-pub fn encode(x: String) -> Result<String> {
-    bail!("not implemented");
+#[tracing::instrument(name = "urlquery.encode")]
+pub fn encode(x: String) -> String {
+    form_urlencoded::byte_serialize(x.as_bytes()).collect()
 }
 
 /// Encodes the given object into a URL encoded query string.
-#[tracing::instrument(name = "urlquery.encode_object", err)]
-pub fn encode_object(x: HashMap<String, serde_json::Value>) -> Result<String> {
-    bail!("not implemented");
+#[tracing::instrument(name = "urlquery.encode_object")]
+pub fn encode_object(x: HashMap<String, serde_json::Value>) -> String {
+    let mut encoded = form_urlencoded::Serializer::new(String::new());
+
+    let mut sorted: Vec<_> = x.iter().collect();
+    sorted.sort_by_key(|a| a.0);
+
+    sorted
+        .iter()
+        .for_each(|(parameter_key, parameter_value)| match &parameter_value {
+            Value::Array(arr) => {
+                for v in arr.iter() {
+                    encoded.append_pair(parameter_key, v.as_str().unwrap_or_default());
+                }
+            }
+            _ => {
+                encoded.append_pair(parameter_key, parameter_value.as_str().unwrap_or_default());
+            }
+        });
+    encoded.finish()
 }
