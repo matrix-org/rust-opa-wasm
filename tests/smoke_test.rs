@@ -120,6 +120,7 @@ integration_test!(test_units, "test-units");
 integration_test!(test_rand, "test-rand");
 integration_test!(test_yaml, "test-yaml");
 
+integration_test!(test_glob, "test-glob");
 integration_test!(test_regex, "test-regex");
 
 /*

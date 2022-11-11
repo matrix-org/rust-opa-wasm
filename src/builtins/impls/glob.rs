@@ -14,11 +14,34 @@
 
 //! Builtins used when working with globs.
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 
 /// Returns a string which represents a version of the pattern where all
 /// asterisks have been escaped.
 #[tracing::instrument(name = "glob.quote_meta", err)]
 pub fn quote_meta(pattern: String) -> Result<String> {
-    bail!("not implemented");
+    let mut needs_escape = false;
+
+    // shortcircuit if possible to avoid copy
+    for c in pattern.chars() {
+        match c {
+            '*' | '?' | '\\' | '[' | ']' | '{' | '}' => needs_escape = true,
+            _ => {}
+        }
+    }
+    if !needs_escape {
+        return Ok(pattern);
+    }
+
+    let mut out = String::with_capacity(pattern.len());
+    for c in pattern.chars() {
+        match c {
+            '*' | '?' | '\\' | '[' | ']' | '{' | '}' => {
+                out.push('\\');
+                out.push(c);
+            }
+            _ => out.push(c),
+        }
+    }
+    Ok(out)
 }
