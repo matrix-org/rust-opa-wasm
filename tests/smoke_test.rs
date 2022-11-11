@@ -119,9 +119,9 @@ integration_test!(test_loader_empty, "test-loader");
 integration_test!(test_units, "test-units");
 integration_test!(test_rand, "test-rand");
 integration_test!(test_yaml, "test-yaml");
-
 integration_test!(test_glob, "test-glob");
 integration_test!(test_regex, "test-regex");
+integration_test!(test_urlquery, "test-urlquery");
 
 /*
 #[tokio::test]
