@@ -14,7 +14,7 @@ serde_json = "1"
 thiserror = "1"
 tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
-wasmtime = { version = ">=0.40.0,<3", default-features = false, features = ["async"] }
+wasmtime = { version = ">=0.40.0, <4", default-features = false, features = ["async"] }
 
 # Loader
 tokio-tar = { version = "0.3", optional = true }
@@ -47,7 +47,7 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime= { version = ">=0.40.0,<3", default-features = false, features = ["cranelift", "memory-init-cow"] }
+wasmtime= { version = ">=0.40.0, <4", default-features = false, features = ["cranelift", "memory-init-cow"] }
 insta = { version = "1", features = ["yaml"] }
 
 [build-dependencies]
