@@ -17,6 +17,8 @@
 use std::collections::HashMap;
 
 use anyhow::Result;
+#[cfg(feature = "time")]
+use chrono::TimeZone;
 use serde::{de::DeserializeOwned, Serialize};
 
 /// Context passed through builtin evaluation
@@ -28,6 +30,10 @@ pub trait EvaluationContext: Send + 'static {
     /// Get a [`rand::Rng`]
     #[cfg(feature = "rng")]
     fn get_rng(&mut self) -> Self::Rng;
+
+    /// Get the current date and time
+    #[cfg(feature = "time")]
+    fn now(&self) -> chrono::DateTime<chrono::Utc>;
 
     /// Notify the context on evaluation start, so it can clean itself up
     fn evaluation_start(&mut self);
@@ -48,9 +54,23 @@ pub trait EvaluationContext: Send + 'static {
 }
 
 /// The default evaluation context implementation
-#[derive(Default)]
 pub struct DefaultContext {
     cache: HashMap<String, serde_json::Value>,
+
+    #[cfg(feature = "time")]
+    evaluation_time: chrono::DateTime<chrono::Utc>,
+}
+
+#[allow(clippy::derivable_impls)]
+impl Default for DefaultContext {
+    fn default() -> Self {
+        Self {
+            cache: HashMap::new(),
+
+            #[cfg(feature = "time")]
+            evaluation_time: chrono::Utc.timestamp_nanos(0),
+        }
+    }
 }
 
 impl EvaluationContext for DefaultContext {
@@ -62,9 +82,20 @@ impl EvaluationContext for DefaultContext {
         rand::thread_rng()
     }
 
+    #[cfg(feature = "time")]
+    fn now(&self) -> chrono::DateTime<chrono::Utc> {
+        self.evaluation_time
+    }
+
     fn evaluation_start(&mut self) {
         // Clear the cache
         self.cache = HashMap::new();
+
+        #[cfg(feature = "time")]
+        {
+            // Set the evaluation time to now
+            self.evaluation_time = chrono::Utc::now();
+        }
     }
 
     fn cache_get<K: Serialize, C: DeserializeOwned>(&mut self, key: &K) -> Result<Option<C>> {
@@ -89,17 +120,38 @@ impl EvaluationContext for DefaultContext {
 
 pub mod tests {
     use anyhow::Result;
+    #[cfg(feature = "time")]
+    use chrono::TimeZone;
     use serde::{de::DeserializeOwned, Serialize};
 
     use crate::{DefaultContext, EvaluationContext};
 
     /// A context used in tests
-    #[derive(Default)]
     pub struct TestContext {
         inner: DefaultContext,
 
+        #[cfg(feature = "time")]
+        clock: chrono::DateTime<chrono::Utc>,
+
         #[cfg(feature = "rng")]
         seed: u64,
+    }
+
+    #[allow(clippy::derivable_impls)]
+    impl Default for TestContext {
+        fn default() -> Self {
+            Self {
+                inner: DefaultContext::default(),
+
+                #[cfg(feature = "time")]
+                clock: chrono::Utc
+                    .with_ymd_and_hms(2020, 7, 14, 12, 53, 22)
+                    .unwrap(),
+
+                #[cfg(feature = "rng")]
+                seed: 0,
+            }
+        }
     }
 
     impl EvaluationContext for TestContext {
@@ -108,6 +160,11 @@ pub mod tests {
 
         fn evaluation_start(&mut self) {
             self.inner.evaluation_start();
+        }
+
+        #[cfg(feature = "time")]
+        fn now(&self) -> chrono::DateTime<chrono::Utc> {
+            self.clock
         }
 
         #[cfg(feature = "rng")]
