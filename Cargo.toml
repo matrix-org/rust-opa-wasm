@@ -84,6 +84,7 @@ cli = [
 ]
 
 rng = ["dep:rand"]
+time = ["dep:chrono"]
 
 base64url-builtins = ["dep:base64", "dep:hex"]
 crypto-digest-builtins = ["dep:digest", "dep:hex"]
@@ -99,7 +100,7 @@ units-builtins = ["dep:parse-size"]
 rand-builtins = ["rng"]
 yaml-builtins = ["dep:serde_yaml"]
 urlquery-builtins = ["dep:form_urlencoded", "dep:urlencoding"]
-time-builtins = ["dep:chrono", "dep:chrono-tz", "dep:duration-str", "dep:chronoutil"]
+time-builtins = ["time", "dep:chrono-tz", "dep:duration-str", "dep:chronoutil"]
 
 all-crypto-builtins = [
   "crypto-digest-builtins",

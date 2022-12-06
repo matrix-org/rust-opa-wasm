@@ -1,7 +1,6 @@
 package test
 
-# time.now_ns returns a dynamic results, needs to handle in check test
-#now_ns := time.now_ns()
+now_ns := time.now_ns()
 
 # still not implemented
 #parse_ns = time.parse_ns("2006-01-01", "2022-01-01")

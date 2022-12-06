@@ -20,6 +20,7 @@ expression: "test_policy(\"test-time\", None).await.expect(\"error in test suite
       - 2022
       - 8
       - 9
+    now_ns: 1594731202000000000
     parse_duration_ns_h: 3600000000000
     parse_duration_ns_m: 60000000000
     parse_duration_ns_ms: 1000000
