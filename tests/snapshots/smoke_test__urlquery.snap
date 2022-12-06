@@ -1,0 +1,23 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-urlquery\", None).await.expect(\"error in test suite\")"
+---
+- result:
+    decode: "?foo=1&bar=test"
+    decode_object:
+      arr:
+        - foo
+        - bar
+      bar:
+        - test
+      foo:
+        - "1"
+      obj:
+        - obj1
+        - obj2
+    encode_1: "%3Ffoo%3D1%26bar%3Dtest"
+    encode_2: "&&&&"
+    encode_3: "===="
+    encode_4: "&=&="
+    encode_object: arr=foo&arr=bar&bar=foo%26foo&foo=1&obj=obj1&obj=obj2
+
