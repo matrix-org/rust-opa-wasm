@@ -144,7 +144,9 @@ pub mod tests {
                 inner: DefaultContext::default(),
 
                 #[cfg(feature = "time")]
-                clock: chrono::Utc.ymd(2020, 7, 14).and_hms(12, 53, 22),
+                clock: chrono::Utc
+                    .with_ymd_and_hms(2020, 7, 14, 12, 53, 22)
+                    .unwrap(),
 
                 #[cfg(feature = "rng")]
                 seed: 0,

@@ -41,7 +41,7 @@ impl TimestampWithOptionalTimezone {
             Self::TimestampAndTimezone(ts, tz) => (
                 ts,
                 tz.parse()
-                    .map_err(|e| anyhow!("Could not parse timezone: {e}"))?,
+                    .map_err(|e| anyhow!("Could not parse timezone: {}", e))?,
             ),
         };
 
