@@ -14,8 +14,15 @@
 
 //! Builtins related to base64 encoding and decoding
 
+use base64::{
+    alphabet::URL_SAFE,
+    engine::fast_portable::{FastPortable, NO_PAD},
+};
+
+const URL_SAFE_NO_PAD: FastPortable = FastPortable::from(&URL_SAFE, NO_PAD);
+
 /// Serializes the input string into base64url encoding without padding.
 #[tracing::instrument]
 pub fn encode_no_pad(x: String) -> String {
-    base64::encode_config(&x, base64::URL_SAFE_NO_PAD)
+    base64::encode_engine(&x, &URL_SAFE_NO_PAD)
 }
