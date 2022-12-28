@@ -136,7 +136,7 @@ async fn main() -> Result<()> {
         .instrument(tracing::info_span!("evaluate"))
         .await?;
 
-    println!("{}", res);
+    println!("{res}");
 
     Ok(())
 }

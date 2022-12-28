@@ -27,9 +27,9 @@ where
 {
     caller
         .get_export(name)
-        .with_context(|| format!("could not find export {:?}", name))?
+        .with_context(|| format!("could not find export {name:?}"))?
         .into_func()
-        .with_context(|| format!("export {:?} is not a function", name))?
+        .with_context(|| format!("export {name:?} is not a function"))?
         .typed(caller)
         .with_context(|| {
             format!(
@@ -50,9 +50,9 @@ where
 {
     instance
         .get_export(&mut store, name)
-        .with_context(|| format!("could not find export {:?}", name))?
+        .with_context(|| format!("could not find export {name:?}"))?
         .into_func()
-        .with_context(|| format!("export {:?} is not a function", name))?
+        .with_context(|| format!("export {name:?} is not a function"))?
         .typed(&mut store)
         .with_context(|| {
             format!(
