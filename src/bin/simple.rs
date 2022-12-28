@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![deny(clippy::pedantic)]
+
 use std::collections::HashMap;
 
 use anyhow::Result;
@@ -44,7 +46,7 @@ async fn main() -> Result<()> {
     // Evaluate the policy
     let res: serde_json::Value = policy.evaluate(&mut store, "hello/world", &input).await?;
 
-    println!("{}", res);
+    println!("{res}");
 
     Ok(())
 }
