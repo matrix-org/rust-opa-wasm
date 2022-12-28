@@ -22,7 +22,7 @@ use json_patch::Patch;
 /// applied atomically: if any of them fails, the result will be undefined.
 #[tracing::instrument(name = "json.patch")]
 pub fn patch(mut object: serde_json::Value, patch: Patch) -> serde_json::Value {
-    if json_patch::patch_unsafe(&mut object, &patch).is_err() {
+    if json_patch::patch(&mut object, &patch).is_err() {
         serde_json::Value::Object(serde_json::Map::default())
     } else {
         object
