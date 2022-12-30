@@ -21,5 +21,17 @@ use anyhow::{bail, Result};
 /// will result in `{"b": 2, "a": 3}`.
 #[tracing::instrument(name = "object.union_n", err)]
 pub fn union_n(objects: Vec<serde_json::Value>) -> Result<serde_json::Value> {
-    bail!("not implemented");
+    let mut map = serde_json::map::Map::new();
+    for object in objects {
+        let data = match object.as_object() {
+            Some(data) => data,
+            None => bail!("invalid argument(s)"),
+        };
+
+        for (key, val) in data {
+            *map.entry(key).or_insert(val.clone()) = val.clone();
+        }
+    }
+
+    Ok(serde_json::Value::Object(map))
 }

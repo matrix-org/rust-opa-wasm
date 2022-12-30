@@ -32,6 +32,7 @@ pub mod io;
 #[cfg(feature = "json-builtins")]
 pub mod json;
 pub mod net;
+#[cfg(feature = "object-builtins")]
 pub mod object;
 pub mod opa;
 #[cfg(feature = "rng")]
