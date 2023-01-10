@@ -46,7 +46,7 @@ async fn main() -> Result<()> {
     // Evaluate the policy
     let res: serde_json::Value = policy.evaluate(&mut store, "hello/world", &input).await?;
 
-    println!("{}", res);
+    println!("{res}");
 
     Ok(())
 }

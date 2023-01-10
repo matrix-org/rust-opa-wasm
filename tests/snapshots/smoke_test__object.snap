@@ -12,3 +12,11 @@ expression: "test_policy(\"test-object\", None).await.expect(\"error in test sui
     object_override_by_string:
       a: "3"
       b: 2
+    recursive:
+      a:
+        b:
+          - 1
+          - 2
+          - 3
+        c: 1
+

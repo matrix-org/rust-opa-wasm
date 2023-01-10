@@ -23,7 +23,7 @@ use std::{
 use anyhow::{Context, Result};
 use tokio::sync::{Mutex, OnceCell};
 use tracing::Instrument;
-use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module, Trap};
+use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module};
 
 use crate::{
     builtins::traits::Builtin,
@@ -105,7 +105,7 @@ where
         memory: &Memory,
         builtin_id: i32,
         args: [i32; N],
-    ) -> Result<i32, Trap> {
+    ) -> Result<i32, anyhow::Error> {
         let (name, builtin) = self
             .builtins
             .get(&builtin_id)
@@ -240,12 +240,12 @@ impl<C> Runtime<C> {
         linker.func_wrap(
             "env",
             "opa_abort",
-            move |caller: Caller<'_, _>, addr: i32| {
+            move |caller: Caller<'_, _>, addr: i32| -> Result<(), anyhow::Error> {
                 let addr = NulStr(addr);
                 let msg = addr.read(&caller, &memory)?;
-                let msg = msg.to_string_lossy();
+                let msg = msg.to_string_lossy().into_owned();
                 tracing::error!("opa_abort: {}", msg);
-                Err::<(), _>(Trap::new(msg))
+                anyhow::bail!(msg)
             },
         )?;
 
@@ -256,7 +256,7 @@ impl<C> Runtime<C> {
                 let addr = NulStr(addr);
                 let msg = addr.read(&caller, &memory)?;
                 tracing::info!("opa_print: {}", msg.to_string_lossy());
-                Ok::<_, Trap>(())
+                Ok(())
             },
         )?;
 
