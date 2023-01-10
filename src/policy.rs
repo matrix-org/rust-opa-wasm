@@ -109,7 +109,7 @@ where
         let (name, builtin) = self
             .builtins
             .get(&builtin_id)
-            .with_context(|| format!("unknown builtin id {}", builtin_id))?;
+            .with_context(|| format!("unknown builtin id {builtin_id}"))?;
 
         let span = tracing::info_span!("builtin", %name);
         let _enter = span.enter();
@@ -529,7 +529,7 @@ impl<C> Policy<C> {
             .runtime
             .entrypoints
             .get(entrypoint)
-            .with_context(|| format!("could not find entrypoint {}", entrypoint))?;
+            .with_context(|| format!("could not find entrypoint {entrypoint}"))?;
 
         self.loaded_builtins
             .get()
