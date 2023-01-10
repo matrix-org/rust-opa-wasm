@@ -14,10 +14,30 @@
 
 //! Builtins to encode and decode URL-encoded strings
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use anyhow::Result;
-use serde_json::Value;
+use serde::Deserialize;
+
+/// A wrapper type which can deserialize either one value or an array of values
+#[derive(Deserialize)]
+#[serde(untagged)]
+pub enum OneOrMany<T> {
+    /// Represents only one value
+    One(T),
+
+    /// Represents an array of values
+    Many(Vec<T>),
+}
+
+impl<T: std::fmt::Debug> std::fmt::Debug for OneOrMany<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::One(t) => t.fmt(f),
+            Self::Many(v) => v.fmt(f),
+        }
+    }
+}
 
 /// Decodes a URL-encoded input string.
 #[tracing::instrument(name = "urlquery.decode", err)]
@@ -27,9 +47,9 @@ pub fn decode(x: String) -> Result<String> {
 
 /// Decodes the given URL query string into an object.
 #[tracing::instrument(name = "urlquery.decode_object")]
-pub fn decode_object(x: String) -> HashMap<String, Vec<String>> {
+pub fn decode_object(x: String) -> BTreeMap<String, Vec<String>> {
     let parsed = form_urlencoded::parse(x.as_bytes()).into_owned();
-    let mut decoded_object: HashMap<String, Vec<String>> = HashMap::new();
+    let mut decoded_object: BTreeMap<String, Vec<String>> = BTreeMap::new();
     for (k, v) in parsed {
         decoded_object.entry(k).or_default().push(v);
     }
@@ -44,23 +64,21 @@ pub fn encode(x: String) -> String {
 
 /// Encodes the given object into a URL encoded query string.
 #[tracing::instrument(name = "urlquery.encode_object")]
-pub fn encode_object(x: HashMap<String, serde_json::Value>) -> String {
+pub fn encode_object(x: BTreeMap<String, OneOrMany<String>>) -> String {
     let mut encoded = form_urlencoded::Serializer::new(String::new());
 
-    let mut sorted: Vec<_> = x.iter().collect();
-    sorted.sort_by_key(|a| a.0);
-
-    sorted
-        .iter()
-        .for_each(|(parameter_key, parameter_value)| match &parameter_value {
-            Value::Array(arr) => {
-                for v in arr.iter() {
-                    encoded.append_pair(parameter_key, v.as_str().unwrap_or_default());
+    for (key, value) in x {
+        match value {
+            OneOrMany::One(value) => {
+                encoded.append_pair(&key, &value);
+            }
+            OneOrMany::Many(values) => {
+                for value in values {
+                    encoded.append_pair(&key, &value);
                 }
             }
-            _ => {
-                encoded.append_pair(parameter_key, parameter_value.as_str().unwrap_or_default());
-            }
-        });
+        }
+    }
+
     encoded.finish()
 }

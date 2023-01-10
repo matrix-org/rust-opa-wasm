@@ -34,6 +34,7 @@ pub mod io;
 #[cfg(feature = "json-builtins")]
 pub mod json;
 pub mod net;
+#[cfg(feature = "object-builtins")]
 pub mod object;
 pub mod opa;
 #[cfg(feature = "rng")]
@@ -44,6 +45,7 @@ pub mod regex;
 pub mod rego;
 #[cfg(feature = "semver-builtins")]
 pub mod semver;
+#[cfg(feature = "time-builtins")]
 pub mod time;
 #[cfg(feature = "units-builtins")]
 pub mod units;

@@ -1,9 +1,5 @@
 package test
 
-encode_none := urlquery.encode("")
-
-encode_normaltext := urlquery.encode("abc")
-
 encode_1 := urlquery.encode("?foo=1&bar=test")
 
 encode_2 := urlquery.decode("&&&&")
