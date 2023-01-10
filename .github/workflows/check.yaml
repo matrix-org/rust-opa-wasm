@@ -26,7 +26,6 @@ jobs:
           rustup toolchain install nightly
           rustup default nightly
           rustup component add rustfmt
-
       - name: Check style
         run: cargo fmt --all -- --check
 
@@ -44,10 +43,9 @@ jobs:
 
       - name: Install toolchain
         run: |
-          rustup toolchain install stable
-          rustup default stable
+          rustup toolchain install 1.66.0
+          rustup default 1.66.0
           rustup component add clippy
-
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
@@ -58,14 +56,11 @@ jobs:
             cargo clippy --bins --tests $@ -- -D warnings
             echo "::endgroup::"
           }
-
           run_clippy --all-features
           run_clippy --no-default-features
           sed -e 's/#.*//' -e '/^\s*$/d' -e 's/\s\+/,/g' features.txt | while read -r FEATURES; do
             run_clippy --no-default-features --features "${FEATURES}"
           done
-
-
   test:
     name: Run test suite with Rust ${{ matrix.toolchain }}
     needs: [rustfmt, clippy]
@@ -92,7 +87,6 @@ jobs:
         run: |
           rustup toolchain install ${{ matrix.toolchain }}
           rustup default ${{ matrix.toolchain }}
-
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
@@ -122,9 +116,8 @@ jobs:
 
       - name: Install toolchain
         run: |
-          rustup toolchain install 1.60.0 # MSRV
-          rustup default 1.60.0 # MSRV
-
+          rustup toolchain install 1.64.0 # MSRV
+          rustup default 1.64.0 # MSRV
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
@@ -141,7 +134,6 @@ jobs:
           RUSTC_BOOTSTRAP: "1"
         run: |
           cargo update -Z minimal-versions
-
       - name: Test
         run:
           cargo test --all-features
@@ -163,7 +155,6 @@ jobs:
         run: |
           rustup toolchain install stable
           rustup default stable
-
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
@@ -177,7 +168,6 @@ jobs:
           mkdir -p "${HOME}/.local/bin"
           curl -sL https://github.com/mozilla/grcov/releases/download/v0.8.13/grcov-x86_64-unknown-linux-gnu.tar.bz2 | tar jxf - -C "${HOME}/.local/bin"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Build OPA bundles for test
         run: make build-opa
 
@@ -192,7 +182,6 @@ jobs:
         run: |
           mkdir -p target/coverage
           grcov . --binary-path ./target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/tests.lcov
-
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v3
         with:
