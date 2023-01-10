@@ -484,7 +484,7 @@ impl<C> Runtime<C> {
     pub fn default_entrypoint(&self) -> Option<&str> {
         self.entrypoints
             .iter()
-            .find_map(|(k, v)| (v.0 == 0).then(|| k.as_str()))
+            .find_map(|(k, v)| (v.0 == 0).then_some(k.as_str()))
     }
 
     /// Get the list of entrypoints found in this module.
