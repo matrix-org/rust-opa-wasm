@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![deny(clippy::pedantic)]
+
 use std::collections::HashMap;
 
 use anyhow::Result;
