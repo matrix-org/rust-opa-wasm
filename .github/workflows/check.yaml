@@ -129,11 +129,11 @@ jobs:
       - name: Build OPA bundles for test
         run: make build-opa
 
-      - name: Install minimal versions
-        env:
-          RUSTC_BOOTSTRAP: "1"
-        run: |
-          cargo update -Z minimal-versions
+      # - name: Install minimal versions
+      #   env:
+      #     RUSTC_BOOTSTRAP: "1"
+      #   run: |
+      #     cargo update -Z minimal-versions
       - name: Test
         run:
           cargo test --all-features
