@@ -228,7 +228,8 @@ impl<C> Runtime<C> {
     where
         C: EvaluationContext,
     {
-        let ty = MemoryType::new(2, None);
+        // TODO:: min/max values should be extended from outside the function
+        let ty = MemoryType::new(8, None);
         let memory = Memory::new_async(&mut store, ty).await?;
 
         // TODO: make the context configurable and reset it on evaluation
