@@ -14,24 +14,40 @@
 
 //! Builtins to help handling JSON objects
 
-use anyhow::{bail, Result};
+use anyhow::Result;
+use serde_json::Value;
 
 /// Creates a new object that is the asymmetric union of all objects merged from
 /// left to right. For example: `object.union_n([{"a": 1}, {"b": 2}, {"a": 3}])`
 /// will result in `{"b": 2, "a": 3}`.
 #[tracing::instrument(name = "object.union_n", err)]
-pub fn union_n(objects: Vec<serde_json::Value>) -> Result<serde_json::Value> {
-    let mut map = serde_json::map::Map::new();
+pub fn union_n(objects: Vec<Value>) -> Result<Value> {
+    let mut result = serde_json::json!({});
     for object in objects {
-        let data = match object.as_object() {
-            Some(data) => data,
-            None => bail!("invalid argument(s)"),
-        };
-
-        for (key, val) in data {
-            *map.entry(key).or_insert(val.clone()) = val.clone();
-        }
+        merge_value(&mut result, &object);
     }
 
-    Ok(serde_json::Value::Object(map))
+    Ok(result)
+}
+
+fn merge_value(a: &mut Value, b: &Value) {
+    match (a, b) {
+        (Value::Object(ref mut a), &Value::Object(ref b)) => {
+            for (k, v) in b {
+                merge_value(a.entry(k).or_insert(Value::Null), v);
+            }
+        }
+        (Value::Array(ref mut a), &Value::Array(ref b)) => {
+            *a = vec![];
+            a.extend(b.clone());
+        }
+        (Value::Array(ref mut a), &Value::Object(ref b)) => {
+            *a = vec![];
+            a.extend([Value::Object(b.clone())]);
+        }
+        (_, Value::Null) => {}
+        (a, b) => {
+            *a = b.clone();
+        }
+    }
 }
