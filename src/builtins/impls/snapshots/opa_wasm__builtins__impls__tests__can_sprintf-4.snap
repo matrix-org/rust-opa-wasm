@@ -1,7 +1,0 @@
----
-source: src/builtins/impls/mod.rs
-expression: "sprintf(\"number\".to_string(), vec![val_1])"
----
-Ok(
-    "number, (TooManyArgs, [String(\"first\")])",
-)
