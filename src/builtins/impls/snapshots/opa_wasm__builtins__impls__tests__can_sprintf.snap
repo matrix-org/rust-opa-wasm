@@ -1,0 +1,7 @@
+---
+source: src/builtins/impls/mod.rs
+expression: "sprintf(\"number %s\".to_string(), vec![val_1.clone()])"
+---
+Ok(
+    "number first",
+)

@@ -22,7 +22,7 @@ use serde_json::Value;
 /// will result in `{"b": 2, "a": 3}`.
 #[tracing::instrument(name = "object.union_n", err)]
 pub fn union_n(objects: Vec<Value>) -> Result<Value> {
-    let mut result = serde_json::json!({});
+    let mut result = serde_json::Value::Object(serde_json::Map::default());
     for object in objects {
         merge_value(&mut result, &object);
     }

@@ -67,6 +67,8 @@ pub fn indexof_n(string: String, search: String) -> Result<Vec<u32>> {
 pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String> {
     use sprintf::{vsprintf, Printf};
 
+    let orig_values = values.clone();
+
     let values: Result<Vec<Box<dyn Printf>>, _> = values
         .into_iter()
         .map(|v| -> Result<Box<dyn Printf>, _> {
@@ -92,7 +94,26 @@ pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String>
         .collect();
     let values = values?;
     let values: Vec<&dyn Printf> = values.iter().map(std::convert::AsRef::as_ref).collect();
-    vsprintf(&format, &values).map_err(|_| anyhow::anyhow!("failed to call printf"))
+
+    match vsprintf(&format, &values) {
+        Ok(str) => Ok(str),
+        Err(err) => handle_errors_like_go(err, format, orig_values),
+    }
+}
+
+fn handle_errors_like_go(
+    err: sprintf::PrintfError,
+    format: String,
+    values: Vec<serde_json::Value>,
+) -> Result<String> {
+    match err {
+        sprintf::PrintfError::WrongType
+        | sprintf::PrintfError::TooManyArgs
+        | sprintf::PrintfError::NotEnoughArgs => {
+            Ok(format!("{}, ({:?}, {:?})", format, err, values))
+        }
+        _ => anyhow::bail!("failed to call printf"),
+    }
 }
 
 /// Emits `note` as a `Note` event in the query explanation. Query explanations
@@ -104,4 +125,21 @@ pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String>
 #[tracing::instrument(err)]
 pub fn trace(note: String) -> Result<bool> {
     bail!("not implemented");
+}
+
+#[cfg(test)]
+mod tests {
+    use insta::assert_debug_snapshot;
+
+    use super::*;
+
+    #[test]
+    fn can_sprintf() {
+        let val_1 = serde_json::Value::String("first".to_string());
+        let val_2 = serde_json::Value::String("sec".to_string());
+        assert_debug_snapshot!(sprintf("number %s".to_string(), vec![val_1.clone()]));
+        assert_debug_snapshot!(sprintf("number %s".to_string(), vec![val_1.clone(), val_2]));
+        assert_debug_snapshot!(sprintf("number %d".to_string(), vec![val_1.clone()]));
+        assert_debug_snapshot!(sprintf("number".to_string(), vec![val_1]));
+    }
 }
