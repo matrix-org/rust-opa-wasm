@@ -111,7 +111,7 @@ fn handle_errors_like_go(
         | sprintf::PrintfError::WrongType
         | sprintf::PrintfError::TooManyArgs
         | sprintf::PrintfError::NotEnoughArgs => Ok(format!("{format}, ({err:?}, {values:?})")),
-        _ => anyhow::bail!("failed to call printf"),
+        sprintf::PrintfError::Unknown => anyhow::bail!("failed to call printf"),
     }
 }
 
