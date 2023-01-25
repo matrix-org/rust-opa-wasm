@@ -54,6 +54,8 @@ pub mod urlquery;
 pub mod uuid;
 #[cfg(feature = "yaml-builtins")]
 pub mod yaml;
+#[cfg(feature = "sprintf-builtins")]
+use sprintf::{vsprintf, Printf};
 
 /// Returns a list of all the indexes of a substring contained inside a string.
 #[tracing::instrument(err)]
@@ -65,8 +67,6 @@ pub fn indexof_n(string: String, search: String) -> Result<Vec<u32>> {
 /// Returns the given string, formatted.
 #[tracing::instrument(err)]
 pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String> {
-    use sprintf::{vsprintf, Printf};
-
     let orig_values = values.clone();
 
     let values: Result<Vec<Box<dyn Printf>>, _> = values
