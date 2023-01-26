@@ -101,6 +101,7 @@ pub fn sprintf(format: String, values: Vec<serde_json::Value>) -> Result<String>
     }
 }
 
+#[cfg(feature = "sprintf-builtins")]
 fn handle_errors_like_go(
     err: sprintf::PrintfError,
     format: String,
