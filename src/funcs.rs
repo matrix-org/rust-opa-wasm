@@ -31,12 +31,7 @@ where
         .into_func()
         .with_context(|| format!("export {name:?} is not a function"))?
         .typed(caller)
-        .with_context(|| {
-            format!(
-                "exported function {:?} does not have the right signature",
-                name
-            )
-        })
+        .with_context(|| format!("exported function {name:?} does not have the right signature"))
 }
 
 fn from_instance<Params, Results, T>(
@@ -54,12 +49,7 @@ where
         .into_func()
         .with_context(|| format!("export {name:?} is not a function"))?
         .typed(&mut store)
-        .with_context(|| {
-            format!(
-                "exported function {:?} does not have the right signature",
-                name
-            )
-        })
+        .with_context(|| format!("exported function {name:?} does not have the right signature"))
 }
 
 pub trait Func: Sized {

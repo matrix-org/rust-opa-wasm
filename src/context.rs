@@ -100,9 +100,7 @@ impl EvaluationContext for DefaultContext {
 
     fn cache_get<K: Serialize, C: DeserializeOwned>(&mut self, key: &K) -> Result<Option<C>> {
         let key = serde_json::to_string(&key)?;
-        let value = if let Some(val) = self.cache.get(&key) {
-            val
-        } else {
+        let Some(value) = self.cache.get(&key) else {
             return Ok(None);
         };
 
