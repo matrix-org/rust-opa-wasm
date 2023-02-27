@@ -235,7 +235,7 @@ impl<C> Runtime<C> {
         let eventually_builtins = Arc::new(OnceCell::<LoadedBuiltins<C>>::new());
 
         let mut linker = Linker::new(store.as_context_mut().engine());
-        linker.define("env", "memory", memory)?;
+        linker.define(&store, "env", "memory", memory)?;
 
         linker.func_wrap(
             "env",
