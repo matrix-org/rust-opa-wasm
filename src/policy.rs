@@ -23,7 +23,7 @@ use std::{
 use anyhow::{Context, Result};
 use tokio::sync::{Mutex, OnceCell};
 use tracing::Instrument;
-use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module, Trap};
+use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module};
 
 use crate::{
     builtins::traits::Builtin,
@@ -105,11 +105,11 @@ where
         memory: &Memory,
         builtin_id: i32,
         args: [i32; N],
-    ) -> Result<i32, Trap> {
+    ) -> Result<i32, anyhow::Error> {
         let (name, builtin) = self
             .builtins
             .get(&builtin_id)
-            .with_context(|| format!("unknown builtin id {}", builtin_id))?;
+            .with_context(|| format!("unknown builtin id {builtin_id}"))?;
 
         let span = tracing::info_span!("builtin", %name);
         let _enter = span.enter();
@@ -228,7 +228,8 @@ impl<C> Runtime<C> {
     where
         C: EvaluationContext,
     {
-        let ty = MemoryType::new(2, None);
+        // TODO:: min/max values should be extended from outside the function
+        let ty = MemoryType::new(8, None);
         let memory = Memory::new_async(&mut store, ty).await?;
 
         // TODO: make the context configurable and reset it on evaluation
@@ -240,12 +241,12 @@ impl<C> Runtime<C> {
         linker.func_wrap(
             "env",
             "opa_abort",
-            move |caller: Caller<'_, _>, addr: i32| {
+            move |caller: Caller<'_, _>, addr: i32| -> Result<(), anyhow::Error> {
                 let addr = NulStr(addr);
                 let msg = addr.read(&caller, &memory)?;
-                let msg = msg.to_string_lossy();
+                let msg = msg.to_string_lossy().into_owned();
                 tracing::error!("opa_abort: {}", msg);
-                Err::<(), _>(Trap::new(msg))
+                anyhow::bail!(msg)
             },
         )?;
 
@@ -256,7 +257,7 @@ impl<C> Runtime<C> {
                 let addr = NulStr(addr);
                 let msg = addr.read(&caller, &memory)?;
                 tracing::info!("opa_print: {}", msg.to_string_lossy());
-                Ok::<_, Trap>(())
+                Ok(())
             },
         )?;
 
@@ -484,7 +485,7 @@ impl<C> Runtime<C> {
     pub fn default_entrypoint(&self) -> Option<&str> {
         self.entrypoints
             .iter()
-            .find_map(|(k, v)| (v.0 == 0).then(|| k.as_str()))
+            .find_map(|(k, v)| (v.0 == 0).then_some(k.as_str()))
     }
 
     /// Get the list of entrypoints found in this module.
@@ -529,7 +530,7 @@ impl<C> Policy<C> {
             .runtime
             .entrypoints
             .get(entrypoint)
-            .with_context(|| format!("could not find entrypoint {}", entrypoint))?;
+            .with_context(|| format!("could not find entrypoint {entrypoint}"))?;
 
         self.loaded_builtins
             .get()

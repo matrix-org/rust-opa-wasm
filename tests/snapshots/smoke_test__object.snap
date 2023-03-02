@@ -1,0 +1,22 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-object\", None).await.expect(\"error in test suite\")"
+---
+- result:
+    object_1:
+      a: 3
+      b: 2
+    object_2:
+      a: 3
+      b: 1
+    object_override_by_string:
+      a: "3"
+      b: 2
+    recursive:
+      a:
+        b:
+          - 1
+          - 2
+          - 3
+        c: 1
+

@@ -66,7 +66,6 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         "crypto.x509.parse_rsa_private_key" => {
             Ok(self::impls::crypto::x509::parse_rsa_private_key.wrap())
         }
-
         #[cfg(feature = "glob-builtins")]
         "glob.quote_meta" => Ok(self::impls::glob::quote_meta.wrap()),
 
@@ -109,7 +108,10 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         "net.cidr_expand" => Ok(self::impls::net::cidr_expand.wrap()),
         "net.cidr_merge" => Ok(self::impls::net::cidr_merge.wrap()),
         "net.lookup_ip_addr" => Ok(self::impls::net::lookup_ip_addr.wrap()),
+
+        #[cfg(feature = "object-builtins")]
         "object.union_n" => Ok(self::impls::object::union_n.wrap()),
+
         "opa.runtime" => Ok(self::impls::opa::runtime.wrap()),
 
         #[cfg(feature = "rng")]
@@ -145,15 +147,33 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         #[cfg(feature = "sprintf-builtins")]
         "sprintf" => Ok(self::impls::sprintf.wrap()),
 
+        #[cfg(feature = "time-builtins")]
         "time.add_date" => Ok(self::impls::time::add_date.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.clock" => Ok(self::impls::time::clock.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.date" => Ok(self::impls::time::date.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.diff" => Ok(self::impls::time::diff.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.now_ns" => Ok(self::impls::time::now_ns.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.parse_duration_ns" => Ok(self::impls::time::parse_duration_ns.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.parse_ns" => Ok(self::impls::time::parse_ns.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.parse_rfc3339_ns" => Ok(self::impls::time::parse_rfc3339_ns.wrap()),
+
+        #[cfg(feature = "time-builtins")]
         "time.weekday" => Ok(self::impls::time::weekday.wrap()),
+
         "trace" => Ok(self::impls::trace.wrap()),
 
         #[cfg(feature = "units-builtins")]
@@ -164,10 +184,13 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
 
         #[cfg(feature = "urlquery-builtins")]
         "urlquery.decode" => Ok(self::impls::urlquery::decode.wrap()),
+
         #[cfg(feature = "urlquery-builtins")]
         "urlquery.decode_object" => Ok(self::impls::urlquery::decode_object.wrap()),
+
         #[cfg(feature = "urlquery-builtins")]
         "urlquery.encode" => Ok(self::impls::urlquery::encode.wrap()),
+
         #[cfg(feature = "urlquery-builtins")]
         "urlquery.encode_object" => Ok(self::impls::urlquery::encode_object.wrap()),
 

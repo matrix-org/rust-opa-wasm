@@ -16,5 +16,6 @@ json-builtins
 units-builtins
 rand-builtins
 yaml-builtins
+time-builtins
 all-crypto-builtins
 all-builtins

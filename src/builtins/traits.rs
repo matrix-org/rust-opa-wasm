@@ -18,7 +18,6 @@ use std::{future::Future, marker::PhantomData, pin::Pin};
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use wasmtime::Trap;
 
 use crate::EvaluationContext;
 
@@ -30,7 +29,7 @@ pub trait Builtin<C>: Send + Sync {
         &'a self,
         context: &'a mut C,
         args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>>;
+    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, anyhow::Error>> + Send + 'a>>;
 }
 
 #[derive(Clone)]
@@ -48,7 +47,7 @@ where
         &'a self,
         context: &'a mut C,
         args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
+    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, anyhow::Error>> + Send + 'a>> {
         self.func.call(context, args)
     }
 }
@@ -68,7 +67,7 @@ pub(crate) trait BuiltinFunc<
         &'a self,
         context: &'a mut C,
         args: &'a [&'a [u8]],
-    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>>;
+    ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, anyhow::Error>> + Send + 'a>>;
 
     fn wrap(self) -> Box<dyn Builtin<C>> {
         Box::new(WrappedBuiltin {
@@ -118,7 +117,7 @@ macro_rules! trait_body {
             &'a self,
             context: &'a mut C,
             args: &'a [&'a [u8]],
-        ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, Trap>> + Send + 'a>> {
+        ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, anyhow::Error>> + Send + 'a>> {
             Box::pin(async move {
                 let [$($pname),*]: [&'a [u8]; count!($($pname)*)] =
                     args.try_into().ok().context("invalid arguments")?;
@@ -165,7 +164,7 @@ macro_rules! trait_impl {
             )*
             R: Serialize + Send + 'static,
             E: 'static,
-            Trap: From<E>,
+            anyhow::Error: From<E>,
         {
             trait_body! {
                 ($($pname: $ptype),*),
@@ -204,7 +203,7 @@ macro_rules! trait_impl {
             )*
             R: Serialize + 'static,
             E: 'static,
-            Trap: From<E>,
+            anyhow::Error: From<E>,
             Fut: Future<Output = Result<R, E>> + Send,
         {
             trait_body! {
@@ -243,7 +242,7 @@ macro_rules! trait_impl {
             )*
             R: Serialize + Send + 'static,
             E: 'static,
-            Trap: From<E>,
+            anyhow::Error: From<E>,
         {
             trait_body! {
                 ($($pname: $ptype),*),
@@ -282,7 +281,7 @@ macro_rules! trait_impl {
             )*
             R: Serialize + 'static,
             E: 'static,
-            Trap: From<E>,
+            anyhow::Error: From<E>,
             Fut: Future<Output = Result<R, E>> + Send,
         {
             trait_body! {
