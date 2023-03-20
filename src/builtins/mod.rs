@@ -144,6 +144,10 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         #[cfg(feature = "semver-builtins")]
         "semver.is_valid" => Ok(self::impls::semver::is_valid.wrap()),
 
+        #[cfg(feature = "semver-builtins")]
+        #[cfg(feature = "extras")]
+        "semver.is_match" => Ok(self::impls::semver::is_match.wrap()),
+
         #[cfg(feature = "sprintf-builtins")]
         "sprintf" => Ok(self::impls::sprintf.wrap()),
 

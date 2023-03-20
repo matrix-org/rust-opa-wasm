@@ -75,3 +75,35 @@ async fn main() -> Result<()> {
     Ok(())
 }
 ```
+
+
+## Extras
+
+This SDK includes builtins that are beyond what is provided with the Go impl. right now this includes:
+
+* `semver.is_match(version, requirement)`
+
+To use these extra builtins:
+
+
+1. Build WASM with the custom [opa-caps.json](opa-caps.json) file, which includes the added function signatures:
+
+
+```
+$ opa build policy.rego -t wasm --capabilities opa-caps.json -e ENTRY -o bundle.tar.gz
+```
+
+To include _extras_ in your SDK, add the `extras` feature:
+
+```toml
+opa-wasm = { version = "*", features = [
+  "all-builtins",
+  "extras",
+] }
+```
+
+Or via building:
+
+```
+cargo build --features all-builtins,extras
+```

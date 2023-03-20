@@ -14,18 +14,25 @@ serde_json = "1.0.18" # This is the earliest version which supports 128-bit inte
 thiserror = "1"
 tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
-wasmtime = { version = ">=3, <5", default-features = false, features = ["async"] }
+wasmtime = { version = ">=3, <5", default-features = false, features = [
+  "async",
+] }
 
 # Loader
 tokio-tar = { version = "0.3", optional = true }
-async-compression = { version = "0.3", optional = true, features = ["tokio", "gzip"] }
+async-compression = { version = "0.3", optional = true, features = [
+  "tokio",
+  "gzip",
+] }
 futures-util = { version = "0.3", optional = true }
 
 # CLI
 camino = { version = "1", optional = true }
 clap = { version = "4", features = ["derive"], optional = true }
 tracing-forest = { version = "0.1.4", optional = true }
-tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
+tracing-subscriber = { version = "0.3", features = [
+  "env-filter",
+], optional = true }
 
 # Builtins
 base64 = { version = ">=0.20, <0.21", optional = true }
@@ -57,7 +64,10 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime = { version = ">=3, <5", default-features = false, features = ["cranelift", "memory-init-cow"] }
+wasmtime = { version = ">=3, <5", default-features = false, features = [
+  "cranelift",
+  "memory-init-cow",
+] }
 insta = { version = "1", features = ["yaml"] }
 
 [build-dependencies]
@@ -108,6 +118,7 @@ regex-builtins = ["dep:regex", "dep:route-pattern", "dep:regex-intersect"]
 urlquery-builtins = ["dep:form_urlencoded", "dep:urlencoding"]
 time-builtins = ["time", "dep:chrono-tz", "dep:duration-str", "dep:chronoutil"]
 object-builtins = []
+extras = []
 
 all-crypto-builtins = [
   "crypto-digest-builtins",

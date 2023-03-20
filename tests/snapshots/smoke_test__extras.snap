@@ -1,0 +1,7 @@
+---
+source: tests/smoke_test.rs
+expression: "test_policy(\"test-extras\", None).await.expect(\"error in test suite\")"
+---
+- result:
+    is_valid: true
+

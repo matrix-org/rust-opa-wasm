@@ -99,7 +99,7 @@ jobs:
         run: make build-opa
 
       - name: Test
-        run: cargo test --all-features
+        run: make test
 
 
   minimal-versions:
@@ -136,7 +136,7 @@ jobs:
       #     cargo update -Z minimal-versions
       - name: Test
         run:
-          cargo test --all-features
+          make test
 
 
   coverage:
@@ -173,7 +173,7 @@ jobs:
 
       - name: Run test suite with profiling enabled
         run: |
-          cargo test --all-features --no-fail-fast --tests
+          make test-cover
         env:
           RUSTFLAGS: '-Cinstrument-coverage'
           LLVM_PROFILE_FILE: "cargo-test-%p-%m.profraw"
