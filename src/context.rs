@@ -143,7 +143,9 @@ pub mod tests {
 
                 #[cfg(feature = "time")]
                 clock: chrono::Utc
-                    .with_ymd_and_hms(2020, 7, 14, 12, 53, 22)
+                    // Corresponds to 2020-07-14T12:53:22Z
+                    // We're using this method because it's available on old versions of chrono
+                    .timestamp_opt(1_594_731_202, 0)
                     .unwrap(),
 
                 #[cfg(feature = "rng")]
