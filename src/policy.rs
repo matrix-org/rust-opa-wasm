@@ -270,7 +270,7 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .expect("builtins where never initialized")
+                            .context("builtins where never initialized")?
                             .builtin(caller, &memory, builtin_id, [])
                             .await
                     })
@@ -288,7 +288,7 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .expect("builtins where never initialized")
+                            .context("builtins where never initialized")?
                             .builtin(caller, &memory, builtin_id, [param1])
                             .await
                     })
@@ -310,7 +310,7 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .expect("builtins where never initialized")
+                            .context("builtins where never initialized")?
                             .builtin(caller, &memory, builtin_id, [param1, param2])
                             .await
                     })
@@ -333,7 +333,7 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .expect("builtins where never initialized")
+                            .context("builtins where never initialized")?
                             .builtin(caller, &memory, builtin_id, [param1, param2, param3])
                             .await
                     })
@@ -357,7 +357,7 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .expect("builtins where never initialized")
+                            .context("builtins where never initialized")?
                             .builtin(
                                 caller,
                                 &memory,
@@ -533,7 +533,7 @@ impl<C> Policy<C> {
 
         self.loaded_builtins
             .get()
-            .expect("builtins where never initialized")
+            .context("builtins where never initialized")?
             .evaluation_start()
             .await;
 
