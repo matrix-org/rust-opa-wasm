@@ -14,7 +14,7 @@
 
 //! Builtins for date and time-related operations
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Datelike, TimeZone, Timelike, Utc, Weekday};
 use chrono_tz::Tz;
 use chronoutil::RelativeDuration;
@@ -60,7 +60,8 @@ pub fn add_date(ns: i64, years: i32, months: i32, days: i64) -> Result<i64> {
             + RelativeDuration::months(months)
             + RelativeDuration::days(days)
     };
-    Ok(date_time.timestamp_nanos())
+
+    date_time.timestamp_nanos_opt().context("Invalid date")
 }
 
 /// Returns the `[hour, minute, second]` of the day for the nanoseconds since
@@ -89,7 +90,7 @@ pub fn diff(ns1: serde_json::Value, ns2: serde_json::Value) -> Result<(u8, u8, u
 /// Returns the current time since epoch in nanoseconds.
 #[tracing::instrument(name = "time.now_ns", skip(ctx))]
 pub fn now_ns<C: EvaluationContext>(ctx: &mut C) -> i64 {
-    ctx.now().timestamp_nanos()
+    ctx.now().timestamp_nanos_opt().unwrap()
 }
 
 /// Returns the duration in nanoseconds represented by a string.
@@ -111,7 +112,9 @@ pub fn parse_ns(layout: String, value: String) -> Result<i64> {
 /// within an `int64`.
 #[tracing::instrument(name = "time.parse_rfc3339_ns", err)]
 pub fn parse_rfc3339_ns(value: String) -> Result<i64> {
-    Ok(DateTime::parse_from_rfc3339(value.as_ref())?.timestamp_nanos())
+    DateTime::parse_from_rfc3339(value.as_ref())?
+        .timestamp_nanos_opt()
+        .context("Invalid date")
 }
 
 /// Returns the day of the week (Monday, Tuesday, ...) for the nanoseconds since
