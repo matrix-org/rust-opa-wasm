@@ -106,7 +106,10 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         "net.cidr_expand" => Ok(self::impls::net::cidr_expand.wrap()),
         "net.cidr_merge" => Ok(self::impls::net::cidr_merge.wrap()),
         "net.lookup_ip_addr" => Ok(self::impls::net::lookup_ip_addr.wrap()),
+
+        #[cfg(feature = "object-builtins")]
         "object.union_n" => Ok(self::impls::object::union_n.wrap()),
+
         "opa.runtime" => Ok(self::impls::opa::runtime.wrap()),
 
         #[cfg(feature = "rng")]

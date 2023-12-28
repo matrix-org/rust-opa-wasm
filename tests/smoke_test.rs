@@ -121,6 +121,7 @@ integration_test!(test_rand, "test-rand");
 integration_test!(test_yaml, "test-yaml");
 integration_test!(test_urlquery, "test-urlquery");
 integration_test!(test_time, "test-time");
+integration_test!(test_object, "test-object");
 
 /*
 #[tokio::test]
