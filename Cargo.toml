@@ -1,7 +1,7 @@
 [package]
 name = "opa-wasm"
 version = "0.1.0"
-rust-version = "1.70"
+rust-version = "1.72"
 authors = ["Quentin Gliech <quenting@element.io>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -14,7 +14,7 @@ serde_json = "1.0.18" # This is the earliest version which supports 128-bit inte
 thiserror = "1"
 tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
-wasmtime = { version = ">=8, <16", default-features = false, features = ["async"] }
+wasmtime = { version = ">=16, <18", default-features = false, features = ["async"] }
 
 # Loader
 tokio-tar = { version = "0.3", optional = true }
@@ -53,12 +53,13 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime = { version = ">=8, <16", default-features = false, features = ["cranelift"] }
+wasmtime = { version = ">=16, <18", default-features = false, features = ["cranelift"] }
 insta = { version = "1", features = ["yaml"] }
 
 [build-dependencies]
 # psm's (used by wasmtime) build-script uses a feature introduced in cc 1.0.2
 cc = "1.0.2"
+indexmap = ">=1.9.1"
 
 [features]
 default = ["all-builtins"]

@@ -44,8 +44,8 @@ jobs:
 
       - name: Install toolchain
         run: |
-          rustup toolchain install 1.72.0
-          rustup default 1.72.0
+          rustup toolchain install 1.75.0
+          rustup default 1.75.0
           rustup component add clippy
 
       - name: Setup Rust cache
@@ -122,8 +122,8 @@ jobs:
 
       - name: Install toolchain
         run: |
-          rustup toolchain install 1.70.0 # MSRV
-          rustup default 1.70.0 # MSRV
+          rustup toolchain install 1.72.0 # MSRV
+          rustup default 1.72.0 # MSRV
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -144,7 +144,7 @@ jobs:
 
       - name: Test
         run:
-          cargo test --all-features
+          cargo test --all-features --locked
 
 
   coverage:
