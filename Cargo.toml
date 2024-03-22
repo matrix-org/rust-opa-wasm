@@ -28,7 +28,7 @@ tracing-forest = { version = "0.1.4", optional = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
 
 # Builtins
-base64 = { version = "0.21", optional = true }
+base64 = { version = "0.22", optional = true }
 digest = { version = "0.10", optional = true }
 hex = { version = "0.4", optional = true }
 hmac = { version = "0.12", optional = true }
