@@ -197,6 +197,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: target/coverage/*.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}
 
 
   tests-done:
