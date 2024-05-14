@@ -101,6 +101,7 @@ rand-builtins = ["rng"]
 yaml-builtins = ["dep:serde_yaml"]
 urlquery-builtins = ["dep:form_urlencoded", "dep:urlencoding"]
 time-builtins = ["time", "dep:chrono-tz", "dep:duration-str", "dep:chronoutil"]
+object-builtins = []
 
 all-crypto-builtins = [
   "crypto-digest-builtins",
@@ -122,6 +123,7 @@ all-builtins = [
   "yaml-builtins",
   "urlquery-builtins",
   "time-builtins",
+  "object-builtins",
 ]
 
 [[test]]
