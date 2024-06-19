@@ -96,7 +96,7 @@ pub fn now_ns<C: EvaluationContext>(ctx: &mut C) -> i64 {
 /// Returns the duration in nanoseconds represented by a string.
 #[tracing::instrument(name = "time.parse_duration_ns", err)]
 pub fn parse_duration_ns(duration: String) -> Result<u128> {
-    Ok(duration_str::parse(duration.as_str())?.as_nanos())
+    Ok(duration_str::parse(duration.as_str()).map_err(|e| anyhow!("{e}"))?.as_nanos())
 }
 
 /// Returns the time in nanoseconds parsed from the string in the given format.
