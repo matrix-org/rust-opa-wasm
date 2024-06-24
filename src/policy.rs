@@ -262,10 +262,10 @@ impl<C> Runtime<C> {
 
         {
             let eventually_builtins = eventually_builtins.clone();
-            linker.func_wrap2_async(
+            linker.func_wrap_async(
                 "env",
                 "opa_builtin0",
-                move |caller: Caller<'_, _>, builtin_id: i32, _ctx: i32| {
+                move |caller: Caller<'_, _>, (builtin_id, _ctx): (i32, i32)| {
                     let eventually_builtins = eventually_builtins.clone();
                     Box::new(async move {
                         eventually_builtins
@@ -280,10 +280,10 @@ impl<C> Runtime<C> {
 
         {
             let eventually_builtins = eventually_builtins.clone();
-            linker.func_wrap3_async(
+            linker.func_wrap_async(
                 "env",
                 "opa_builtin1",
-                move |caller: Caller<'_, _>, builtin_id: i32, _ctx: i32, param1: i32| {
+                move |caller: Caller<'_, _>, (builtin_id, _ctx, param1): (_, i32, _)| {
                     let eventually_builtins = eventually_builtins.clone();
                     Box::new(async move {
                         eventually_builtins
@@ -298,14 +298,10 @@ impl<C> Runtime<C> {
 
         {
             let eventually_builtins = eventually_builtins.clone();
-            linker.func_wrap4_async(
+            linker.func_wrap_async(
                 "env",
                 "opa_builtin2",
-                move |caller: Caller<'_, _>,
-                      builtin_id: i32,
-                      _ctx: i32,
-                      param1: i32,
-                      param2: i32| {
+                move |caller: Caller<'_, _>, (builtin_id, _ctx, param1, param2): (_, i32, _, _)| {
                     let eventually_builtins = eventually_builtins.clone();
                     Box::new(async move {
                         eventually_builtins
@@ -320,15 +316,10 @@ impl<C> Runtime<C> {
 
         {
             let eventually_builtins = eventually_builtins.clone();
-            linker.func_wrap5_async(
+            linker.func_wrap_async(
                 "env",
                 "opa_builtin3",
-                move |caller: Caller<'_, _>,
-                      builtin_id: i32,
-                      _ctx: i32,
-                      param1: i32,
-                      param2: i32,
-                      param3: i32| {
+                move |caller: Caller<'_, _>, (builtin_id, _ctx, param1, param2, param3): (_, i32, _, _, _)| {
                     let eventually_builtins = eventually_builtins.clone();
                     Box::new(async move {
                         eventually_builtins
@@ -343,16 +334,11 @@ impl<C> Runtime<C> {
 
         {
             let eventually_builtins = eventually_builtins.clone();
-            linker.func_wrap6_async(
+            linker.func_wrap_async(
                 "env",
                 "opa_builtin4",
                 move |caller: Caller<'_, _>,
-                      builtin_id: i32,
-                      _ctx: i32,
-                      param1: i32,
-                      param2: i32,
-                      param3: i32,
-                      param4: i32| {
+                      (builtin_id, _ctx, param1, param2, param3, param4): (_, i32, _, _, _, _)| {
                     let eventually_builtins = eventually_builtins.clone();
                     Box::new(async move {
                         eventually_builtins
