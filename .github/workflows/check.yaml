@@ -44,8 +44,8 @@ jobs:
 
       - name: Install toolchain
         run: |
-          rustup toolchain install 1.75.0
-          rustup default 1.75.0
+          rustup toolchain install 1.79.0
+          rustup default 1.79.0
           rustup component add clippy
 
       - name: Setup Rust cache
