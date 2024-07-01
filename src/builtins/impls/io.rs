@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,13 @@ pub mod jwt {
 
     use anyhow::{bail, Result};
 
+    /// The headers part of a JWT
     type Headers = serde_json::Value;
+
+    /// The payload part of a JWT
     type Payload = serde_json::Value;
+
+    /// A JSON Web Key
     type Jwk = serde_json::Value;
 
     /// Decodes a JSON Web Token and outputs it as an object.

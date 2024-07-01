@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #![doc = include_str!("../README.md")]
-#![deny(missing_docs, clippy::pedantic)]
+#![deny(missing_docs, clippy::pedantic, clippy::missing_docs_in_private_items)]
+#![allow(clippy::blocks_in_conditions)]
 
-pub mod builtins;
+mod builtins;
 mod context;
 mod funcs;
 #[cfg(feature = "loader")]

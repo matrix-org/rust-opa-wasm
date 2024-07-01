@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+//! Trait definition for the context passed through builtin evaluation
 
 #![allow(clippy::module_name_repetitions)]
 
@@ -55,8 +57,10 @@ pub trait EvaluationContext: Send + 'static {
 
 /// The default evaluation context implementation
 pub struct DefaultContext {
+    /// The cache used to store values during evaluation
     cache: HashMap<String, serde_json::Value>,
 
+    /// The time at which the evaluation started
     #[cfg(feature = "time")]
     evaluation_time: chrono::DateTime<chrono::Utc>,
 }
@@ -116,6 +120,7 @@ impl EvaluationContext for DefaultContext {
     }
 }
 
+/// Test utilities
 pub mod tests {
     use anyhow::Result;
     #[cfg(feature = "time")]
@@ -126,11 +131,14 @@ pub mod tests {
 
     /// A context used in tests
     pub struct TestContext {
+        /// The inner [`DefaultContext`]
         inner: DefaultContext,
 
+        /// The mocked time
         #[cfg(feature = "time")]
         clock: chrono::DateTime<chrono::Utc>,
 
+        /// The seed used for the random number generator
         #[cfg(feature = "rng")]
         seed: u64,
     }

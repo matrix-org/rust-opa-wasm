@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -125,7 +125,10 @@ pub mod x509 {
 
     use anyhow::{bail, Result};
 
+    /// A X509 certificate
     type X509 = HashMap<String, serde_json::Value>;
+
+    /// A JSON Web Key
     type Jwk = HashMap<String, serde_json::Value>;
 
     /// Returns one or more certificates from the given string containing PEM or

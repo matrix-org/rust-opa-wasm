@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,38 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Type wrappers to help with interacting with the OPA WASM module
+
 use std::ffi::CStr;
 
 use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use wasmtime::{AsContext, AsContextMut, Instance, Memory};
 
+/// An entrypoint ID, as returned by the `entrypoints` export, and given to the
+/// `opa_eval_ctx_set_entrypoint` exports
 #[derive(Debug, Deserialize, Clone)]
 #[serde(transparent)]
 pub struct EntrypointId(pub(crate) i32);
 
+/// The ID of a builtin, as returned by the `builtins` export, and passed to the
+/// `opa_builtin*` imports
 #[derive(Debug, Deserialize, Clone)]
 #[serde(transparent)]
 pub struct BuiltinId(pub(crate) i32);
 
+/// A value stored on the WASM heap, as used by the `opa_value_*` exports
 #[derive(Debug)]
 pub struct Value(pub(crate) i32);
 
+/// A generic value on the WASM memory
 #[derive(Debug)]
 pub struct Addr(pub(crate) i32);
 
+/// A heap allocation on the WASM memory
 #[derive(Debug)]
 pub struct Heap {
+    /// The pointer to the start of the heap allocation
     pub(crate) ptr: i32,
+
+    /// The length of the heap allocation
     pub(crate) len: i32,
+
+    /// Whether the heap allocation has been freed
     pub(crate) freed: bool,
 }
 
 impl Heap {
+    /// Get the end of the heap allocation
     pub const fn end(&self) -> i32 {
         self.ptr + self.len
     }
 
+    /// Calculate the number of pages this heap allocation occupies
     pub fn pages(&self) -> u64 {
         let page_size = 64 * 1024;
         let addr = self.end();
@@ -63,10 +79,12 @@ impl Drop for Heap {
     }
 }
 
+/// A null-terminated string on the WASM memory
 #[derive(Debug)]
 pub struct NulStr(pub(crate) i32);
 
 impl NulStr {
+    /// Read the null-terminated string from the WASM memory
     pub fn read<'s, T: AsContext>(&self, store: &'s T, memory: &Memory) -> Result<&'s CStr> {
         let mem = memory.data(store);
         let start: usize = self.0.try_into().context("invalid address")?;
@@ -83,25 +101,32 @@ impl NulStr {
     }
 }
 
+/// The address of the evaluation context, used by the `opa_eval_ctx_*` exports
 #[derive(Debug)]
 pub struct Ctx(pub(crate) i32);
 
+/// An error returned by the OPA module
 #[derive(Debug, thiserror::Error)]
 pub enum OpaError {
+    /// Unrecoverable internal error
     #[error("Unrecoverable internal error")]
     Internal,
 
+    /// Invalid value type was encountered
     #[error("Invalid value type was encountered")]
     InvalidType,
 
+    /// Invalid object path reference
     #[error("Invalid object path reference")]
     InvalidPath,
 
+    /// Unrecognized error code
     #[error("Unrecognized error code: {0}")]
     Other(i32),
 }
 
 impl OpaError {
+    /// Convert an error code to an `OpaError`
     pub(crate) fn from_code(code: i32) -> Result<(), OpaError> {
         match code {
             0 => Ok(()),

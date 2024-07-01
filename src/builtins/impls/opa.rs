@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,11 @@ use serde::Serialize;
 /// Metadata about the OPA runtime
 #[derive(Serialize)]
 pub struct Runtime {
+    /// A map of the current environment variables
     env: HashMap<String, String>,
+    /// The version of OPA runtime. This is currently set to an empty string
     version: String,
+    /// The commit hash of the OPA runtime. This is currently set to an empty
     commit: String,
 }
 
