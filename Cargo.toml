@@ -1,7 +1,7 @@
 [package]
 name = "opa-wasm"
 version = "0.1.0"
-rust-version = "1.72"
+rust-version = "1.76"
 authors = ["Quentin Gliech <quenting@element.io>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -14,18 +14,25 @@ serde_json = "1.0.18" # This is the earliest version which supports 128-bit inte
 thiserror = "1"
 tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
-wasmtime = { version = ">=16, <21", default-features = false, features = ["async"] }
+wasmtime = { version = ">=22, <23", default-features = false, features = [
+    "async",
+] }
 
 # Loader
 tokio-tar = { version = "0.3", optional = true }
-async-compression = { version = "0.4", optional = true, features = ["tokio", "gzip"] }
+async-compression = { version = "0.4", optional = true, features = [
+    "tokio",
+    "gzip",
+] }
 futures-util = { version = "0.3", optional = true }
 
 # CLI
 camino = { version = "1", optional = true }
 clap = { version = "4", features = ["derive"], optional = true }
 tracing-forest = { version = "0.1.4", optional = true }
-tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+], optional = true }
 
 # Builtins
 base64 = { version = "0.22", optional = true }
@@ -43,7 +50,10 @@ parse-size = { version = "1", features = ["std"], optional = true }
 serde_yaml = { version = "0.9.1", optional = true }
 form_urlencoded = { version = "1", optional = true }
 urlencoding = { version = "2", optional = true }
-chrono = { version = "0.4.31", optional = true, default-features = false, features = ["std", "clock"] }
+chrono = { version = "0.4.31", optional = true, default-features = false, features = [
+    "std",
+    "clock",
+] }
 chrono-tz = { version = ">=0.6, <0.10.0", optional = true }
 chronoutil = { version = "0.2", optional = true }
 duration-str = { version = "0.11", optional = true, default-features = false }
@@ -53,35 +63,38 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime = { version = ">=16, <21", default-features = false, features = ["cranelift"] }
+wasmtime = { version = ">=22, <23", default-features = false, features = [
+    "cranelift",
+] }
 insta = { version = "1", features = ["yaml"] }
 
 [build-dependencies]
-# psm's (used by wasmtime) build-script uses a feature introduced in cc 1.0.2
-cc = "1.0.2"
-indexmap = ">=1.9.1"
+# We would like at least this version of rayon, because older versions depend on old rand,
+# which depends on old log, which depends on old libc, which doesn't build with newer rustc
+rayon = "^1.6"
 
 [features]
-default = ["all-builtins"]
+default = ["all-builtins", "fast"]
 
 loader = [
-  "dep:tokio-tar",
-  "dep:async-compression",
-  "dep:futures-util",
-  "tokio/fs",
-  "tokio/io-util",
+    "dep:tokio-tar",
+    "dep:async-compression",
+    "dep:futures-util",
+    "tokio/fs",
+    "tokio/io-util",
 ]
 
 cli = [
-  "loader",
-  "dep:camino",
-  "dep:clap",
-  "dep:tracing-forest",
-  "dep:tracing-subscriber",
-  "tokio/fs",
-  "tokio/rt-multi-thread",
-  "wasmtime/cranelift",
+    "loader",
+    "fast",
+    "dep:camino",
+    "dep:clap",
+    "dep:tracing-forest",
+    "dep:tracing-subscriber",
+    "tokio/fs",
+    "tokio/rt-multi-thread",
 ]
+fast = ["wasmtime/cranelift", "wasmtime/parallel-compilation"]
 
 rng = ["dep:rand"]
 time = ["dep:chrono"]
@@ -103,25 +116,25 @@ urlquery-builtins = ["dep:form_urlencoded", "dep:urlencoding"]
 time-builtins = ["time", "dep:chrono-tz", "dep:duration-str", "dep:chronoutil"]
 
 all-crypto-builtins = [
-  "crypto-digest-builtins",
-  "crypto-hmac-builtins",
-  "crypto-md5-builtins",
-  "crypto-sha1-builtins",
-  "crypto-sha2-builtins",
+    "crypto-digest-builtins",
+    "crypto-hmac-builtins",
+    "crypto-md5-builtins",
+    "crypto-sha1-builtins",
+    "crypto-sha2-builtins",
 ]
 
 all-builtins = [
-  "all-crypto-builtins",
-  "base64url-builtins",
-  "hex-builtins",
-  "json-builtins",
-  "rand-builtins",
-  "semver-builtins",
-  "sprintf-builtins",
-  "units-builtins",
-  "yaml-builtins",
-  "urlquery-builtins",
-  "time-builtins",
+    "all-crypto-builtins",
+    "base64url-builtins",
+    "hex-builtins",
+    "json-builtins",
+    "rand-builtins",
+    "semver-builtins",
+    "sprintf-builtins",
+    "units-builtins",
+    "yaml-builtins",
+    "urlquery-builtins",
+    "time-builtins",
 ]
 
 [[test]]

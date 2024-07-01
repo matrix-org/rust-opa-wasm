@@ -2,9 +2,9 @@ name: Check
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   CARGO_TERM_COLOR: always
@@ -29,7 +29,6 @@ jobs:
 
       - name: Check style
         run: cargo fmt --all -- --check
-
 
   clippy:
     name: Run Clippy
@@ -64,7 +63,6 @@ jobs:
           sed -e 's/#.*//' -e '/^\s*$/d' -e 's/\s\+/,/g' features.txt | while read -r FEATURES; do
             run_clippy --no-default-features --features "${FEATURES}"
           done
-
 
   test:
     name: Run test suite with Rust ${{ matrix.toolchain }}
@@ -107,7 +105,6 @@ jobs:
       - name: Test
         run: cargo test --all-features
 
-
   minimal-versions:
     name: Run test suite with minimal versions
     needs: [rustfmt, clippy]
@@ -122,8 +119,8 @@ jobs:
 
       - name: Install toolchain
         run: |
-          rustup toolchain install 1.72.0 # MSRV
-          rustup default 1.72.0 # MSRV
+          rustup toolchain install 1.76.0 # MSRV
+          rustup default 1.76.0 # MSRV
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -143,9 +140,7 @@ jobs:
           cargo update -Z minimal-versions
 
       - name: Test
-        run:
-          cargo test --all-features --locked
-
+        run: cargo test --all-features --locked
 
   coverage:
     name: Code coverage
@@ -185,7 +180,7 @@ jobs:
         run: |
           cargo test --all-features --no-fail-fast --tests
         env:
-          RUSTFLAGS: '-Cinstrument-coverage'
+          RUSTFLAGS: "-Cinstrument-coverage"
           LLVM_PROFILE_FILE: "cargo-test-%p-%m.profraw"
 
       - name: Build grcov report
@@ -198,7 +193,6 @@ jobs:
         with:
           files: target/coverage/*.lcov
           token: ${{ secrets.CODECOV_TOKEN }}
-
 
   tests-done:
     name: Tests done

@@ -40,24 +40,23 @@ OPTIONS:
 use std::collections::HashMap;
 
 use anyhow::Result;
-use wasmtime::{Config, Engine, Module, Store};
 
-use opa_wasm::Runtime;
+use opa_wasm::{wasmtime, Runtime};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Configure the WASM runtime
-    let mut config = Config::new();
+    let mut config = wasmtime::Config::new();
     config.async_support(true);
 
-    let engine = Engine::new(&config)?;
+    let engine = wasmtime::Engine::new(&config)?;
 
     // Load the policy WASM module
     let module = tokio::fs::read("./policy.wasm").await?;
-    let module = Module::new(&engine, module)?;
+    let module = wasmtime::Module::new(&engine, module)?;
 
     // Create a store which will hold the module instance
-    let mut store = Store::new(&engine, ());
+    let mut store = wasmtime::Store::new(&engine, ());
 
     let data = HashMap::from([("hello", "world")]);
     let input = HashMap::from([("message", "world")]);

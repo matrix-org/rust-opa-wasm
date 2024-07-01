@@ -23,6 +23,9 @@ mod loader;
 mod policy;
 mod types;
 
+// Re-export wasmtime to make it easier to keep the verisons in sync
+pub use wasmtime;
+
 #[cfg(feature = "loader")]
 pub use self::loader::{load_bundle, read_bundle};
 pub use self::{
