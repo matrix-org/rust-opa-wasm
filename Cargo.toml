@@ -1,6 +1,8 @@
 [package]
 name = "opa-wasm"
 version = "0.1.0"
+description = "A crate to use OPA policies compiled to WASM."
+repository = "https://github.com/matrix-org/rust-opa-wasm"
 rust-version = "1.76"
 authors = ["Quentin Gliech <quenting@element.io>"]
 edition = "2021"
