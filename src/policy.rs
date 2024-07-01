@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+//! The policy evaluation logic, which includes the [`Policy`] and [`Runtime`]
+//! structures.
 
 use std::{
     collections::{HashMap, HashSet},
@@ -32,6 +35,7 @@ use crate::{
     DefaultContext, EvaluationContext,
 };
 
+/// Utility to allocate a string in the Wasm memory and return a pointer to it.
 async fn alloc_str<V: Into<Vec<u8>>, T: Send>(
     opa_malloc: &funcs::OpaMalloc,
     mut store: impl AsContextMut<Data = T>,
@@ -53,6 +57,7 @@ async fn alloc_str<V: Into<Vec<u8>>, T: Send>(
     Ok(heap)
 }
 
+/// Utility to load a JSON value into the WASM memory.
 async fn load_json<V: serde::Serialize, T: Send>(
     opa_malloc: &funcs::OpaMalloc,
     opa_free: &funcs::OpaFree,
@@ -68,8 +73,13 @@ async fn load_json<V: serde::Serialize, T: Send>(
     Ok(data)
 }
 
+/// A structure which holds the builtins referenced by the policy.
 struct LoadedBuiltins<C> {
+    /// A map of builtin IDs to the name and the builtin itself.
     builtins: HashMap<i32, (String, Box<dyn Builtin<C>>)>,
+
+    /// The inner [`EvaluationContext`] which will be passed when calling
+    /// some builtins
     context: Mutex<C>,
 }
 
@@ -85,6 +95,7 @@ impl<C> LoadedBuiltins<C>
 where
     C: EvaluationContext,
 {
+    /// Resolve the builtins from a map of builtin IDs to their names.
     fn from_map(map: HashMap<String, BuiltinId>, context: C) -> Result<Self> {
         let res: Result<_> = map
             .into_iter()
@@ -99,6 +110,7 @@ where
         })
     }
 
+    /// Call the given builtin given its ID and arguments.
     async fn builtin<T: Send, const N: usize>(
         &self,
         mut caller: Caller<'_, T>,
@@ -146,6 +158,8 @@ where
         Ok(data.0)
     }
 
+    /// Called when the policy evaluation starts, to reset the context and
+    /// record the evaluation starting time
     async fn evaluation_start(&self) {
         self.context.lock().await.evaluation_start();
     }
@@ -153,6 +167,7 @@ where
 
 /// An instance of a policy with builtins and entrypoints resolved, but with no
 /// data provided yet
+#[allow(clippy::missing_docs_in_private_items)]
 pub struct Runtime<C> {
     version: AbiVersion,
     memory: Memory,
@@ -429,6 +444,7 @@ impl<C> Runtime<C> {
         })
     }
 
+    /// Load a JSON value into the WASM memory
     async fn load_json<V: serde::Serialize, T: Send>(
         &self,
         store: impl AsContextMut<Data = T>,
@@ -502,8 +518,13 @@ impl<C> Runtime<C> {
 /// An instance of a policy, ready to be executed
 #[derive(Debug)]
 pub struct Policy<C> {
+    /// The runtime this policy instance belongs to
     runtime: Runtime<C>,
+
+    /// The data object loaded for this policy
     data: Value,
+
+    /// A pointer to the heap, used for efficient allocations
     heap_ptr: Addr,
 }
 

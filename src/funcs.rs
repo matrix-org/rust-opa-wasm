@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Typed functions exported by the OPA WASM module
+
 use anyhow::{Context, Result};
 use wasmtime::{AsContextMut, Caller, Instance, Memory, TypedFunc};
 
 use crate::types::{Addr, Ctx, EntrypointId, Heap, NulStr, OpaError, Value};
 
+/// Get a [`TypedFunc`] for the given export name from a wasmtime [`Caller`]
 fn from_caller<Params, Results, T>(
     name: &'static str,
     caller: &mut Caller<'_, T>,
@@ -34,6 +37,7 @@ where
         .with_context(|| format!("exported function {name:?} does not have the right signature"))
 }
 
+/// Get a [`TypedFunc`] for the given export name from a wasmtime [`Instance`]
 fn from_instance<Params, Results, T>(
     name: &'static str,
     mut store: impl AsContextMut<Data = T>,
@@ -52,17 +56,25 @@ where
         .with_context(|| format!("exported function {name:?} does not have the right signature"))
 }
 
+/// A helper trait which helps extracting a WASM function to be called from a
+/// Rust context
 pub trait Func: Sized {
+    /// The name of the WASM export to extract
     const EXPORT: &'static str;
+    /// The type of the parameters of the function
     type Params: wasmtime::WasmParams;
+    /// The type of the results of the function
     type Results: wasmtime::WasmResults;
 
+    /// Create a new instance of the function from a `TypedFunc`
     fn from_func(func: TypedFunc<Self::Params, Self::Results>) -> Self;
 
+    /// Create a new instance of the function from a wasmtime [`Caller`]
     fn from_caller<T>(caller: &mut Caller<'_, T>) -> Result<Self> {
         Ok(Self::from_func(from_caller(Self::EXPORT, caller)?))
     }
 
+    /// Create a new instance of the function from a wasmtime [`Instance`]
     fn from_instance<T>(store: impl AsContextMut<Data = T>, instance: &Instance) -> Result<Self> {
         Ok(Self::from_func(from_instance(
             Self::EXPORT,
@@ -395,6 +407,7 @@ impl OpaJsonDump {
         Ok(NulStr(res))
     }
 
+    /// Decode the JSON value at the given memory pointer
     pub async fn decode<V: for<'de> serde::Deserialize<'de>, T: Send>(
         &self,
         mut store: impl AsContextMut<Data = T>,

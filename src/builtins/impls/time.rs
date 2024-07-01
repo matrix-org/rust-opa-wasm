@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ pub enum TimestampWithOptionalTimezone {
 }
 
 impl TimestampWithOptionalTimezone {
+    /// Converts the timestamp into a [`DateTime`] in the UTC timezone
     fn into_datetime(self) -> Result<DateTime<Tz>> {
         let (ts, tz) = match self {
             Self::Timestamp(ts) => (ts, Tz::UTC),
@@ -89,8 +90,10 @@ pub fn diff(ns1: serde_json::Value, ns2: serde_json::Value) -> Result<(u8, u8, u
 
 /// Returns the current time since epoch in nanoseconds.
 #[tracing::instrument(name = "time.now_ns", skip(ctx))]
-pub fn now_ns<C: EvaluationContext>(ctx: &mut C) -> i64 {
-    ctx.now().timestamp_nanos_opt().unwrap()
+pub fn now_ns<C: EvaluationContext>(ctx: &mut C) -> Result<i64> {
+    ctx.now()
+        .timestamp_nanos_opt()
+        .context("Timestamp out of range")
 }
 
 /// Returns the duration in nanoseconds represented by a string.

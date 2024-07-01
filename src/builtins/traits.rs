@@ -1,4 +1,4 @@
-// Copyright 2022 The Matrix.org Foundation C.I.C.
+// Copyright 2022-2024 The Matrix.org Foundation C.I.C.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,9 +32,14 @@ pub trait Builtin<C>: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, anyhow::Error>> + Send + 'a>>;
 }
 
+/// A wrapper around a builtin function with various const markers, to help
+/// implement the [`Builtin`] trait
 #[derive(Clone)]
 struct WrappedBuiltin<F, C, const ASYNC: bool, const RESULT: bool, const CONTEXT: bool, P> {
+    /// The actual function to call
     func: F,
+
+    /// Phantom data to help with the type inference
     _marker: PhantomData<fn() -> (C, P)>,
 }
 
@@ -63,12 +68,15 @@ pub(crate) trait BuiltinFunc<
     P: 'static,
 >: Sized + Send + Sync + 'static
 {
+    /// Call the function, with a list of arguments, each argument being a JSON
+    /// reprensentation of the parameter value.
     fn call<'a>(
         &'a self,
         context: &'a mut C,
         args: &'a [&'a [u8]],
     ) -> Pin<Box<dyn Future<Output = Result<Vec<u8>, anyhow::Error>> + Send + 'a>>;
 
+    /// Wrap the function into a [`Builtin`] trait object
     fn wrap(self) -> Box<dyn Builtin<C>> {
         Box::new(WrappedBuiltin {
             func: self,
@@ -77,6 +85,7 @@ pub(crate) trait BuiltinFunc<
     }
 }
 
+/// A macro to count the number of items
 macro_rules! count {
     () => (0usize);
     ( $x:tt $($xs:tt)* ) => (1usize + count!($($xs)*));
@@ -99,6 +108,8 @@ macro_rules! unwrap {
     };
 }
 
+/// A helper macro used by the [`trait_impl`] macro to generate the right
+/// function call, depending on whether the function takes a context or not
 macro_rules! call {
     ($self:ident, $ctx:expr, ($($pname:ident),*), context = true) => {
         $self($ctx, $($pname),*)
@@ -111,6 +122,8 @@ macro_rules! call {
     };
 }
 
+/// A helper macro used by the [`trait_impl`] macro to generate the body of the
+/// call method in the trait
 macro_rules! trait_body {
     (($($pname:ident: $ptype:ident),*), async = $async:tt, result = $result:tt, context = $context:tt) => {
         fn call<'a>(
@@ -134,6 +147,8 @@ macro_rules! trait_body {
     };
 }
 
+/// A macro which implements the [`BuiltinFunc`] trait for a given number of
+/// parameters
 macro_rules! trait_impl {
     ($($pname:ident: $ptype:ident),*) => {
         // Implementation for a non-async, non-result function, without context
