@@ -13,7 +13,18 @@
 // limitations under the License.
 
 #![doc = include_str!("../README.md")]
-#![deny(missing_docs, clippy::pedantic, clippy::missing_docs_in_private_items)]
+#![deny(
+    missing_docs,
+    clippy::all,
+    clippy::pedantic,
+    clippy::missing_docs_in_private_items,
+    clippy::panic, // Disallow panics
+    clippy::print_stderr, // Disallow directly writing to stderr. Use tracing instead
+    clippy::print_stdout, // Disallow directly writing to stdout. Use tracing instead
+    clippy::unwrap_used, // Disallow the use of Result::{unwrap,expect}. Propagate errors instaed
+    clippy::unwrap_in_result,
+    clippy::expect_used,
+)]
 #![allow(clippy::blocks_in_conditions)]
 
 mod builtins;
