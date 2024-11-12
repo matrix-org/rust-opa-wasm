@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.1...v0.1.2) - 2024-11-12
+
+### Other
+
+- Merge pull request [#193](https://github.com/matrix-org/rust-opa-wasm/pull/193) from matrix-org/dependabot/cargo/thiserror-2
+- Merge pull request [#191](https://github.com/matrix-org/rust-opa-wasm/pull/191) from matrix-org/dependabot/cargo/json-patch-gte-0.2.3-and-lt-3.1.0
+- Merge pull request [#192](https://github.com/matrix-org/rust-opa-wasm/pull/192) from matrix-org/dependabot/cargo/wasmtime-gte-22-and-lt-27
+- *(deps)* update wasmtime requirement from >=22, <24 to >=22, <27
+
 ## [0.1.1](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.0...v0.1.1) - 2024-10-07
 
 ### Other
