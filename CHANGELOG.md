@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.2...v0.1.3) - 2024-11-21
+
+### Other
+
+- *(deps)* update wasmtime requirement from >=22, <27 to >=22, <28
+- *(deps)* bump codecov/codecov-action from 4 to 5
+
 ## [0.1.2](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.1...v0.1.2) - 2024-11-12
 
 ### Other
