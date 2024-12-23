@@ -16,7 +16,7 @@ serde_json = "1.0.18" # This is the earliest version which supports 128-bit inte
 thiserror = ">=1, <3"
 tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
-wasmtime = { version = ">=22, <28", default-features = false, features = [
+wasmtime = { version = ">=22, <29", default-features = false, features = [
     "async",
 ] }
 
@@ -65,7 +65,7 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime = { version = ">=22, <28", default-features = false, features = [
+wasmtime = { version = ">=22, <29", default-features = false, features = [
     "cranelift",
 ] }
 insta = { version = "1", features = ["yaml"] }
