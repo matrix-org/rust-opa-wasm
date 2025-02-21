@@ -1,10 +1,12 @@
-package test
+package fixtures
+
+import rego.v1
 
 now_ns := time.now_ns()
 
 # still not implemented
-#parse_ns = time.parse_ns("2006-01-01", "2022-01-01")
-#parse_ns1 = time.parse_ns("2006-01-01", "2022-01-08")
+# parse_ns = time.parse_ns("2006-01-01", "2022-01-01")
+# parse_ns1 = time.parse_ns("2006-01-01", "2022-01-08")
 
 parse_rfc3339_ns := time.parse_rfc3339_ns("2022-07-31T12:22:40.727411+00:00")
 
@@ -37,5 +39,5 @@ weekday2 := time.weekday([1659996459131330000, "Europe/Paris"])
 add_date := time.add_date(1659996459131330000, 1, 1, 1)
 
 # still not implemented
-#diff := time.diff(1659996459131330000, 1659017824635051000)
-#diff2 := time.diff([1659996459131330000, "Europe/Paris"], [1658997582413084200, "Europe/Paris"])
+# diff := time.diff(1659996459131330000, 1659017824635051000)
+# diff2 := time.diff([1659996459131330000, "Europe/Paris"], [1658997582413084200, "Europe/Paris"])

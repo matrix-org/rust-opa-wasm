@@ -1,4 +1,6 @@
-package test
+package fixtures
+
+import rego.v1
 
 is_valid := yaml.is_valid("--\nfoo: bar num: 1\n")
 

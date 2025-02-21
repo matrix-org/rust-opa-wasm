@@ -1,26 +1,25 @@
 #  Copyright 2022 The Matrix.org Foundation C.I.C.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-package test
+package fixtures
 
-default allow := false
+import rego.v1
 
-allow {
-	input.attributes.request.http.method == "GET"
-	input.attributes.request.http.path == "/"
-}
+zero := rand.intn("zero", 0)
 
-allow {
-	input.attributes.request.http.headers.authorization == "Basic charlie"
-}
+first := rand.intn("first", 10)
+
+second := rand.intn("second", 100)
+
+cache := rand.intn("second", 100)

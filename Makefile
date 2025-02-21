@@ -1,4 +1,4 @@
 build-opa:
-	ls tests/infra-fixtures/*.rego | xargs -I {} opa build {} -t wasm -e test -o {}.tar.gz
+	ls tests/fixtures/*.rego | xargs -I {} opa build {} -t wasm -e fixtures -o {}.tar.gz
 clean-opa:
-	rm tests/infra-fixtures/*.tar.gz
+	rm tests/fixtures/*.tar.gz
