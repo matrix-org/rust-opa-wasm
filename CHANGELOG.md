@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.3...v0.1.4) - 2025-02-21
+
+### Other
+
+- Widen the supported sprintf version range
+- *(deps)* update sprintf requirement from 0.3 to 0.4
+- bump clippy to 1.85
+- adapt the tests to rego v1 syntax
+
 ## [0.1.3](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.2...v0.1.3) - 2024-11-21
 
 ### Other
