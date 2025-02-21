@@ -1,4 +1,6 @@
-package test
+package fixtures
+
+import rego.v1
 
 v_bytes := units.parse_bytes("1K")
 

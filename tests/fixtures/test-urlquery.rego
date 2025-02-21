@@ -1,4 +1,6 @@
-package test
+package fixtures
+
+import rego.v1
 
 encode_1 := urlquery.encode("?foo=1&bar=test")
 

@@ -69,14 +69,14 @@ async fn eval_policy(
 }
 
 fn bundle(name: &str) -> String {
-    Path::new("tests/infra-fixtures")
+    Path::new("tests/fixtures")
         .join(name)
         .to_string_lossy()
         .into()
 }
 
 fn input(name: &str) -> String {
-    Path::new("tests/infra-fixtures")
+    Path::new("tests/fixtures")
         .join(name)
         .to_string_lossy()
         .into()
@@ -91,7 +91,7 @@ async fn test_policy(bundle_name: &str, data: Option<&str>) -> AnyResult<serde_j
     };
     eval_policy(
         &bundle(&format!("{}.rego.tar.gz", bundle_name)),
-        "test",
+        "fixtures",
         &input,
     )
     .await
@@ -99,7 +99,7 @@ async fn test_policy(bundle_name: &str, data: Option<&str>) -> AnyResult<serde_j
 
 #[tokio::test]
 async fn infra_loader_works() {
-    let module = read_bundle("tests/infra-fixtures/test-loader.rego.tar.gz")
+    let module = read_bundle("tests/fixtures/test-loader.rego.tar.gz")
         .await
         .unwrap();
 
