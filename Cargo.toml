@@ -16,7 +16,7 @@ serde_json = "1.0.18" # This is the earliest version which supports 128-bit inte
 thiserror = ">=1, <3"
 tokio = { version = "1.5", features = ["sync", "macros"] }
 tracing = "0.1.27"
-wasmtime = { version = ">=22, <28", default-features = false, features = [
+wasmtime = { version = ">=22, <31", default-features = false, features = [
     "async",
 ] }
 
@@ -65,7 +65,7 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime = { version = ">=22, <28", default-features = false, features = [
+wasmtime = { version = ">=22, <31", default-features = false, features = [
     "cranelift",
 ] }
 insta = { version = "1", features = ["yaml"] }
@@ -74,6 +74,9 @@ insta = { version = "1", features = ["yaml"] }
 # We would like at least this version of rayon, because older versions depend on old rand,
 # which depends on old log, which depends on old libc, which doesn't build with newer rustc
 rayon = "^1.6"
+
+# wasmtime fails to resolve to its minimal version without this
+version_check = "^0.9.4"
 
 [features]
 default = ["all-builtins", "fast"]
