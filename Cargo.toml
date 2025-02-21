@@ -75,6 +75,9 @@ insta = { version = "1", features = ["yaml"] }
 # which depends on old log, which depends on old libc, which doesn't build with newer rustc
 rayon = "^1.6"
 
+# wasmtime fails to resolve to its minimal version without this
+version_check = "^0.9.4"
+
 [features]
 default = ["all-builtins", "fast"]
 
