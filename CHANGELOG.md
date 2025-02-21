@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.3...v0.1.4) - 2025-02-21
+
+### Other
+
+- Merge pull request [#204](https://github.com/matrix-org/rust-opa-wasm/pull/204) from matrix-org/dependabot/cargo/wasmtime-gte-22-and-lt-31
+- Merge pull request [#203](https://github.com/matrix-org/rust-opa-wasm/pull/203) from matrix-org/dependabot/cargo/duration-str-0.13
+- Widen the version range for duration-str
+- *(deps)* update duration-str requirement from 0.11 to 0.13
+- bump clippy to 1.85
+- adapt the tests to rego v1 syntax
+
 ## [0.1.3](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.2...v0.1.3) - 2024-11-21
 
 ### Other
