@@ -162,37 +162,27 @@ jobs:
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
       - name: Setup OPA
         uses: open-policy-agent/setup-opa@v2
         with:
           version: latest
-
-      - name: Download grcov
-        run: |
-          mkdir -p "${HOME}/.local/bin"
-          curl -sL https://github.com/mozilla/grcov/releases/download/v0.8.13/grcov-x86_64-unknown-linux-gnu.tar.bz2 | tar jxf - -C "${HOME}/.local/bin"
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build OPA bundles for test
         run: make build-opa
 
       - name: Run test suite with profiling enabled
         run: |
-          cargo test --all-features --no-fail-fast --tests
-        env:
-          RUSTFLAGS: "-Cinstrument-coverage"
-          LLVM_PROFILE_FILE: "cargo-test-%p-%m.profraw"
-
-      - name: Build grcov report
-        run: |
-          mkdir -p target/coverage
-          grcov . --binary-path ./target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/tests.lcov
+          cargo llvm-cov --all-features --no-fail-fast --tests --codecov --output-path codecov.json
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v5
         with:
-          files: target/coverage/*.lcov
+          files: codecov.json
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
 
   tests-done:
     name: Tests done
