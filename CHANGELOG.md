@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.4...v0.1.5) - 2025-04-06
+
+### Other
+
+- *(deps)* update wasmtime requirement from >=22, <31 to >=22, <32
+- *(deps)* update duration-str requirement from >=0.11, <0.14 to >=0.11, <0.16
+- *(deps)* update json-patch requirement from >=0.2.3, <3.1.0 to >=0.2.3, <4.1.0
+
 ## [0.1.4](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.3...v0.1.4) - 2025-02-21
 
 ### Other
