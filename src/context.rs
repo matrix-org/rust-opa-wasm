@@ -16,7 +16,7 @@
 
 #![allow(clippy::module_name_repetitions)]
 
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 use anyhow::Result;
 #[cfg(feature = "time")]
@@ -36,6 +36,14 @@ pub trait EvaluationContext: Send + 'static {
     /// Get the current date and time
     #[cfg(feature = "time")]
     fn now(&self) -> chrono::DateTime<chrono::Utc>;
+
+    /// Send an HTTP request
+    fn send_http(
+        &self,
+        req: http::Request<String>,
+        timeout: Option<Duration>,
+        enable_redirect: Option<bool>,
+    ) -> impl std::future::Future<Output = Result<http::Response<String>>> + Send + Sync;
 
     /// Notify the context on evaluation start, so it can clean itself up
     fn evaluation_start(&mut self);
@@ -63,16 +71,65 @@ pub struct DefaultContext {
     /// The time at which the evaluation started
     #[cfg(feature = "time")]
     evaluation_time: chrono::DateTime<chrono::Utc>,
+
+    /// The client used to send HTTP requests
+    #[cfg(feature = "http")]
+    client: reqwest::Client,
+
+    /// The timeout used to send HTTP requests
+    #[cfg(feature = "http")]
+    timeout: Duration,
+
+    /// Whether to enable redirects
+    #[cfg(feature = "http")]
+    enable_redirect: bool,
 }
+
+fn build_reqwest_client(timeout: Duration, enable_redirect: bool) -> reqwest::Client {
+    let mut client_builder = reqwest::Client::builder();
+    client_builder = client_builder.timeout(timeout);
+    client_builder = client_builder.redirect(if enable_redirect {
+        reqwest::redirect::Policy::default()
+    } else {
+        reqwest::redirect::Policy::none()
+    });
+    client_builder.build().unwrap()
+}
+
+static DEFAULT_HTTP_TIMEOUT: Duration = Duration::from_secs(5);
+static DEFAULT_HTTP_ENABLE_REDIRECT: bool = false;
 
 #[allow(clippy::derivable_impls)]
 impl Default for DefaultContext {
     fn default() -> Self {
+        Self::new(DEFAULT_HTTP_TIMEOUT, DEFAULT_HTTP_ENABLE_REDIRECT)
+    }
+}
+
+impl DefaultContext {
+    fn new(timeout: Duration, enable_redirect: bool) -> Self {
         Self {
             cache: HashMap::new(),
 
             #[cfg(feature = "time")]
             evaluation_time: chrono::Utc.timestamp_nanos(0),
+
+            #[cfg(feature = "http")]
+            client: build_reqwest_client(timeout, enable_redirect),
+            timeout,
+            enable_redirect,
+        }
+    }
+
+    fn get_reqwest_client(
+        &self,
+        timeout: Duration,
+        enable_redirect: bool,
+    ) -> reqwest::Client {
+        if timeout != self.timeout || enable_redirect != self.enable_redirect {
+            build_reqwest_client(timeout, enable_redirect)
+        } else {
+            self.client.clone()
         }
     }
 }
@@ -89,6 +146,32 @@ impl EvaluationContext for DefaultContext {
     #[cfg(feature = "time")]
     fn now(&self) -> chrono::DateTime<chrono::Utc> {
         self.evaluation_time
+    }
+
+    #[cfg(feature = "http")]
+    async fn send_http(
+        &self,
+        req: http::Request<String>,
+        timeout: Option<Duration>,
+        enable_redirect: Option<bool>,
+    ) -> Result<http::Response<String>> {
+        let client = self.get_reqwest_client(
+            timeout.unwrap_or(DEFAULT_HTTP_TIMEOUT),
+            enable_redirect.unwrap_or(DEFAULT_HTTP_ENABLE_REDIRECT),
+        );
+
+        let response: reqwest::Response = client.execute(reqwest::Request::try_from(req)?).await?;
+
+        let mut builder = http::Response::builder().status(response.status());
+        for (name, value) in response.headers() {
+            builder = builder.header(name, value);
+        }
+
+        let bytes_body = response.bytes().await?;
+        let string_body = String::from_utf8(bytes_body.to_vec())?;
+        builder
+            .body(string_body)
+            .map_err(|e| anyhow::anyhow!("Failed to build response: {}", e))
     }
 
     fn evaluation_start(&mut self) {
@@ -122,6 +205,8 @@ impl EvaluationContext for DefaultContext {
 
 /// Test utilities
 pub mod tests {
+    use std::time::Duration;
+
     use anyhow::Result;
     #[cfg(feature = "time")]
     use chrono::TimeZone;
@@ -180,6 +265,16 @@ pub mod tests {
             use rand::SeedableRng;
 
             rand::rngs::StdRng::seed_from_u64(self.seed)
+        }
+
+        #[cfg(feature = "http")]
+        async fn send_http(
+            &self,
+            req: http::Request<String>,
+            timeout: Option<Duration>,
+            enable_redirect: Option<bool>,
+        ) -> Result<http::Response<String>> {
+            self.inner.send_http(req, timeout, enable_redirect).await
         }
 
         fn cache_get<K: Serialize, C: DeserializeOwned>(&mut self, key: &K) -> Result<Option<C>> {

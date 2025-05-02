@@ -15,25 +15,25 @@
 //! Builtins parse and serialize YAML documents
 
 use anyhow::Result;
-use serde_yaml;
+use serde_yml;
 
 /// Verifies the input string is a valid YAML document.
 #[tracing::instrument(name = "yaml.is_valid")]
 pub fn is_valid(x: String) -> bool {
-    let parse: Result<serde_yaml::Value, _> = serde_yaml::from_str(&x);
+    let parse: Result<serde_yml::Value, _> = serde_yml::from_str(&x);
     parse.is_ok()
 }
 
 /// Serializes the input term to YAML.
 #[tracing::instrument(name = "yaml.marshal", err)]
-pub fn marshal(x: serde_yaml::Value) -> Result<String> {
-    let parse: String = serde_yaml::to_string(&x)?;
+pub fn marshal(x: serde_yml::Value) -> Result<String> {
+    let parse: String = serde_yml::to_string(&x)?;
     Ok(parse)
 }
 
 /// Deserializes the input string.
 #[tracing::instrument(name = "yaml.unmarshal", err)]
 pub fn unmarshal(x: String) -> Result<serde_json::Value> {
-    let parse: serde_json::Value = serde_yaml::from_str(&x)?;
+    let parse: serde_json::Value = serde_yml::from_str(&x)?;
     Ok(parse)
 }
