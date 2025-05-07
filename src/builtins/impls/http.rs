@@ -208,14 +208,16 @@ fn convert_http_resp_to_opa_resp(
         .map(|v| v.to_str().unwrap_or_default());
 
     if force_json_decode || content_type == Some("application/json") {
-        opa_resp["body"] = serde_json::from_str::<serde_json::Value>(raw_resp_body)
-            .map_err(|e| anyhow::anyhow!("failed to parse JSON body: {}", e))?;
+        if let Ok(parsed_body) = serde_json::from_str::<serde_json::Value>(raw_resp_body) {
+            opa_resp["body"] = parsed_body;
+        };
     } else if force_yaml_decode
         || content_type == Some("application/yaml")
         || content_type == Some("application/x-yaml")
     {
-        opa_resp["body"] = serde_yml::from_str::<serde_json::Value>(raw_resp_body)
-            .map_err(|e| anyhow::anyhow!("failed to parse YAML body: {}", e))?;
+        if let Ok(parsed_body) = serde_yml::from_str::<serde_json::Value>(raw_resp_body) {
+            opa_resp["body"] = parsed_body;
+        };
     }
 
     Ok(opa_resp)
