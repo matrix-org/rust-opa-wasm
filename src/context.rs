@@ -80,11 +80,12 @@ pub struct DefaultContext {
     #[cfg(feature = "http")]
     timeout: Duration,
 
-    /// Whether to enable redirects
+    /// Whether to follow HTTP redirects
     #[cfg(feature = "http")]
     enable_redirect: bool,
 }
 
+/// Builds a [`reqwest::Client`] with the given timeout and redirect policy.
 fn build_reqwest_client(timeout: Duration, enable_redirect: bool) -> reqwest::Client {
     let mut client_builder = reqwest::Client::builder();
     client_builder = client_builder.timeout(timeout);
@@ -93,10 +94,14 @@ fn build_reqwest_client(timeout: Duration, enable_redirect: bool) -> reqwest::Cl
     } else {
         reqwest::redirect::Policy::none()
     });
+    #[allow(clippy::unwrap_used)]
     client_builder.build().unwrap()
 }
 
+/// The default HTTP timeout (5 seconds as specified in the OPA specification)
 static DEFAULT_HTTP_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// The default HTTP redirect policy (disabled as specified in the OPA specification)
 static DEFAULT_HTTP_ENABLE_REDIRECT: bool = false;
 
 #[allow(clippy::derivable_impls)]
@@ -107,6 +112,8 @@ impl Default for DefaultContext {
 }
 
 impl DefaultContext {
+    /// Creates a new [`DefaultContext`] with the given timeout and redirect policy for the HTTP
+    /// client.
     fn new(timeout: Duration, enable_redirect: bool) -> Self {
         Self {
             cache: HashMap::new(),
@@ -116,11 +123,17 @@ impl DefaultContext {
 
             #[cfg(feature = "http")]
             client: build_reqwest_client(timeout, enable_redirect),
+            #[cfg(feature = "http")]
             timeout,
+            #[cfg(feature = "http")]
             enable_redirect,
         }
     }
 
+    /// Returns a [`reqwest::Client`] with the given timeout and redirect policy.
+    ///
+    /// If the timeout or redirect policy is different from the ones used by the context, a new
+    /// [`reqwest::Client`] is built. Otherwise, the existing client is returned.
     fn get_reqwest_client(
         &self,
         timeout: Duration,

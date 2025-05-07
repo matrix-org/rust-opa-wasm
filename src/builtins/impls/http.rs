@@ -24,8 +24,8 @@ use tokio::time::sleep;
 
 use crate::{builtins::traits::Builtin, EvaluationContext};
 
-// This is needed because the wrapper in traits.rs doesn't work when dealing
-// with async+context
+/// This builtin is needed because the wrapper in traits.rs doesn't work when
+/// dealing with async+context.
 pub struct HttpSendBuiltin {}
 
 impl<C: 'static> Builtin<C> for HttpSendBuiltin
@@ -51,6 +51,9 @@ where
 }
 
 /// Returns a HTTP response to the given HTTP request.
+///
+/// Wraps [`internal_send`] to add error handling regarding the `raise_error`
+/// field in the OPA request.
 #[tracing::instrument(name = "http.send", skip(ctx), err)]
 pub async fn send<C: EvaluationContext>(
     ctx: &mut C,
@@ -78,6 +81,7 @@ pub async fn send<C: EvaluationContext>(
     }
 }
 
+/// Sends a HTTP request and returns the response.
 async fn internal_send<C: EvaluationContext>(
     ctx: &mut C,
     opa_req: serde_json::Value,
@@ -122,6 +126,7 @@ async fn internal_send<C: EvaluationContext>(
             break;
         }
         if max_retry_attempts > 0 {
+            #[allow(clippy::cast_possible_truncation)]
             sleep(Duration::from_millis(500 * 2_u64.pow(attempt as u32))).await;
         }
     }
@@ -141,12 +146,13 @@ async fn internal_send<C: EvaluationContext>(
                 http_resp,
                 force_json_decode,
                 force_yaml_decode,
-            )?)
+            ))
         }
         Err(e) => Err(e),
     }
 }
 
+/// Converts an OPA request to an HTTP request.
 fn convert_opa_req_to_http_req(
     opa_req: &Map<String, serde_json::Value>,
 ) -> Result<http::Request<String>> {
@@ -183,11 +189,12 @@ fn convert_opa_req_to_http_req(
     Ok(http_req)
 }
 
+/// Converts an HTTP response to an OPA response.
 fn convert_http_resp_to_opa_resp(
     response: http::Response<String>,
     force_json_decode: bool,
     force_yaml_decode: bool,
-) -> Result<serde_json::Value> {
+) -> serde_json::Value {
     let response_headers = response
         .headers()
         .iter()
@@ -210,15 +217,15 @@ fn convert_http_resp_to_opa_resp(
     if force_json_decode || content_type == Some("application/json") {
         if let Ok(parsed_body) = serde_json::from_str::<serde_json::Value>(raw_resp_body) {
             opa_resp["body"] = parsed_body;
-        };
+        }
     } else if force_yaml_decode
         || content_type == Some("application/yaml")
         || content_type == Some("application/x-yaml")
     {
         if let Ok(parsed_body) = serde_yml::from_str::<serde_json::Value>(raw_resp_body) {
             opa_resp["body"] = parsed_body;
-        };
+        }
     }
 
-    Ok(opa_resp)
+    opa_resp
 }
