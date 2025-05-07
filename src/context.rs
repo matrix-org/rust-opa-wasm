@@ -74,15 +74,7 @@ pub struct DefaultContext {
 
     /// The client used to send HTTP requests
     #[cfg(feature = "http")]
-    client: reqwest::Client,
-
-    /// The timeout used to send HTTP requests
-    #[cfg(feature = "http")]
-    timeout: Duration,
-
-    /// Whether to follow HTTP redirects
-    #[cfg(feature = "http")]
-    enable_redirect: bool,
+    http_client: reqwest::Client,
 }
 
 /// Builds a [`reqwest::Client`] with the given timeout and redirect policy.
@@ -101,20 +93,13 @@ fn build_reqwest_client(timeout: Duration, enable_redirect: bool) -> reqwest::Cl
 /// The default HTTP timeout (5 seconds as specified in the OPA specification)
 static DEFAULT_HTTP_TIMEOUT: Duration = Duration::from_secs(5);
 
-/// The default HTTP redirect policy (disabled as specified in the OPA specification)
+/// The default HTTP redirect policy (disabled as specified in the OPA
+/// specification)
 static DEFAULT_HTTP_ENABLE_REDIRECT: bool = false;
 
 #[allow(clippy::derivable_impls)]
 impl Default for DefaultContext {
     fn default() -> Self {
-        Self::new(DEFAULT_HTTP_TIMEOUT, DEFAULT_HTTP_ENABLE_REDIRECT)
-    }
-}
-
-impl DefaultContext {
-    /// Creates a new [`DefaultContext`] with the given timeout and redirect policy for the HTTP
-    /// client.
-    fn new(timeout: Duration, enable_redirect: bool) -> Self {
         Self {
             cache: HashMap::new(),
 
@@ -122,27 +107,23 @@ impl DefaultContext {
             evaluation_time: chrono::Utc.timestamp_nanos(0),
 
             #[cfg(feature = "http")]
-            client: build_reqwest_client(timeout, enable_redirect),
-            #[cfg(feature = "http")]
-            timeout,
-            #[cfg(feature = "http")]
-            enable_redirect,
+            http_client: build_reqwest_client(DEFAULT_HTTP_TIMEOUT, DEFAULT_HTTP_ENABLE_REDIRECT),
         }
     }
+}
 
-    /// Returns a [`reqwest::Client`] with the given timeout and redirect policy.
+impl DefaultContext {
+    /// Returns a [`reqwest::Client`] with the given timeout and redirect
+    /// policy.
     ///
-    /// If the timeout or redirect policy is different from the ones used by the context, a new
-    /// [`reqwest::Client`] is built. Otherwise, the existing client is returned.
-    fn get_reqwest_client(
-        &self,
-        timeout: Duration,
-        enable_redirect: bool,
-    ) -> reqwest::Client {
-        if timeout != self.timeout || enable_redirect != self.enable_redirect {
+    /// If the timeout or redirect policy is different from the default ones, a
+    /// new [`reqwest::Client`] is built. Otherwise, the existing client is
+    /// returned.
+    fn get_reqwest_client(&self, timeout: Duration, enable_redirect: bool) -> reqwest::Client {
+        if timeout != DEFAULT_HTTP_TIMEOUT || enable_redirect != DEFAULT_HTTP_ENABLE_REDIRECT {
             build_reqwest_client(timeout, enable_redirect)
         } else {
-            self.client.clone()
+            self.http_client.clone()
         }
     }
 }
