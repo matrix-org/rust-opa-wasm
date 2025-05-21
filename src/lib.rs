@@ -41,7 +41,9 @@ pub use wasmtime;
 #[cfg(feature = "loader")]
 pub use self::loader::{load_bundle, read_bundle};
 pub use self::{
-    context::{tests::TestContext, DefaultContext, EvaluationContext},
+    context::{DefaultContext, EvaluationContext},
     policy::{Policy, Runtime},
     types::AbiVersion,
 };
+#[cfg(feature = "testing")]
+pub use context::tests::TestContext;

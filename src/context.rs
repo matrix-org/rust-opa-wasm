@@ -17,6 +17,8 @@
 #![allow(clippy::module_name_repetitions)]
 
 use std::collections::HashMap;
+#[cfg(feature = "http")]
+use std::time::Duration;
 
 use anyhow::Result;
 #[cfg(feature = "time")]
@@ -36,6 +38,15 @@ pub trait EvaluationContext: Send + 'static {
     /// Get the current date and time
     #[cfg(feature = "time")]
     fn now(&self) -> chrono::DateTime<chrono::Utc>;
+
+    /// Send an HTTP request
+    #[cfg(feature = "http")]
+    fn send_http(
+        &self,
+        req: http::Request<String>,
+        timeout: Option<Duration>,
+        enable_redirect: Option<bool>,
+    ) -> impl std::future::Future<Output = Result<http::Response<String>>> + Send + Sync;
 
     /// Notify the context on evaluation start, so it can clean itself up
     fn evaluation_start(&mut self);
@@ -91,6 +102,21 @@ impl EvaluationContext for DefaultContext {
         self.evaluation_time
     }
 
+    #[cfg(feature = "http")]
+    fn send_http(
+        &self,
+        _req: http::Request<String>,
+        _timeout: Option<Duration>,
+        _enable_redirect: Option<bool>,
+    ) -> impl std::future::Future<Output = Result<http::Response<String>>> + Send + Sync {
+        // This is a stub implementation. Default context does not implement
+        // actual HTTP requests due to security reasons - HTTP calls from policy
+        // should be explicitly allowed/moderated by the integration.
+        // For an example of a context that does implement HTTP requests, see
+        // the `TestContext` in the `tests` module below.
+        Box::pin(async { anyhow::bail!("http.send not implemented in DefaultContext") })
+    }
+
     fn evaluation_start(&mut self) {
         // Clear the cache
         self.cache = HashMap::new();
@@ -121,13 +147,32 @@ impl EvaluationContext for DefaultContext {
 }
 
 /// Test utilities
+#[cfg(feature = "testing")]
 pub mod tests {
     use anyhow::Result;
     #[cfg(feature = "time")]
     use chrono::TimeZone;
+    #[cfg(feature = "http")]
+    use reqwest;
     use serde::{de::DeserializeOwned, Serialize};
+    #[cfg(feature = "http")]
+    use std::time::Duration;
 
     use crate::{DefaultContext, EvaluationContext};
+
+    /// Builds a [`reqwest::Client`] with the given timeout and redirect policy.
+    #[cfg(feature = "http")]
+    fn build_reqwest_client(timeout: Duration, enable_redirect: bool) -> reqwest::Client {
+        let mut client_builder = reqwest::Client::builder();
+        client_builder = client_builder.timeout(timeout);
+        client_builder = client_builder.redirect(if enable_redirect {
+            reqwest::redirect::Policy::default()
+        } else {
+            reqwest::redirect::Policy::none()
+        });
+        #[allow(clippy::unwrap_used)]
+        client_builder.build().unwrap()
+    }
 
     /// A context used in tests
     pub struct TestContext {
@@ -180,6 +225,33 @@ pub mod tests {
             use rand::SeedableRng;
 
             rand::rngs::StdRng::seed_from_u64(self.seed)
+        }
+
+        #[cfg(feature = "http")]
+        async fn send_http(
+            &self,
+            req: http::Request<String>,
+            timeout: Option<Duration>,
+            enable_redirect: Option<bool>,
+        ) -> Result<http::Response<String>> {
+            let client = build_reqwest_client(
+                timeout.unwrap_or(Duration::from_secs(5)),
+                enable_redirect.unwrap_or(false),
+            );
+
+            let response: reqwest::Response =
+                client.execute(reqwest::Request::try_from(req)?).await?;
+
+            let mut builder = http::Response::builder().status(response.status());
+            for (name, value) in response.headers() {
+                builder = builder.header(name, value);
+            }
+
+            let bytes_body = response.bytes().await?;
+            let string_body = String::from_utf8(bytes_body.to_vec())?;
+            builder
+                .body(string_body)
+                .map_err(|e| anyhow::anyhow!("Failed to build response: {}", e))
         }
 
         fn cache_get<K: Serialize, C: DeserializeOwned>(&mut self, key: &K) -> Result<Option<C>> {

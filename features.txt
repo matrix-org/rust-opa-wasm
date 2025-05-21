@@ -2,6 +2,7 @@
 loader
 cli
 rng
+http
 base64url-builtins
 crypto-digest-builtins crypto-md5-builtins
 crypto-digest-builtins crypto-sha1-builtins
@@ -16,6 +17,8 @@ json-builtins
 units-builtins
 rand-builtins
 yaml-builtins
+http-builtins
 time-builtins
 all-crypto-builtins
 all-builtins
+testing
