@@ -27,6 +27,7 @@ pub mod graph;
 pub mod graphql;
 #[cfg(feature = "hex-builtins")]
 pub mod hex;
+#[cfg(feature = "http-builtins")]
 pub mod http;
 pub mod io;
 #[cfg(feature = "json-builtins")]

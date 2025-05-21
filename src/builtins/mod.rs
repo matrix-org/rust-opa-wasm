@@ -80,7 +80,9 @@ pub fn resolve<C: EvaluationContext>(name: &str) -> Result<Box<dyn Builtin<C>>> 
         #[cfg(feature = "hex-builtins")]
         "hex.encode" => Ok(self::impls::hex::encode.wrap()),
 
-        "http.send" => Ok(self::impls::http::send.wrap()),
+        #[cfg(feature = "http-builtins")]
+        "http.send" => Ok(Box::new(self::impls::http::HttpSendBuiltin {})),
+
         "indexof_n" => Ok(self::impls::indexof_n.wrap()),
         "io.jwt.decode" => Ok(self::impls::io::jwt::decode.wrap()),
         "io.jwt.decode_verify" => Ok(self::impls::io::jwt::decode_verify.wrap()),
