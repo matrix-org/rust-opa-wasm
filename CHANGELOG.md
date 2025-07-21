@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.5...v0.1.6) - 2025-07-21
+
+### Other
+
+- Protect crates.io publishing behing a GH environment
+- Merge branch 'main' into typed_enum_generics
+- Merge pull request #226 from matrix-org/quenting/trusted-publishing
+- Update the Release-plz workflow to use trusted publishing
+
 ## [0.1.5](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.4...v0.1.5) - 2025-04-06
 
 ### Other
