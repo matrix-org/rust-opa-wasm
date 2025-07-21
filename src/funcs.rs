@@ -431,7 +431,7 @@ impl OpaValueParse {
     /// # Errors
     ///
     /// This function will return an error if the WASM function call fails.
-    #[expect(dead_code)]
+    #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_parse", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -561,7 +561,7 @@ impl OpaValueAddPath {
     /// # Errors
     ///
     /// This function will return an error if the WASM function call fails.
-    #[expect(dead_code)]
+    #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_add_path", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -594,7 +594,7 @@ impl OpaValueRemovePath {
     /// # Errors
     ///
     /// This function will return an error if the WASM function call fails.
-    #[expect(dead_code)]
+    #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_remove_path", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -626,7 +626,7 @@ impl OpaValueDump {
     /// # Errors
     ///
     /// This function will return an error if the WASM function call fails.
-    #[expect(dead_code)]
+    #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_dump", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
