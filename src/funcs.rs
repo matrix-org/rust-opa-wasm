@@ -98,6 +98,11 @@ impl Func for Eval {
 }
 
 impl Eval {
+    /// Call the `eval` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "eval", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -123,6 +128,11 @@ impl Func for Builtins {
 }
 
 impl Builtins {
+    /// Call the `builtins` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "builtins", skip_all, err)]
     pub async fn call<T: Send>(&self, store: impl AsContextMut<Data = T>) -> Result<Value> {
         let res = self.0.call_async(store, ()).await?;
@@ -144,6 +154,11 @@ impl Func for Entrypoints {
 }
 
 impl Entrypoints {
+    /// Call the `entrypoints` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "entrypoints", skip_all, err)]
     pub async fn call<T: Send>(&self, store: impl AsContextMut<Data = T>) -> Result<Value> {
         let res = self.0.call_async(store, ()).await?;
@@ -165,6 +180,11 @@ impl Func for OpaEvalCtxNew {
 }
 
 impl OpaEvalCtxNew {
+    /// Call the `opa_eval_ctx_new` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_eval_ctx_new", skip_all, err)]
     pub async fn call<T: Send>(&self, store: impl AsContextMut<Data = T>) -> Result<Ctx> {
         let res = self.0.call_async(store, ()).await?;
@@ -186,6 +206,11 @@ impl Func for OpaEvalCtxSetInput {
 }
 
 impl OpaEvalCtxSetInput {
+    /// Call the `opa_eval_ctx_set_input` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_eval_ctx_set_input", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -212,6 +237,11 @@ impl Func for OpaEvalCtxSetData {
 }
 
 impl OpaEvalCtxSetData {
+    /// Call the `opa_eval_ctx_set_data` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_eval_ctx_set_data", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -238,6 +268,11 @@ impl Func for OpaEvalCtxSetEntrypoint {
 }
 
 impl OpaEvalCtxSetEntrypoint {
+    /// Call the `opa_eval_ctx_set_entrypoint` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_eval_ctx_set_entrypoint", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -264,6 +299,11 @@ impl Func for OpaEvalCtxGetResult {
 }
 
 impl OpaEvalCtxGetResult {
+    /// Call the `opa_eval_ctx_get_result` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_eval_ctx_get_result", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -289,6 +329,11 @@ impl Func for OpaMalloc {
 }
 
 impl OpaMalloc {
+    /// Call the `opa_malloc` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_malloc", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -319,6 +364,11 @@ impl Func for OpaFree {
 }
 
 impl OpaFree {
+    /// Call the `opa_free` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_free", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -346,6 +396,11 @@ impl Func for OpaJsonParse {
 }
 
 impl OpaJsonParse {
+    /// Call the `opa_json_parse` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_json_parse", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -371,6 +426,11 @@ impl Func for OpaValueParse {
 }
 
 impl OpaValueParse {
+    /// Call the `opa_value_parse` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_parse", skip_all, err)]
     pub async fn call<T: Send>(
@@ -397,6 +457,11 @@ impl Func for OpaJsonDump {
 }
 
 impl OpaJsonDump {
+    /// Call the `opa_json_dump` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_json_dump", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -435,6 +500,11 @@ impl Func for OpaHeapPtrSet {
 }
 
 impl OpaHeapPtrSet {
+    /// Call the `opa_heap_ptr_set` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_heap_ptr_set", skip_all, err)]
     pub async fn call<T: Send>(
         &self,
@@ -460,6 +530,11 @@ impl Func for OpaHeapPtrGet {
 }
 
 impl OpaHeapPtrGet {
+    /// Call the `opa_heap_ptr_get` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_heap_ptr_get", skip_all, err)]
     pub async fn call<T: Send>(&self, store: impl AsContextMut<Data = T>) -> Result<Addr> {
         let res = self.0.call_async(store, ()).await?;
@@ -481,6 +556,11 @@ impl Func for OpaValueAddPath {
 }
 
 impl OpaValueAddPath {
+    /// Call the `opa_value_add_path` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_add_path", skip_all, err)]
     pub async fn call<T: Send>(
@@ -509,6 +589,11 @@ impl Func for OpaValueRemovePath {
 }
 
 impl OpaValueRemovePath {
+    /// Call the `opa_value_remove_path` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_remove_path", skip_all, err)]
     pub async fn call<T: Send>(
@@ -536,6 +621,11 @@ impl Func for OpaValueDump {
 }
 
 impl OpaValueDump {
+    /// Call the `opa_value_dump` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[allow(dead_code)]
     #[tracing::instrument(name = "opa_value_dump", skip_all, err)]
     pub async fn call<T: Send>(
@@ -564,6 +654,11 @@ impl Func for OpaEval {
 }
 
 impl OpaEval {
+    /// Call the `opa_eval` exported function.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the WASM function call fails.
     #[tracing::instrument(name = "opa_eval", skip_all, err)]
     pub async fn call<T: Send>(
         &self,

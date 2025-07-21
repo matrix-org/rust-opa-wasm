@@ -214,7 +214,10 @@ impl Runtime<DefaultContext> {
     ///    some of the exported functions
     ///  - it failed to load the entrypoints or the builtins list
     #[allow(clippy::too_many_lines)]
-    pub async fn new<T: Send>(store: impl AsContextMut<Data = T>, module: &Module) -> Result<Self> {
+    pub async fn new<T: Send + 'static>(
+        store: impl AsContextMut<Data = T>,
+        module: &Module,
+    ) -> Result<Self> {
         let context = DefaultContext::default();
         Self::new_with_evaluation_context(store, module, context).await
     }
@@ -235,7 +238,7 @@ impl<C> Runtime<C> {
     ///    some of the exported functions
     ///  - it failed to load the entrypoints or the builtins list
     #[allow(clippy::too_many_lines)]
-    pub async fn new_with_evaluation_context<T: Send>(
+    pub async fn new_with_evaluation_context<T: Send + 'static>(
         mut store: impl AsContextMut<Data = T>,
         module: &Module,
         context: C,
