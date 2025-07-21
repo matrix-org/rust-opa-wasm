@@ -24,6 +24,11 @@ use tokio_tar::Archive;
 use tracing::{info_span, Instrument};
 
 /// Read an OPA compiled bundle from disk
+///
+/// # Errors
+///
+/// This function will return an error if the bundle cannot be read, if the file
+/// can't be opened or if the archive is corrupted.
 #[tracing::instrument(err)]
 pub async fn read_bundle(path: impl AsRef<Path> + std::fmt::Debug) -> anyhow::Result<Vec<u8>> {
     let file = tokio::fs::File::open(path).await?;
@@ -32,6 +37,11 @@ pub async fn read_bundle(path: impl AsRef<Path> + std::fmt::Debug) -> anyhow::Re
 }
 
 /// Load an OPA compiled bundle
+///
+/// # Errors
+///
+/// This function will return an error if the bundle cannot be loaded, if the
+/// archive is corrupted.
 #[tracing::instrument(skip_all, err)]
 pub async fn load_bundle(
     reader: impl AsyncBufRead + Unpin + Send + Sync,
