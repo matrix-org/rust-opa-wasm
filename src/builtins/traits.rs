@@ -170,7 +170,7 @@ macro_rules! trait_impl {
         }
 
         // Implementation for a non-async, result function, without context
-        impl<F, C, $($ptype,)* R, E> BuiltinFunc<C, true, false, false, ($($ptype,)*)> for F
+        impl<F, C, $($ptype,)* R, E> BuiltinFunc<C, false, true, false, ($($ptype,)*)> for F
         where
             C: EvaluationContext,
             F: Fn($($ptype),*) -> Result<R, E> + Send + Sync + 'static,
@@ -190,7 +190,7 @@ macro_rules! trait_impl {
         }
 
         // Implementation for an async, non-result function, without context
-        impl<F, C, $($ptype,)* R, Fut> BuiltinFunc<C, false, true, false, ($($ptype,)*)> for F
+        impl<F, C, $($ptype,)* R, Fut> BuiltinFunc<C, true, false, false, ($($ptype,)*)> for F
         where
             C: EvaluationContext,
             F: Fn($($ptype),*) -> Fut + Send + Sync + 'static,
@@ -248,7 +248,7 @@ macro_rules! trait_impl {
         }
 
         // Implementation for a non-async, result function, with context
-        impl<F, C, $($ptype,)* R, E> BuiltinFunc<C, true, false, true, ($($ptype,)*)> for F
+        impl<F, C, $($ptype,)* R, E> BuiltinFunc<C, false, true, true, ($($ptype,)*)> for F
         where
             C: EvaluationContext,
             F: Fn(&mut C, $($ptype),*) -> Result<R, E> + Send + Sync + 'static,
@@ -268,7 +268,7 @@ macro_rules! trait_impl {
         }
 
         // Implementation for an async, non-result function, with context
-        impl<F, C, $($ptype,)* R, Fut> BuiltinFunc<C, false, true, true, ($($ptype,)*)> for F
+        impl<F, C, $($ptype,)* R, Fut> BuiltinFunc<C, true, false, true, ($($ptype,)*)> for F
         where
             C: EvaluationContext,
             F: Fn(&mut C, $($ptype),*) -> Fut + Send + Sync + 'static,
