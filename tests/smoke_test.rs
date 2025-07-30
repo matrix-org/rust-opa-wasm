@@ -84,13 +84,13 @@ fn input(name: &str) -> String {
 
 async fn test_policy(bundle_name: &str, data: Option<&str>) -> AnyResult<serde_json::Value> {
     let input = if let Some(data) = data {
-        let input_bytes = tokio::fs::read(input(&format!("{}.json", data))).await?;
+        let input_bytes = tokio::fs::read(input(&format!("{data}.json"))).await?;
         serde_json::from_slice(&input_bytes[..])?
     } else {
         serde_json::Value::Object(serde_json::Map::default())
     };
     eval_policy(
-        &bundle(&format!("{}.rego.tar.gz", bundle_name)),
+        &bundle(&format!("{bundle_name}.rego.tar.gz")),
         "fixtures",
         &input,
     )
