@@ -1,6 +1,6 @@
 [package]
 name = "opa-wasm"
-version = "0.1.7"
+version = "0.1.8"
 description = "A crate to use OPA policies compiled to WASM."
 repository = "https://github.com/matrix-org/rust-opa-wasm"
 rust-version = "1.76"
