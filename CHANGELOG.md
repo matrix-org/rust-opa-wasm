@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.7...v0.1.8) - 2025-11-17
+
+### Other
+
+- Fix clippy warnings
+- *(deps)* update wasmtime requirement from >=22, <36 to >=22, <39
+
 ## [0.1.7](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.6...v0.1.7) - 2025-07-30
 
 ### Other
