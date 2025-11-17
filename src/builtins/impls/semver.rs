@@ -19,7 +19,7 @@ use std::cmp::Ordering;
 use anyhow::Result;
 use semver::Version;
 
-/// Compares valid SemVer formatted version strings.
+/// Compares valid `SemVer` formatted version strings.
 #[tracing::instrument(name = "semver.compare", err)]
 pub fn compare(a: String, b: String) -> Result<i8> {
     let a = Version::parse(&a)?;
@@ -31,7 +31,7 @@ pub fn compare(a: String, b: String) -> Result<i8> {
     }
 }
 
-/// Validates that the input is a valid SemVer string.
+/// Validates that the input is a valid `SemVer` string.
 #[tracing::instrument(name = "semver.is_valid")]
 pub fn is_valid(vsn: String) -> bool {
     Version::parse(&vsn).is_ok()

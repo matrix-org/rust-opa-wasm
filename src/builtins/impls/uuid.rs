@@ -15,7 +15,7 @@
 //! Builtins to generate UUIDs
 use anyhow::{bail, Result};
 
-/// Returns a new UUIDv4.
+/// Returns a new `UUIDv4`.
 #[tracing::instrument(name = "uuid.rfc4122", err)]
 pub fn rfc4122(k: String) -> Result<String> {
     // note: the semantics required here is to generate a UUID that is similar *for

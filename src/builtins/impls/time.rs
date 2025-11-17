@@ -42,7 +42,7 @@ impl TimestampWithOptionalTimezone {
             Self::TimestampAndTimezone(ts, tz) => (
                 ts,
                 tz.parse()
-                    .map_err(|e| anyhow!("Could not parse timezone: {}", e))?,
+                    .map_err(|e| anyhow!("Could not parse timezone: {e}"))?,
             ),
         };
 
@@ -100,7 +100,7 @@ pub fn now_ns<C: EvaluationContext>(ctx: &mut C) -> Result<i64> {
 #[tracing::instrument(name = "time.parse_duration_ns", err)]
 pub fn parse_duration_ns(duration: String) -> Result<u128> {
     Ok(duration_str::parse(duration.as_str())
-        .map_err(|e| anyhow!("{}", e))?
+        .map_err(|e| anyhow!("{e}"))?
         .as_nanos())
 }
 
