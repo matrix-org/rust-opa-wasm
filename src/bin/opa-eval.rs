@@ -42,7 +42,13 @@ struct Cli {
     entrypoint: String,
 
     /// JSON literal to use as data
-    #[arg(short, long = "data", group = "data", value_name = "JSON")]
+    #[arg(
+        short,
+        long = "data",
+        group = "data",
+        value_name = "JSON",
+        value_parser = json_literal
+    )]
     data_value: Option<serde_json::Value>,
 
     /// Path to a JSON file to load as data
@@ -50,12 +56,22 @@ struct Cli {
     data_path: Option<Utf8PathBuf>,
 
     /// JSON literal to use as input
-    #[arg(short, long = "input", group = "input", value_name = "JSON")]
+    #[arg(
+        short,
+        long = "input",
+        group = "input",
+        value_name = "JSON",
+        value_parser = json_literal
+    )]
     input_value: Option<serde_json::Value>,
 
     /// Path to a JSON file to load as input
     #[arg(short = 'I', long, group = "input", value_name = "PATH")]
     input_path: Option<Utf8PathBuf>,
+}
+
+fn json_literal(s: &str) -> Result<serde_json::Value, serde_json::Error> {
+    serde_json::from_str(s)
 }
 
 #[tokio::main]
