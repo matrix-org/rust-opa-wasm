@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.8...v0.1.9) - 2025-12-28
+
+### Other
+
+- *(deps)* bump actions/checkout from 4 to 6 ([#241](https://github.com/matrix-org/rust-opa-wasm/pull/241))
+- Upgrade Clippy in CI to 1.92.0
+- *(deps)* update wasmtime requirement from >=22, <39 to >=22, <41
+- *(deps)* update tracing-forest requirement from 0.1.4 to 0.3.0
+
 ## [0.1.8](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.7...v0.1.8) - 2025-11-17
 
 ### Other
