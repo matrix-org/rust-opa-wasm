@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.9...v0.2.0) - 2026-04-10
+
+### Other
+
+- bump MSRV to 1.91
+- *(deps)* [**breaking**] require wasmtime >=42, <44
+- *(deps)* update wasmtime requirement from >=22, <42 to >=22, <44
+- *(deps)* update json-patch requirement from >=0.2.3, <4.1.0 to >=0.2.3, <4.2.0 ([#234](https://github.com/matrix-org/rust-opa-wasm/pull/234))
+- *(deps)* bump codecov/codecov-action from 5 to 6 ([#251](https://github.com/matrix-org/rust-opa-wasm/pull/251))
+- *(deps)* bump codecov/codecov-action from 5 to 6
+
 ## [0.1.9](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.8...v0.1.9) - 2025-12-28
 
 ### Other
