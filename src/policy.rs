@@ -258,21 +258,25 @@ impl<C> Runtime<C> {
         linker.func_wrap(
             "env",
             "opa_abort",
-            move |caller: Caller<'_, _>, addr: i32| -> Result<(), anyhow::Error> {
+            move |caller: Caller<'_, _>, addr: i32| -> wasmtime::Result<()> {
                 let addr = NulStr(addr);
-                let msg = addr.read(&caller, &memory)?;
+                let msg = addr
+                    .read(&caller, &memory)
+                    .map_err(wasmtime::Error::from_anyhow)?;
                 let msg = msg.to_string_lossy().into_owned();
                 tracing::error!("opa_abort: {}", msg);
-                anyhow::bail!(msg)
+                Err(wasmtime::Error::msg(msg))
             },
         )?;
 
         linker.func_wrap(
             "env",
             "opa_println",
-            move |caller: Caller<'_, _>, addr: i32| {
+            move |caller: Caller<'_, _>, addr: i32| -> wasmtime::Result<()> {
                 let addr = NulStr(addr);
-                let msg = addr.read(&caller, &memory)?;
+                let msg = addr
+                    .read(&caller, &memory)
+                    .map_err(wasmtime::Error::from_anyhow)?;
                 tracing::info!("opa_print: {}", msg.to_string_lossy());
                 Ok(())
             },
@@ -288,9 +292,11 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .context("builtins where never initialized")?
+                            .context("builtins where never initialized")
+                            .map_err(wasmtime::Error::from_anyhow)?
                             .builtin(caller, &memory, builtin_id, [])
                             .await
+                            .map_err(wasmtime::Error::from_anyhow)
                     })
                 },
             )?;
@@ -306,9 +312,11 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .context("builtins where never initialized")?
+                            .context("builtins where never initialized")
+                            .map_err(wasmtime::Error::from_anyhow)?
                             .builtin(caller, &memory, builtin_id, [param1])
                             .await
+                            .map_err(wasmtime::Error::from_anyhow)
                     })
                 },
             )?;
@@ -325,9 +333,11 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .context("builtins where never initialized")?
+                            .context("builtins where never initialized")
+                            .map_err(wasmtime::Error::from_anyhow)?
                             .builtin(caller, &memory, builtin_id, [param1, param2])
                             .await
+                            .map_err(wasmtime::Error::from_anyhow)
                     })
                 },
             )?;
@@ -348,9 +358,11 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .context("builtins where never initialized")?
+                            .context("builtins where never initialized")
+                            .map_err(wasmtime::Error::from_anyhow)?
                             .builtin(caller, &memory, builtin_id, [param1, param2, param3])
                             .await
+                            .map_err(wasmtime::Error::from_anyhow)
                     })
                 },
             )?;
@@ -374,7 +386,8 @@ impl<C> Runtime<C> {
                     Box::new(async move {
                         eventually_builtins
                             .get()
-                            .context("builtins where never initialized")?
+                            .context("builtins where never initialized")
+                            .map_err(wasmtime::Error::from_anyhow)?
                             .builtin(
                                 caller,
                                 &memory,
@@ -382,6 +395,7 @@ impl<C> Runtime<C> {
                                 [param1, param2, param3, param4],
                             )
                             .await
+                            .map_err(wasmtime::Error::from_anyhow)
                     })
                 },
             )?;

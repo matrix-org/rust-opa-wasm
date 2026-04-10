@@ -34,6 +34,7 @@ where
         .into_func()
         .with_context(|| format!("export {name:?} is not a function"))?
         .typed(caller)
+        .map_err(anyhow::Error::from)
         .with_context(|| format!("exported function {name:?} does not have the right signature"))
 }
 
@@ -53,6 +54,7 @@ where
         .into_func()
         .with_context(|| format!("export {name:?} is not a function"))?
         .typed(&mut store)
+        .map_err(anyhow::Error::from)
         .with_context(|| format!("exported function {name:?} does not have the right signature"))
 }
 
