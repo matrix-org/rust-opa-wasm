@@ -17,7 +17,7 @@ use std::path::Path;
 use anyhow::Result as AnyResult;
 use insta::assert_yaml_snapshot;
 use opa_wasm::{read_bundle, Runtime, TestContext};
-use wasmtime::{Config, Engine, Module, Store};
+use wasmtime::{Engine, Module, Store};
 
 macro_rules! integration_test {
     ($name:ident, $suite:expr) => {
@@ -45,11 +45,7 @@ async fn eval_policy(
 ) -> AnyResult<serde_json::Value> {
     let module = read_bundle(bundle).await?;
 
-    // Configure the WASM runtime
-    let mut config = Config::new();
-    config.async_support(true);
-
-    let engine = Engine::new(&config)?;
+    let engine = Engine::default();
 
     let module = Module::new(&engine, module)?;
 

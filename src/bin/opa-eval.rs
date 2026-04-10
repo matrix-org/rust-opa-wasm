@@ -20,7 +20,7 @@ use clap::{ArgGroup, Parser};
 use opa_wasm::Runtime;
 use tracing::Instrument;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry};
-use wasmtime::{Config, Engine, Module, Store};
+use wasmtime::{Engine, Module, Store};
 
 /// Evaluates OPA policies compiled as WASM modules
 #[derive(Parser)]
@@ -104,11 +104,7 @@ async fn main() -> Result<()> {
     .await?;
 
     let (mut store, module) = (async move {
-        // Configure the WASM runtime
-        let mut config = Config::new();
-        config.async_support(true);
-
-        let engine = Engine::new(&config)?;
+        let engine = Engine::default();
 
         // Load the policy WASM module
         let module = Module::new(&engine, module)?;

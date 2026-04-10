@@ -18,15 +18,11 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 use opa_wasm::Runtime;
-use wasmtime::{Config, Engine, Module, Store};
+use wasmtime::{Engine, Module, Store};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Configure the WASM runtime
-    let mut config = Config::new();
-    config.async_support(true);
-
-    let engine = Engine::new(&config)?;
+    let engine = Engine::default();
 
     // Load the policy WASM module
     let module = tokio::fs::read("./policy.wasm").await?;
