@@ -248,9 +248,7 @@ impl<C> Runtime<C> {
     {
         // Read the memory type from the module imports, and create a memory
         // instance that matches whatever OPA's compiler declared (min, max,
-        // 32/64-bit, shared). The original hardcoded `MemoryType::new(2, None)`
-        // failed wasmtime's import-type check against bundles whose static
-        // data segments need more than 2 pages.
+        // 32/64-bit, shared).
         let ty = module
             .imports()
             .find(|i| i.module() == "env" && i.name() == "memory")
