@@ -26,7 +26,7 @@ use std::{
 use anyhow::{Context, Result};
 use tokio::sync::{Mutex, OnceCell};
 use tracing::Instrument;
-use wasmtime::{AsContextMut, Caller, Linker, Memory, MemoryType, Module};
+use wasmtime::{AsContextMut, Caller, Linker, Memory, Module};
 
 use crate::{
     builtins::traits::Builtin,
@@ -246,7 +246,14 @@ impl<C> Runtime<C> {
     where
         C: EvaluationContext,
     {
-        let ty = MemoryType::new(2, None);
+        // Read the memory type from the module imports, and create a memory
+        // instance that matches whatever OPA's compiler declared (min, max,
+        // 32/64-bit, shared).
+        let ty = module
+            .imports()
+            .find(|i| i.module() == "env" && i.name() == "memory")
+            .and_then(|i| i.ty().memory().cloned())
+            .context("missing or invalid 'env.memory' import")?;
         let memory = Memory::new_async(&mut store, ty).await?;
 
         // TODO: make the context configurable and reset it on evaluation
