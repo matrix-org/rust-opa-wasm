@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/matrix-org/rust-opa-wasm/compare/v0.2.0...v0.2.1) - 2026-05-07
+
+### Fixed
+
+- *(policy)* read declared memory minimum from imported module
+
+### Other
+
+- Apply suggestions from code review
+
 ## [0.2.0](https://github.com/matrix-org/rust-opa-wasm/compare/v0.1.9...v0.2.0) - 2026-04-10
 
 ### Other
