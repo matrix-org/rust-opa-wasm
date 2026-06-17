@@ -27,7 +27,7 @@ use serde::{de::DeserializeOwned, Serialize};
 pub trait EvaluationContext: Send + 'static {
     /// The type of random number generator used by this context
     #[cfg(feature = "rng")]
-    type Rng: rand::Rng;
+    type Rng: rand::RngExt;
 
     /// Get a [`rand::Rng`]
     #[cfg(feature = "rng")]
@@ -83,7 +83,7 @@ impl EvaluationContext for DefaultContext {
 
     #[cfg(feature = "rng")]
     fn get_rng(&mut self) -> Self::Rng {
-        rand::thread_rng()
+        rand::rng()
     }
 
     #[cfg(feature = "time")]
