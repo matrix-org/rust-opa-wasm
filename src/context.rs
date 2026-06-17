@@ -83,7 +83,7 @@ impl EvaluationContext for DefaultContext {
 
     #[cfg(feature = "rng")]
     fn get_rng(&mut self) -> Self::Rng {
-        rand::thread_rng()
+        rand::rng()
     }
 
     #[cfg(feature = "time")]

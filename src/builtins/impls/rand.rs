@@ -38,7 +38,7 @@ pub fn intn<C: EvaluationContext>(ctx: &mut C, str: String, n: i64) -> Result<i6
     }
 
     let mut rng = ctx.get_rng();
-    let val = rng.gen_range(0..n);
+    let val = rng.random_range(0..n);
     ctx.cache_set(&cache_key, &val)?;
     Ok(val)
 }
