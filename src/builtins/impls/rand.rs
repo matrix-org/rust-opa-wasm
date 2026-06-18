@@ -15,7 +15,7 @@
 //! Builtins used to generate pseudo-random values
 
 use anyhow::{bail, Result};
-use rand::Rng;
+use rand::RngExt;
 
 use crate::EvaluationContext;
 
