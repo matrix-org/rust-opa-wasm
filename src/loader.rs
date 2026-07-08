@@ -53,13 +53,7 @@ pub async fn load_bundle(
     // Go through the archive entries to find the /policy.wasm one
     let entries = archive.entries()?;
     let mut entry = entries
-        .try_filter(|e| {
-            std::future::ready(
-                e.path()
-                    .map(|p| p.as_os_str() == "/policy.wasm")
-                    .unwrap_or(false),
-            )
-        })
+        .try_filter(|e| std::future::ready(e.path().is_ok_and(|p| p.as_os_str() == "/policy.wasm")))
         .try_next()
         .instrument(info_span!("find_bundle_entry"))
         .await?

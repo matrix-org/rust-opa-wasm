@@ -25,7 +25,7 @@
 ))]
 pub mod hmac {
     use anyhow::Result;
-    use hmac::{Hmac, Mac};
+    use hmac::{Hmac, KeyInit, Mac};
 
     #[cfg(feature = "crypto-md5-builtins")]
     /// Returns a string representing the MD5 HMAC of the input message using
