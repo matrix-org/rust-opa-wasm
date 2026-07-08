@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/matrix-org/rust-opa-wasm/compare/v0.2.1...v0.3.0) - 2026-07-08
+
+### Other
+
+- fix the map_unwrap_or clippy lint in the bundle loader
+- *(deps)* bump the RustCrypto hash crates to the digest 0.11 generation
+- *(deps)* [**breaking**] bump rand to 0.10
+- *(deps)* update wasmtime requirement from >=42, <44 to >=42, <45 ([#259](https://github.com/matrix-org/rust-opa-wasm/pull/259))
+
 ## [0.2.1](https://github.com/matrix-org/rust-opa-wasm/compare/v0.2.0...v0.2.1) - 2026-05-07
 
 ### Fixed
