@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1](https://github.com/matrix-org/rust-opa-wasm/compare/v0.3.0...v0.3.1) - 2026-07-08
+
+### Other
+
+- *(deps)* update wasmtime requirement from >=42, <45 to >=42, <47
+- Upgrade Clippy in CI to 1.96.1 ([#269](https://github.com/matrix-org/rust-opa-wasm/pull/269))
+- *(deps)* bump codecov/codecov-action from 6 to 7 ([#263](https://github.com/matrix-org/rust-opa-wasm/pull/263))
+- *(deps)* bump actions/checkout from 6 to 7 ([#264](https://github.com/matrix-org/rust-opa-wasm/pull/264))
+
 ## [0.3.0](https://github.com/matrix-org/rust-opa-wasm/compare/v0.2.1...v0.3.0) - 2026-07-08
 
 ### Other
