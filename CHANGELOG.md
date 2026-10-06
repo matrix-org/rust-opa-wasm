@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3](https://github.com/matrix-org/rust-opa-wasm/compare/v0.3.2...v0.3.3) - 2026-10-06
+
+### Other
+
+- Merge branch 'main' into dependabot/cargo/wasmtime-gte-42-and-lt-50
+- Fix formatting in CI according to `cargo fmt`
+
 ## [0.3.2](https://github.com/matrix-org/rust-opa-wasm/compare/v0.3.1...v0.3.2) - 2026-08-04
 
 ### Other
