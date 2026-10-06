@@ -64,8 +64,8 @@ impl Heap {
         let page_size = 64 * 1024;
         let addr = self.end();
         let page = addr / page_size;
-        // This is safe as the heap pointers will never be negative. We use i32 for
-        // convenience to avoid having to cast all the time.
+        // This is safe as the heap pointers will never be negative. We use i32
+        // for convenience to avoid having to cast all the time.
         #[allow(clippy::expect_used)]
         if addr % page_size > 0 { page + 1 } else { page }
             .try_into()
