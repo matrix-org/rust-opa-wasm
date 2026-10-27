@@ -19,7 +19,7 @@ tracing = "0.1.27"
 # We keep an upper bound here as future updates to `wasmtime` have broken
 # `rust-opa-wasm` in the past (e.g.
 # https://github.com/matrix-org/rust-opa-wasm/commit/5676d7e).
-wasmtime = { version = ">=42, <50", default-features = false, features = [
+wasmtime = { version = ">=42, <51", default-features = false, features = [
     "async",
     "anyhow",
 ] }
@@ -69,7 +69,7 @@ version = "1.5"
 features = ["macros", "fs", "rt", "rt-multi-thread"]
 
 [dev-dependencies]
-wasmtime = { version = ">=42, <50", default-features = false, features = [
+wasmtime = { version = ">=42, <51", default-features = false, features = [
     "cranelift",
     "anyhow",
 ] }
